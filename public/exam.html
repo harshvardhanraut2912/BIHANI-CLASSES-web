@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MHT-CET Academic Portal Engine</title>
+  <link rel="icon" id="dynamic-favicon" type="image/png" href="/images/other_images/ynclasses-logo.png">
+   
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+  <style>
+    /* ----------------------------------------------------
+       1. GLOBAL RESET & FOUNDATION ARCHITECTURE
+    ------------------------------------------------------- */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    body, html {
+      height: 100%;
+      overflow: hidden;
+      background-color: #f4f6f9;
+      color: #333;
+    }
+
+    /* ----------------------------------------------------
+       2. PORTRAIT MODE FULLSCREEN LOCKER (ACCELEROMETER)
+    ------------------------------------------------------- */
+    #portrait-blocker {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: #152561;
+      color: #ffffff;
+      z-index: 99999;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 30px;
+    }
+    #portrait-blocker i {
+      font-size: 72px;
+      margin-bottom: 20px;
+      animation: rotateDevice 2s infinite ease-in-out;
+    }
+    @keyframes rotateDevice {
+      0% { transform: rotate(0deg); }
+      50% { transform: rotate(-90deg); }
+      100% { transform: rotate(0deg); }
+    }
+    @media screen and (max-width: 920px) and (orientation: portrait) {
+      /* 🟢 MODIFY: Portrait is now a first-class supported layout — never block it */
+      #portrait-blocker { display: none; }
+    }
+
+    /* ----------------------------------------------------
+       3. WORKSPACE CORE VIEWPORT DIVISION 
+    ------------------------------------------------------- */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .top-header {
+      background-color: #ffffff;
+      border-bottom: 2px solid #e5e5e5;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 55px;
+    }
+    .test-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #152561;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .timer-badge {
+      background-color: #d3ffe0;
+      color: #12732d;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 15px;
+      letter-spacing: 0.5px;
+      display: inline-block;
+      border: 1px solid #b2f1c3;
+    }
+
+    .sections-bar {
+      background-color: #f8f9fa;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 45px;
+    }
+    .tabs-wrapper {
+      display: flex;
+      gap: 5px;
+      height: 100%;
+      align-items: flex-end;
+    }
+    .tab-btn {
+      padding: 8px 20px;
+      background-color: #e0e4ec;
+      border: 1px solid #c8cedb;
+      border-bottom: none;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background-color: #ffffff;
+      color: #152561;
+      border-color: #e5e5e5;
+      padding-top: 10px;
+      z-index: 2;
+      box-shadow: 0 -2px 4px rgba(0,0,0,0.04);
+    }
+    .utility-actions {
+      display: flex;
+      gap: 15px;
+    }
+    .util-link {
+      font-size: 13px;
+      color: #5b626a;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .util-link i { font-size: 16px; }
+    .util-link#btn-report-error, .util-link#btn-report-error i { color: #c9302c; }
+
+    .main-viewport {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ----------------------------------------------------
+       4. LEFT CANVAS: CORE CONTENT ENGAGEMENT MATRIX
+    ------------------------------------------------------- */
+    .question-section {
+      width: 77%;
+      display: flex;
+      flex-direction: column;
+      background-color: #ffffff;
+      border-right: 1px solid #e5e5e5;
+      height: 100%;
+    }
+    .question-meta-bar {
+      padding: 12px 24px;
+      border-bottom: 1px solid #e5e5e5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #fafbfc;
+    }
+    .question-number-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: #393f41;
+    }
+    .marking-scheme {
+      font-size: 12px;
+      color: #777;
+    }
+    .fg-green { color: #12732d; font-weight: 600; }
+    .fg-red { color: #c9302c; font-weight: 600; }
+
+    .question-body-canvas {
+      flex: 1;
+      padding: 24px 28px;
+      overflow-y: auto;
+    }
+    .question-image-container {
+      width: 100%;
+      min-height: 40px;
+    }
+
+    #ui-question-content {
+      line-height: 1.7 !important;
+      color: #1a1a1a;
+      font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      margin-bottom: 16px;
+    }
+    #ui-question-content p { margin: 0 0 10px; }
+    #ui-question-content math { font-size: 1.05em; }
+    #ui-question-content img,
+    .option-text img {
+      max-width: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      margin: 14px 0;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: #fff;
+      padding: 8px;
+    }
+
+    .options-block {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 720px;
+    }
+    .option-row {
+      display: flex;
+      align-items: flex-start;
+      padding: 14px 18px;
+      border: 1px solid #dce1e5;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+    .option-row:hover {
+      background-color: #f4f7f9;
+      border-color: #b9c4cc;
+    }
+    .option-row input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      margin-right: 14px;
+      margin-top: 3px;
+      flex-shrink: 0;
+      cursor: pointer;
+      accent-color: #152561;
+    }
+    .option-text {
+      font-size: 16px;
+      line-height: 1.6;
+      font-weight: 500;
+      color: #333;
+    }
+    .option-text p { margin: 0; }
+
+    .control-footer {
+      height: 60px;
+      border-top: 1px solid #e5e5e5;
+      padding: 0 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #fafbfc;
+    }
+    .footer-btn {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background-color 0.1s;
+    }
+    .btn-secondary { background-color: #ffffff; border-color: #cccccc; color: #444; }
+    .btn-secondary:hover { background-color: #f5f5f5; }
+    .btn-warning { background-color: #f0ad4e; border-color: #eea236; color: #ffffff; }
+    .btn-warning:hover { background-color: #ec971f; }
+    .btn-primary { background-color: #337ab7; border-color: #2e6da4; color: #ffffff; }
+    .btn-primary:hover { background-color: #286090; }
+
+    /* ----------------------------------------------------
+       5. RIGHT SIDEBAR: THE TRACKING PALETTE FRAMEWORK
+    ------------------------------------------------------- */
+    .sidebar-panel {
+      width: 23%;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      border-left: 1px solid #dcdfe4;
+    }
+    
+    .legend-panel {
+      background-color: #ffffff;
+      padding: 14px;
+      border-bottom: 1px solid #e2e6ea;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 8px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .legend-item { display: flex; align-items: center; gap: 8px; color: #555; }
+    .legend-full-width { grid-column: span 2; align-items: flex-start; line-height: 1.3; }
+    .legend-box {
+      width: 26px; height: 26px; font-size: 11px; font-weight: 700;
+      display: flex; justify-content: center; align-items: center;
+      color: white; flex-shrink: 0;
+    }
+
+    .palette-scroll-viewport {
+      flex: 1; overflow-y: auto; padding: 16px; background-color: #f8f9fa; text-align: center;
+    }
+    .palette-grid-title { font-size: 14px; font-weight: 700; color: #333; margin-bottom: 16px; }
+    .palette-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 10px; max-width: 240px; margin: 0 auto;
+    }
+
+    .q-btn {
+      width: 40px; height: 40px; font-size: 13px; font-weight: 600;
+      display: flex; justify-content: center; align-items: center;
+      cursor: pointer; transition: transform 0.1s; position: relative; user-select: none;
+    }
+    .q-btn:active { transform: scale(0.9); }
+
+    /* --- RIGID MHT-CET SHAPE CONTROLLERS --- */
+    .shape-unvisited, .q-btn.unvisited { background-color: #eeeeee; color: #333333; border: 1px solid #cccccc; border-radius: 4px; }
+    .shape-answered, .q-btn.answered { background-color: #61b131; color: #ffffff; border: none; clip-path: polygon(50% 0%, 100% 28%, 100% 100%, 0% 100%, 0% 28%); }
+    .shape-unanswered, .q-btn.unanswered { background-color: #f05050; color: #ffffff; border: none; clip-path: polygon(0% 0%, 100% 0%, 100% 72%, 50% 100%, 0% 72%); }
+    .shape-review, .q-btn.review { background-color: #7e57c2; color: #ffffff; border: none; border-radius: 50%; }
+    .shape-answered-review, .q-btn.answered-review { background-color: #7e57c2; color: #ffffff; border: none; border-radius: 50%; }
+    .shape-answered-review::after, .q-btn.answered-review::after { content: ''; position: absolute; bottom: 0px; right: 0px; width: 8px; height: 8px; background-color: #61b131; border: 1px solid #ffffff; border-radius: 1px; }
+    .q-btn.active-focus { z-index: 10; transform: scale(1.1); filter: drop-shadow(0px 0px 4px #152561); }
+
+    .sidebar-footer {
+      height: 60px;
+      padding: 0 15px;
+      background-color: #e4e8f0;
+      border-top: 1px solid #dcdfe4;
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
+    }
+    .btn-submit-exam {
+      width: 100%; background-color: #5cb85c; border-color: #4cae4c; color: white;
+      padding: 12px; font-size: 14px; font-weight: 700; text-transform: uppercase;
+      cursor: pointer; border: 1px solid transparent; border-radius: 4px; transition: background-color 0.15s;
+    }
+    .btn-submit-exam:hover { background-color: #449d44; }
+
+    /* Same green submit look, but for the INLINE "Save & Next -> Submit"
+       morph next to Previous — deliberately no width:100%, so it sizes
+       like a normal footer-btn instead of forcing Previous onto its own
+       line above it (that was the actual bug: reusing .btn-submit-exam,
+       whose width:100% is only correct for the sidebar's standalone button). */
+    .btn-submit-inline {
+      background-color: #5cb85c; border-color: #4cae4c; color: white;
+      text-transform: uppercase;
+    }
+    .btn-submit-inline:hover { background-color: #449d44; }
+
+    /* ----------------------------------------------------
+       6. RUNTIME DISPATCH COMPLETE MODAL OVERLAY
+    ------------------------------------------------------- */
+   /* ----------------------------------------------------
+       6. RUNTIME DISPATCH COMPLETE MODAL OVERLAY (PREMIUM BLUR)
+    ------------------------------------------------------- */
+    .modal-overlay { 
+      display: none; 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      
+      /* 🟢 Softened overlay tone to let the blur shine */
+      background-color: rgba(15, 23, 42, 0.4); 
+      
+      /* 🟢 The magic line: Adds the gorgeous modern premium blur effect */
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px); /* Safari Support */
+      
+      z-index: 10000; 
+      justify-content: center; 
+      align-items: center; 
+      transition: all 0.3s ease;
+    }
+    .modal-card { background-color: white; border-radius: 8px; width: 450px; max-width: 90%; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); text-align: center; }
+    .modal-card h3 { color: #152561; margin-bottom: 12px; }
+    .modal-card p { font-size: 14px; color: #555; margin-bottom: 20px; }
+    
+    /* --- ERROR REPORT MODAL EXTENSIONS --- */
+    .report-textarea {
+      width: 100%; height: 90px; padding: 10px; border: 1px solid #ccc;
+      border-radius: 4px; resize: none; margin-bottom: 15px; font-size: 13px;
+      font-family: inherit;
+    }
+    .btn-danger { background-color: #d9534f; border-color: #d43f3a; color: white; }
+    .btn-danger:hover { background-color: #c9302c; }
+
+    /* ----------------------------------------------------
+       7. MOBILE VERTICAL VIEWPORT SUPPORT
+    ------------------------------------------------------- */
+    @keyframes swipeLeftMock {
+      0% { transform: translate(20px, -50%); opacity: 0; }
+      50% { transform: translate(-50%, -50%); opacity: 1; }
+      100% { transform: translate(-80px, -50%); opacity: 0; }
+    }
+
+    /* Zoom scales from the same base sizing solutions.html uses (17px
+       question text, 380px max image height) via a single --zoom-factor
+       multiplier — never forces images to fill the container width.
+       Placed before the mobile @media block below so mobile's own
+       font/image overrides still take precedence on small screens. */
+    :root { --zoom-factor: 1; }
+    #ui-question-content {
+      font-size: calc(17px * var(--zoom-factor)) !important;
+      transition: font-size 0.1s ease-out;
+    }
+    .option-text {
+      font-size: calc(16px * var(--zoom-factor)) !important;
+      transition: font-size 0.1s ease-out;
+    }
+    .question-image-container img,
+    #ui-question-content img,
+    .option-text img {
+      width: auto !important;
+      max-width: 100% !important;
+      height: auto !important;
+      max-height: calc(280px * var(--zoom-factor)) !important;
+      object-fit: contain;
+      transition: max-height 0.1s ease-out;
+      display: block;
+    }
+
+    /* 🟢 ADDED: Core Mobile Viewport Responsive Grid System */
+    @media screen and (max-width: 920px) {
+      .main-viewport {
+        flex-direction: column;
+        position: relative;
+      }
+
+      .question-section {
+        width: 100% !important;
+        border-right: none;
+      }
+
+      /* Slide-out question palette drawer */
+      .sidebar-panel {
+        position: absolute;
+        top: 0;
+        right: -100%;
+        width: 220px !important;
+        height: 100%;
+        z-index: 9999;
+        box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+        transition: right 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .sidebar-panel.mobile-drawer-open {
+        right: 0 !important;
+      }
+
+      /* 🟢 ADDED: Shrink the palette itself so the drawer feels lighter on mobile */
+      .legend-panel {
+        padding: 10px !important;
+        gap: 6px !important;
+        font-size: 10px !important;
+      }
+      .legend-box {
+        width: 20px !important;
+        height: 20px !important;
+        font-size: 10px !important;
+      }
+      .palette-grid-title {
+        font-size: 12px !important;
+        margin-bottom: 10px !important;
+      }
+      .palette-grid {
+        gap: 8px 6px !important;
+        max-width: 180px !important;
+      }
+      .q-btn {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 11px !important;
+      }
+
+      .options-block {
+        max-width: 100% !important;
+        margin-top: 12px;
+      }
+
+      /* 🟢 ADDED: Scale headings/tabs/options down to match question image's actual font size */
+      .tab-btn {
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+      }
+      .question-meta-bar {
+        padding: 8px 14px !important;
+      }
+      .question-number-label {
+        font-size: 12px !important;
+      }
+      .marking-scheme {
+        font-size: 10px !important;
+      }
+      .option-row {
+        padding: 8px 12px !important;
+      }
+      .option-text {
+        font-size: calc(14px * var(--zoom-factor)) !important;
+      }
+
+      #ui-question-content {
+        font-size: calc(15px * var(--zoom-factor)) !important;
+        line-height: 1.6 !important;
+      }
+      #ui-question-content img,
+      .option-text img {
+        max-height: calc(190px * var(--zoom-factor)) !important;
+      }
+
+      /* Keep the utility row (zoom slider / report error / fullscreen)
+         from clipping off-screen on narrow phones instead of just being
+         unreachable — and make the slider itself easier to grab with a
+         finger. */
+      .sections-bar {
+        overflow-x: auto !important;
+      }
+      .micro-canvas-zoom-wrapper {
+        flex-shrink: 0 !important;
+        gap: 6px !important;
+      }
+      #ui-global-image-zoombar {
+        width: 70px !important;
+        height: 20px !important;
+      }
+
+      /* 🟢 ADDED: Give the question image more usable width by trimming canvas padding */
+      .question-body-canvas {
+        padding: 14px !important;
+      }
+      .question-image-container {
+        min-height: 40px !important;
+      }
+
+      /* 🟢 ADDED: Report Error becomes a small red triangular icon-only button on mobile */
+      .util-link#btn-report-error {
+        background-color: #fdecea;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        width: 28px;
+        height: 28px;
+        padding: 0 !important;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .util-link#btn-report-error .report-error-label {
+        display: none;
+      }
+      .util-link#btn-report-error i {
+        font-size: 18px !important;
+        margin: 0;
+      }
+
+      /* 🟢 INCREASES CLICKABLE HIT-BOX FOR MOBILE HAMBURGER TOGGLE */
+      #ui-mobile-hamburger-toggle {
+        display: block !important;
+        padding: 8px !important; /* Extends touch target area smoothly */
+        margin-left: auto !important; /* Safely aligns it next to metadata margins */
+        background: transparent;
+        border: none;
+        cursor: pointer;
+      }
+      #ui-mobile-hamburger-toggle i {
+        font-size: 28px !important; /* Highly clickable mobile thumb target */
+        font-weight: bold !important;
+        display: block;
+      }
+
+      /* 🟢 TRANSFORMS THE FOOTER INTO A PERFECTLY BALANCED MULTI-ROW GRID MATRIX */
+      .control-footer {
+        height: auto !important;
+        padding: 12px 14px !important;
+        background-color: #ffffff !important;
+        border-top: 1px solid #e3e7ec !important;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+      }
+
+      /* Force both button grouping wrappers to split 50/50 symmetrically */
+      .control-footer > div {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important; /* Enforces absolute identical sizing bounds */
+        width: 100% !important;
+        gap: 8px !important;
+      }
+
+      /* Enforce flat spacing parameters uniform across all action nodes */
+      .control-footer .footer-btn {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 12px 6px !important; /* Generous touch target element sizing */
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px !important;
+      }
+
+      /* 🟢 RESTORE ORIGINAL BRAND COLORS (NO MORE VIOLET OR ACCENT LEAKS) */
+      
+      /* Row 1, Left: Clear Response (Classic light border) */
+      #btn-clear-response {
+        background-color: #ffffff !important;
+        border: 1px solid #cccccc !important;
+        color: #444444 !important;
+      }
+
+      /* Row 1, Right: Mark For Review & Next (Original Classic Orange Theme) */
+      #btn-mark-review {
+        background-color: #f0ad4e !important;
+        border: 1px solid #eea236 !important;
+        color: #ffffff !important;
+      }
+
+      /* Row 2, Left: Previous Button (Classic light border) */
+      #btn-prev {
+        background-color: #ffffff !important;
+        border: 1px solid #cccccc !important;
+        color: #444444 !important;
+      }
+
+      /* Row 2, Right: Save & Next (Original Classic Blue Theme) */
+      #btn-save-next {
+        background-color: #337ab7 !important;
+        border: 1px solid #2e6da4 !important;
+        color: #ffffff !important;
+      }
+    }
+
+    /* Anti-copy hardening — text can't be selected/copied, images can't
+       be dragged out. Inputs/textareas (e.g. the report-error modal)
+       stay selectable so students can still type and edit normally. */
+    body {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    input, textarea {
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      -ms-user-select: text;
+      user-select: text;
+    }
+    img {
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="ui-exam-landing-stage" style="position: fixed; inset: 0; background: #ffffff; z-index: 99998; display: flex; flex-direction: column;">
+    <div style="width: 100%; background: #f8fafc; padding: 24px; display: flex; justify-content: center; align-items: center; border-bottom: 1px solid #e2e8f0; min-height: 200px;">
+      <div style="position: relative; width: 100%; max-width: 420px; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(0,0,0,0.08); border: 1px solid #cbd5e1; background: #ffffff;">
+        <img id="ui-landing-banner-src" src="https://placehold.co/600x338/0b4f8a/ffffff?text=Loading+Exam+Assets..." alt="Exam Artwork Logo" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <div id="ui-landing-banner-loader" style="position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; background: #ffffff; z-index: 2;">
+          <lottie-player src="/loading.json" background="transparent" speed="1" style="width: 120px; height: 120px;" loop autoplay></lottie-player>
+        </div>
+      </div>
+    </div>
+    
+    <div style="flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 20px;">
+      <h2 id="ui-landing-title" style="color: #0b4f8a; font-size: 20px; font-weight: 700; line-height: 1.4; max-width: 320px; margin: 0 auto;">
+        Synchronizing...
+      </h2>
+      
+      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 14px; background: #fafbfc; padding: 20px 24px; border-radius: 10px; border: 1px solid #e2e8f0; min-width: 240px; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 14px; color: #475569;">
+          <i class="material-icons" style="color: #1d7fd6; font-size: 20px;">description</i>
+          <span id="ui-landing-qs" style="font-weight: 600;">-- Questions</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 14px; color: #475569;">
+          <i class="material-icons" style="color: #1d7fd6; font-size: 20px;">schedule</i>
+          <span id="ui-landing-time" style="font-weight: 600;">-- Minutes</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 14px; color: #475569;">
+          <i class="material-icons" style="color: #1d7fd6; font-size: 20px;">military_tech</i>
+          <span id="ui-landing-marks" style="font-weight: 600;">-- Max Marks</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom, 0px) + 56px); background: #ffffff; border-top: 1px solid #f0f2f5;">
+      <button 
+        type="button" 
+        class="footer-btn btn-primary" 
+        id="btn-engage-test" 
+        style="width: 100%; padding: 14px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: linear-gradient(135deg, #0b4f8a, #1d7fd6) !important; border: 1px solid #0b4f8a !important; border-radius: 6px; box-shadow: 0 4px 12px rgba(11, 79, 138, 0.22);"
+      >
+        Start Test
+      </button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ui-mobile-instructions-popup">
+    <div class="modal-card" style="width: 340px; padding: 24px; border-radius: 12px;">
+      <h3 style="font-size: 16px; color: #152561; margin-bottom: 16px;">Instructions</h3>
+      <div style="text-align: center; margin-bottom: 16px;">
+        <div style="width: 80px; height: 120px; border: 3px solid #333; border-radius: 8px; margin: 0 auto; position: relative; background: #f1f5f9;">
+          <i class="material-icons" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #152561; font-size: 32px; animation: swipeLeftMock 1.8s infinite ease-in-out;">touch_app</i>
+        </div>
+      </div>
+      <p style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 16px;">Swipe Left for Next question.</p>
+      <ol style="text-align: left; font-size: 12px; color: #475569; padding-left: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 6px;">
+        <li>Do not use calculators or reference material.</li>
+        <li>You may use rough paper for this test.</li>
+        <li>It is strongly advised to complete it in one sitting.</li>
+      </ol>
+      <button type="button" class="footer-btn btn-primary" onclick="dismissInstructionsAndRunTimer()" style="width: 100%; background: #152561; border: none; margin-bottom: max(0px, env(safe-area-inset-bottom, 0px) + 40px);">Next</button>
+    </div>
+  </div>
+
+  <div id="portrait-blocker">
+    <i class="material-icons">screen_rotation</i>
+    <h2>Landscape Mode Required</h2>
+    <p style="margin-top: 8px; font-size: 14px; opacity: 0.8;">Please flip your mobile device sideways to view the exam matrix tracking grid layout properly.</p>
+  </div>
+
+  <div class="app-container">
+    <header class="top-header">
+      <div class="test-title" id="ui-test-title">Loading Exam Engine Setup...</div>
+      <div>
+        <span class="timer-badge">
+          <span style="font-size:11px; font-weight:500; text-transform:uppercase; margin-right:4px; vertical-align:middle;">Remaining:</span>
+          <span id="ui-countdown-clock">03:00:00</span>
+        </span>
+      </div>
+    </header>
+
+    <div class="sections-bar">
+      <div class="tabs-wrapper" id="ui-tabs-container">
+        </div>
+      <div class="utility-actions">
+        <div class="micro-canvas-zoom-wrapper" style="display: flex; align-items: center; gap: 4px; border-right: 1px solid #ccc; padding-right: 10px; margin-right: 5px;">
+          <i class="material-icons" style="font-size: 14px; color: #64748b;">zoom_in</i>
+          <input type="range" id="ui-global-image-zoombar" min="0" max="100" value="50" style="width: 60px; height: 3px; cursor: pointer; accent-color: #152561;">
+        </div>
+        <div class="util-link" id="btn-report-error"><i class="material-icons">warning</i><span class="report-error-label">Report Error</span></div>
+        
+        <div class="util-link" id="btn-fullscreen" title="Toggle Fullscreen" style="border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #fff;">
+          <i class="material-icons" style="font-size: 20px;">fullscreen</i>
+        </div>
+      </div>
+    </div>
+
+    <main class="main-viewport">
+      <section class="question-section">
+        <div class="question-meta-bar">
+          <div class="question-number-label" id="ui-current-q-label">Question --</div>
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="marking-scheme">
+              Marks for correct response: <span class="fg-green">1.00</span> &nbsp;|&nbsp; Negative marking: <span class="fg-red">0.00</span>
+            </div>
+            <button type="button" id="ui-mobile-hamburger-toggle" style="display: none; background: transparent; border: none; cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent;">
+  <i class="material-icons" style="color: #152561; font-size: 28px; display: block;">menu</i>
+</button>
+          </div>
+        </div>
+
+        <div class="question-body-canvas">
+          <div class="question-image-container" style="position: relative; width: 100%; display: flex; justify-content: flex-start; align-items: flex-start;">
+            
+            <div id="ui-question-content" style="width: 100%; padding: 8px 4px; display: none; line-height: 1.5;"></div>
+            
+            <div id="ui-canvas-loader" style="position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; background: #ffffff; display: none; z-index: 5; min-height: 80px;">
+              <lottie-player src="/loading.json" background="transparent" speed="1" style="width: 160px; height: 160px;" loop autoplay></lottie-player>
+            </div>
+
+          </div>
+
+          <div class="options-block" id="ui-options-block">
+            <label class="option-row" for="opt-a">
+              <input type="radio" name="mht-cet-option" id="opt-a" value="0">
+              <span class="option-text" id="opt-a-text">Option A</span>
+            </label>
+            <label class="option-row" for="opt-b">
+              <input type="radio" name="mht-cet-option" id="opt-b" value="1">
+              <span class="option-text" id="opt-b-text">Option B</span>
+            </label>
+            <label class="option-row" for="opt-c">
+              <input type="radio" name="mht-cet-option" id="opt-c" value="2">
+              <span class="option-text" id="opt-c-text">Option C</span>
+            </label>
+            <label class="option-row" for="opt-d">
+              <input type="radio" name="mht-cet-option" id="opt-d" value="3">
+              <span class="option-text" id="opt-d-text">Option D</span>
+            </label>
+          </div>
+        </div>
+
+        <footer class="control-footer">
+          <div>
+            <button class="footer-btn btn-secondary" id="btn-clear-response">Clear Response</button>
+            <button class="footer-btn btn-warning" id="btn-mark-review">Mark for Review & Next</button>
+          </div>
+          <div>
+            <button class="footer-btn btn-secondary" id="btn-prev" style="margin-right: 4px;">&lt;&lt; Previous</button>
+            <button class="footer-btn btn-primary" id="btn-save-next">Save & Next &gt;&gt;</button>
+          </div>
+        </footer>
+      </section>
+
+      <aside class="sidebar-panel">
+        <div id="ui-test-id-slug" style="display: none;"></div>
+        <div class="legend-panel">
+          <div class="legend-item"><div class="legend-box shape-answered" id="stat-answered">0</div><span>Answered</span></div>
+          <div class="legend-item"><div class="legend-box shape-unanswered" id="stat-unanswered">0</div><span>Not Answered</span></div>
+          <div class="legend-item"><div class="legend-box shape-unvisited" id="stat-unvisited">0</div><span>Not Visited</span></div>
+          <div class="legend-item"><div class="legend-box shape-review" id="stat-review">0</div><span>Marked for Review</span></div>
+          <div class="legend-item legend-full-width"><div class="legend-box shape-answered-review" id="stat-answered-review">0</div><span>Answered & Marked for Review</span></div>
+        </div>
+
+        <div class="palette-scroll-viewport">
+          <div class="palette-grid-title" id="ui-palette-title">Choose a Question</div>
+          <div class="palette-grid" id="ui-palette-grid-target"></div>
+        </div>
+
+        <div class="sidebar-footer">
+          <button class="footer-btn btn-submit-exam" id="btn-submit-exam">Submit Phase</button>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="ui-submission-modal">
+    <div class="modal-card">
+      <h3 id="ui-modal-title">Exam Attempt Completed</h3>
+      <p id="ui-modal-desc">Your responses have been processed securely. The testing clock has stopped.</p>
+      <button class="footer-btn btn-primary" style="width:120px;" onclick="window.location.href='/dashboard';">Close Portal</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ui-phase-confirm-modal">
+    <div class="modal-card" style="border-top: 4px solid #337ab7;">
+      <h3 style="color: #152561; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <i class="material-icons" style="color: #337ab7;">help_outline</i> Confirm Paper Submission
+      </h3>
+      <p style="font-size: 14px; color: #475569; line-height: 1.5; margin-bottom: 24px;" id="ui-phase-confirm-body">
+        Are you sure you want to submit <strong>Paper 1 (Physics &amp; Chemistry)</strong>? <br>
+        <span style="color: #94a3b8; font-size: 13px;">Your answers will be permanently locked, and the system will proceed to Paper 2 (Mathematics).</span>
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="footer-btn btn-secondary" style="padding: 10px 24px;" onclick="closeCustomConfirmModal()">Cancel</button>
+        <button class="footer-btn btn-primary" style="padding: 10px 24px;" onclick="executePhaseTransitionHandoff()">Confirm & Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ui-timeout-modal">
+    <div class="modal-card" style="border-top: 4px solid #f0ad4e;">
+      <h3 style="color: #c9302c; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <i class="material-icons" style="color: #f0ad4e;">alarm_on</i> Time Expired!
+      </h3>
+      <p id="ui-timeout-modal-body" style="font-size: 14px; color: #475569; line-height: 1.5; margin-bottom: 24px;">
+        Time has expired for <strong>Paper 1</strong>! Your choices have been locked securely.<br>
+        <span style="color: #12732d; font-weight: 600;">Shifting to Paper 2 (Mathematics) now.</span>
+      </p>
+      <button class="footer-btn btn-warning" style="padding: 10px 32px;" onclick="closeTimeoutModalAndProceed()">Proceed to Next Phase</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ui-fullscreen-warning-modal">
+    <div class="modal-card" style="border-top: 4px solid #d9534f;">
+      <h3 style="color: #d9534f; margin-bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <i class="material-icons" style="color: #d9534f;">warning</i> Full-Screen Exited
+      </h3>
+      <p style="font-size: 14px; color: #475569; line-height: 1.5; margin-bottom: 24px;">
+        Do not leave full-screen mode during the exam. <strong>This has been logged as a violation</strong> and repeated exits may be treated as malpractice.
+      </p>
+      <button class="footer-btn btn-danger" style="padding: 10px 32px;" onclick="window.CET_returnToFullscreen()">Return to Full-Screen</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ui-report-modal">
+    <div class="modal-card" style="border-top: 4px solid #d9534f;">
+      <h3 style="color: #d9534f; margin-bottom: 8px;"><i class="material-icons" style="vertical-align: bottom;">error_outline</i> Report an Error</h3>
+      <p style="font-size: 13px; color: #555; margin-bottom: 15px;">Found a mistake in this question? Let us know.</p>
+      <textarea id="report-description" class="report-textarea" placeholder="Add a description of the error (Optional)..."></textarea>
+      <div style="display: flex; gap: 10px; justify-content: center;">
+        <button class="footer-btn btn-secondary" onclick="closeReportModal()">Cancel</button>
+        <button class="footer-btn btn-danger" id="btn-submit-report" onclick="submitErrorReport()">Report Error</button>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+  <script src="exam-engine.js"></script>
+
+  <script>
+    // Anti-copy hardening — belt-and-suspenders alongside the CSS
+    // user-select/pointer-events rules above. Excludes inputs/textareas
+    // so typing in the report-error modal still works normally.
+    function isEditableTarget(target) {
+      return target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+    }
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+    document.addEventListener('dragstart', (e) => e.preventDefault());
+    document.addEventListener('selectstart', (e) => {
+      if (!isEditableTarget(e.target)) e.preventDefault();
+    });
+    document.addEventListener('copy', (e) => {
+      if (!isEditableTarget(e.target)) e.preventDefault();
+    });
+    document.addEventListener('cut', (e) => {
+      if (!isEditableTarget(e.target)) e.preventDefault();
+    });
+
+    // Fullscreen-exit warning — hook called by exam-engine.js on every
+    // genuine full-screen exit while the exam is live. Shows the modal;
+    // the modal's own button re-requests full-screen (must happen on a
+    // real click for the browser to allow it) and dismisses itself.
+    window.CET_onFullscreenExit = function() {
+      const modal = document.getElementById('ui-fullscreen-warning-modal');
+      if (modal) modal.style.display = 'flex';
+    };
+    window.CET_returnToFullscreen = function() {
+      document.documentElement.requestFullscreen()
+        .catch((e) => console.log('Re-entering fullscreen failed:', e))
+        .finally(() => {
+          const modal = document.getElementById('ui-fullscreen-warning-modal');
+          if (modal) modal.style.display = 'none';
+        });
+    };
+
+    let activeGIndex = 0;
+    let currentSubjectFilter = null;
+    
+    // Global Memory Cache for Loaded Local Object Blobs
+    const blobCache = {};
+    const activeLoadingTasks = new Set();
+
+   window.addEventListener('ExamEngineReady', () => {
+        console.log("Exam Engine Linked. Booting Adaptive Priority Engine...");
+        initializeActivePaperUI();
+
+        // ==========================================================================
+        // 🟢 FIXED: HYDRATE MOBILE LANDING VIEWS DIRECTLY FROM PERSISTENT CACHE LAYERS
+        // ==========================================================================
+        if (window.CURRENT_EXAM_CONFIG) {
+            document.getElementById('ui-landing-title').textContent = window.CURRENT_EXAM_CONFIG.testTitle;
+            document.getElementById('ui-landing-time').textContent = `${window.CURRENT_EXAM_CONFIG.durationMins} Minutes`;
+
+            let questionCounter = 0;
+            let maxMarksTotal = 0;
+            window.CURRENT_EXAM_CONFIG.sections.forEach(s => {
+                questionCounter += parseInt(s.totalQuestions);
+                // 🟢 FIX: was assuming 1 mark/question (== questionCounter);
+                // now uses each section's actual positiveMarks from the
+                // manifest (sourced from products.sections server-side).
+                maxMarksTotal += parseInt(s.totalQuestions) * parseFloat(s.positiveMarks);
+            });
+            document.getElementById('ui-landing-qs').textContent = `${questionCounter} Questions`;
+            document.getElementById('ui-landing-marks').textContent = `${maxMarksTotal.toFixed(2)} Max Marks`;
+
+            // 🟢 CLOUD FIX: Pull the parent card's explicit thumbnail URL directly out of localStorage cache
+            // fallback gracefully to a standard template brand illustration if none is found.
+            // 🟢 FIX: same resolution rule as lib/resolveImageUrl.js -- a value that's
+            // already an absolute http(s) URL is used as-is; a raw storage path is
+            // still routed through /api/images?path=. Previously every value was
+            // force-wrapped in /api/images?path=, which broke direct URLs.
+            function resolveLandingBannerUrl(value) {
+                if (!value) return null;
+                if (/^https?:\/\//i.test(value)) return value;
+                return `/api/images?path=${encodeURIComponent(value)}`;
+            }
+
+            const activeProductThumbnailUrl = localStorage.getItem(`THUMBNAIL_${window.CURRENT_EXAM_CONFIG.testId}`);
+            const resolvedBannerUrl = resolveLandingBannerUrl(activeProductThumbnailUrl)
+                || resolveLandingBannerUrl(window.CURRENT_EXAM_CONFIG.imageBaseUrl);
+
+            // 🟢 ADDED: keep the lottie loader over the banner slot until the
+            // actual artwork has finished loading (or fails), instead of
+            // showing the raw placehold.co placeholder mid-fetch.
+            const bannerImgEl = document.getElementById('ui-landing-banner-src');
+            const bannerLoaderEl = document.getElementById('ui-landing-banner-loader');
+            const hideBannerLoader = () => { if (bannerLoaderEl) bannerLoaderEl.style.display = 'none'; };
+            if (bannerImgEl) {
+                bannerImgEl.addEventListener('load', hideBannerLoader, { once: true });
+                bannerImgEl.addEventListener('error', hideBannerLoader, { once: true });
+            }
+
+            if (resolvedBannerUrl) {
+                bannerImgEl.src = resolvedBannerUrl;
+            } else {
+                // No real banner to fetch -- nothing more will happen to
+                // this <img>, so don't leave the loader spinning forever.
+                hideBannerLoader();
+            }
+        }
+
+        // 🟢 ADDED: If this is a resumed session (valid cache found), skip the landing/instructions
+        // screens entirely and let the timer keep running from where it left off.
+        const landingStage = document.getElementById('ui-exam-landing-stage');
+        if (window.CET_RESUMED_FROM_CACHE) {
+            landingStage.style.display = 'none';
+            if (typeof window.resumeExamTimer === 'function') window.resumeExamTimer();
+        } else {
+            document.getElementById('btn-engage-test').onclick = () => {
+                // 🟢 FIX: fire the fullscreen request directly off this
+                // click (the real user gesture) BEFORE swapping any UI,
+                // instead of relying on a generic document-level "first
+                // click anywhere" listener. That old approach fired the
+                // fullscreen transition (and Chrome's native "press Esc to
+                // exit fullscreen" toast) AFTER the landing screen had
+                // already been hidden and the next screen shown, so the
+                // toast landed on top of whatever button appeared next.
+                // Requesting it first, synchronously, means the toast
+                // shows up while the landing screen is still on-screen and
+                // has time to fade before the next button appears.
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch((e) => console.log('Fullscreen request failed:', e));
+                }
+
+                landingStage.style.display = 'none';
+
+                // 🟢 FIX: the swipe-navigation instructions only make sense for mobile
+                // users (the ones who get the hamburger + swipe gestures). Desktop users
+                // have the full question palette, so send them straight into the exam.
+                const isMobileViewport = window.matchMedia('(max-width: 920px)').matches;
+                if (isMobileViewport) {
+                    document.getElementById('ui-mobile-instructions-popup').style.display = 'flex';
+                } else {
+                    if (typeof window.resumeExamTimer === 'function') window.resumeExamTimer();
+                }
+            };
+        }
+
+        window.dismissInstructionsAndRunTimer = function() {
+            document.getElementById('ui-mobile-instructions-popup').style.display = 'none';
+            // Clock only starts now — it was booted paused by exam-engine.js
+            if (typeof window.resumeExamTimer === 'function') window.resumeExamTimer();
+        };
+
+        // Fallback: if requestFullscreen() above didn't fire for any reason
+        // (e.g. this is a resumed session that skips the landing screen
+        // entirely, so btn-engage-test's handler above never ran), the
+        // first click anywhere still triggers it once, same as before.
+        const forceEngagementFullscreenMode = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen()
+                    .then(() => {
+                        // Kill listener instantly so it doesn't run on every single subsequent click
+                        document.removeEventListener('click', forceEngagementFullscreenMode);
+                    })
+                    .catch(e => console.log("Awaiting localized viewport interaction click event...", e));
+            } else {
+                document.removeEventListener('click', forceEngagementFullscreenMode);
+            }
+        };
+        document.addEventListener('click', forceEngagementFullscreenMode);
+
+        // --- BIND RADIO BUTTONS ---
+        const radios = document.getElementsByName('mht-cet-option');
+        radios.forEach(r => {
+            r.addEventListener('change', (e) => {
+                examState[activeGIndex].selectedOption = parseInt(e.target.value);
+            });
+        });
+
+        // --- BIND FOOTER BUTTONS ---
+        document.getElementById('btn-save-next').onclick = () => processTransition('answered', 'unanswered');
+        document.getElementById('btn-mark-review').onclick = () => processTransition('answered-review', 'review');
+        document.getElementById('btn-clear-response').onclick = () => {
+            examState[activeGIndex].selectedOption = null;
+            examState[activeGIndex].status = 'unanswered';
+            document.getElementsByName('mht-cet-option').forEach(r => r.checked = false);
+            if (typeof saveActiveSessionSnapshot === 'function') saveActiveSessionSnapshot();
+            renderPalette();
+            updateStats();
+        };
+
+        document.getElementById('btn-prev').onclick = () => {
+            const subjectQs = examState.filter(q => q.sectionId === currentSubjectFilter);
+            const localIndex = subjectQs.findIndex(q => q.globalIndex === activeGIndex);
+            if (localIndex > 0) jumpToQuestion(subjectQs[localIndex - 1].globalIndex);
+        };
+
+        // Fullscreen Button Toggle
+        document.getElementById('btn-fullscreen').onclick = () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(e => console.log(e));
+            } else {
+                document.exitFullscreen();
+            }
+        };
+
+        // Submit trigger links to custom phase router below
+        document.getElementById('btn-submit-exam').onclick = () => handlePhaseSubmissionTrigger();
+
+        // 🌟 INJECTED: Bind Report Error Button to open the Modal
+        document.getElementById('btn-report-error').onclick = () => {
+            document.getElementById('ui-report-modal').style.display = 'flex';
+        };
+
+        // TRIGGER DISSOCIATED BACKGROUND PRE-LOADING SEQUENCE
+        preloadAllPaperImagesSlowly();
+    });
+
+    // 売 UI GENERATOR: Re-builds tabs and layouts dynamically depending on active paper state
+    function initializeActivePaperUI() {
+        const tabsContainer = document.getElementById('ui-tabs-container');
+        tabsContainer.innerHTML = '';
+        
+        // Filter questions belonging to the active phase (Paper 1 or Paper 2)
+        const currentPaperQs = examState.filter(q => q.paperAllocation === currentActivePaperId);
+        
+        // Extract unique section IDs
+        const uniqueSections = [...new Set(currentPaperQs.map(q => q.sectionId))];
+        
+        // Default the view filter to the first section of this active paper phase
+        currentSubjectFilter = uniqueSections[0];
+
+        uniqueSections.forEach(secId => {
+            const secData = examState.find(q => q.sectionId === secId);
+            const btn = document.createElement('button');
+            btn.className = `tab-btn ${secId === currentSubjectFilter ? 'active' : ''}`;
+            btn.textContent = secData ? secData.sectionName : secId;
+            btn.onclick = () => switchSubjectTab(secId);
+            tabsContainer.appendChild(btn);
+        });
+
+        // Set the primary action button labels based strictly on active tier
+        // 🟢 FIX: label reflects whether another paper actually follows this
+        // one, not just "is this paper #1" — a single-subject test (one
+        // paper total) now correctly says "Submit Exam" on its only paper.
+        const nextPaperExists = !!window.CURRENT_EXAM_CONFIG.papers.find(p => p.id === currentActivePaperId + 1);
+        document.getElementById('btn-submit-exam').textContent = nextPaperExists ? `Submit Paper ${currentActivePaperId}` : "Submit Exam";
+
+        // Auto-focus window canvas onto the first valid question entry
+        const firstQ = examState.find(q => q.sectionId === currentSubjectFilter);
+        if (firstQ) {
+            jumpToQuestion(firstQ.globalIndex);
+        } else {
+            renderPalette();
+            updateStats();
+        }
+    }
+
+    // 🟢 ADDED: Build the "Confirm Paper Submission" text dynamically, since a
+    // paper can have 1 or many sections, and this may or may not be the last paper.
+    function getSubjectsForPaper(paperId) {
+        return window.CURRENT_EXAM_CONFIG.sections
+            .filter(s => parseInt(s.paperAllocation) === paperId)
+            .map(s => s.name)
+            .join(' & ');
+    }
+
+    function updatePhaseConfirmModalText() {
+        const bodyEl = document.getElementById('ui-phase-confirm-body');
+        if (!bodyEl) return;
+
+        const subjects = getSubjectsForPaper(currentActivePaperId);
+        const nextPaperId = currentActivePaperId + 1;
+        const nextPaperConfig = window.CURRENT_EXAM_CONFIG.papers.find(p => p.id === nextPaperId);
+
+        if (nextPaperConfig) {
+            const nextSubjects = getSubjectsForPaper(nextPaperId);
+            bodyEl.innerHTML = `Are you sure you want to submit <strong>Paper ${currentActivePaperId} (${subjects})</strong>? <br>
+                <span style="color: #94a3b8; font-size: 13px;">Your answers will be permanently locked, and the system will proceed to Paper ${nextPaperId} (${nextSubjects}).</span>`;
+        } else {
+            bodyEl.innerHTML = `Are you sure you want to submit <strong>Paper ${currentActivePaperId} (${subjects})</strong>? <br>
+                <span style="color: #94a3b8; font-size: 13px;">Your answers will be permanently locked, and the system will proceed to submitting the exam.</span>`;
+        }
+    }
+
+    // 🟢 ADDED: Build the "Time Expired" text dynamically too, same reasoning as
+    // updatePhaseConfirmModalText above (1..N sections per paper, last paper vs not).
+    function updateTimeoutModalText() {
+        const bodyEl = document.getElementById('ui-timeout-modal-body');
+        if (!bodyEl) return;
+
+        const subjects = getSubjectsForPaper(currentActivePaperId);
+        const nextPaperId = currentActivePaperId + 1;
+        const nextPaperConfig = window.CURRENT_EXAM_CONFIG.papers.find(p => p.id === nextPaperId);
+
+        if (nextPaperConfig) {
+            const nextSubjects = getSubjectsForPaper(nextPaperId);
+            bodyEl.innerHTML = `Time has expired for <strong>Paper ${currentActivePaperId} (${subjects})</strong>! Your choices have been locked securely.<br>
+                <span style="color: #12732d; font-weight: 600;">Shifting to Paper ${nextPaperId} (${nextSubjects}) now.</span>`;
+        } else {
+            bodyEl.innerHTML = `Time has expired for <strong>Paper ${currentActivePaperId} (${subjects})</strong>! Your choices have been locked securely.<br>
+                <span style="color: #12732d; font-weight: 600;">Submitting the exam now.</span>`;
+        }
+    }
+
+    // Intercept submit click events to trigger structural UI refreshes
+    // 🟢 CUSTOM CONTROL LOGIC FOR MODALS - REPLACES NATIVE WINDOW ALERTS
+    function handlePhaseSubmissionTrigger() {
+        if (currentActivePaperId === 1) {
+            updatePhaseConfirmModalText();
+            // Instantly reveal the clean custom confirmation container overlay instead of window.confirm
+            document.getElementById('ui-phase-confirm-modal').style.display = 'flex';
+        } else {
+            if (typeof forceSubmitCurrentPhase === 'function') forceSubmitCurrentPhase();
+        }
+    }
+
+    function closeCustomConfirmModal() {
+        document.getElementById('ui-phase-confirm-modal').style.display = 'none';
+    }
+
+    function executePhaseTransitionHandoff() {
+        closeCustomConfirmModal();
+        
+        // Execute your core engine phase transition routine seamlessly
+        if (typeof handlePhaseTransition === 'function') {
+            handlePhaseTransition();
+            
+            Object.keys(blobCache).forEach(k => {
+                URL.revokeObjectURL(blobCache[k]);
+                delete blobCache[k];
+            });
+            
+            initializeActivePaperUI(); 
+            preloadAllPaperImagesSlowly();
+        }
+    }
+
+    // 🟢 TIMEOUT INTERCEPTOR: Look into your countdown intervals or exam-engine.js 
+    // Wherever you previously had: alert("Time expired for Paper 1! Choices locked. Shifting to Paper 2.");
+    // REPLACE that native call window alert completely with this layout dispatch:
+    window.triggerCustomTimeoutAlert = function() {
+        if (typeof updateTimeoutModalText === 'function') updateTimeoutModalText();
+        document.getElementById('ui-timeout-modal').style.display = 'flex';
+    };
+
+    function closeTimeoutModalAndProceed() {
+        document.getElementById('ui-timeout-modal').style.display = 'none';
+        
+        // 🟢 FIX: We do NOT call handlePhaseTransition() here anymore! 
+        // exam-engine.js already shifted the phase. We just need to refresh the workspace tabs.
+        if (typeof initializeActivePaperUI === 'function') {
+            initializeActivePaperUI();
+            preloadAllPaperImagesSlowly();
+        }
+    }
+
+    // Intercept Question Jumps Natively
+    // 🟢 BULLETPROOF QUESTION JUMP ROUTER - ZERO CRASH GUARANTEE
+    async function jumpToQuestion(gIndex) {
+        if (typeof examState === 'undefined' || !examState[gIndex]) return;
+        
+        activeGIndex = gIndex;
+        // Tells exam-engine.js's per-question timer to start crediting
+        // this question instead of whichever one was active before.
+        if (typeof window.CET_recordQuestionSwitch === 'function') window.CET_recordQuestionSwitch(gIndex);
+        const q = examState[gIndex];
+        
+        if (q.status === 'unvisited') {
+            q.status = 'unanswered';
+            if (typeof saveActiveSessionSnapshot === 'function') saveActiveSessionSnapshot();
+        }
+
+        const labelEl = document.getElementById('ui-current-q-label');
+        if (labelEl) labelEl.textContent = `Question ${q.visualLabel}`;
+        
+        const contentElement = document.getElementById('ui-question-content');
+        const loaderElement = document.getElementById('ui-canvas-loader');
+        const optionsElement = document.getElementById('ui-options-block');
+
+        // Safe loader toggle check -- also hide the previous question's
+        // options while the new one loads, so stale answer choices don't
+        // sit visible underneath the spinner.
+        if (loaderElement) loaderElement.style.display = 'flex';
+        if (contentElement) contentElement.style.display = 'none';
+        if (optionsElement) optionsElement.style.visibility = 'hidden';
+
+        // Check if item already exists inside the instant cache layer
+        if (blobCache[gIndex]) {
+            await renderQuestionPayload(blobCache[gIndex]);
+            if (loaderElement) loaderElement.style.display = 'none';
+            if (contentElement) contentElement.style.display = 'block';
+            if (optionsElement) optionsElement.style.visibility = 'visible';
+        } else {
+            const payload = await fetchSingleQuestionPayload(gIndex);
+            if (payload) {
+                await renderQuestionPayload(payload);
+            } else if (contentElement) {
+                contentElement.innerHTML = '<p style="color:#b91c1c;">Could not load this question. Please check your connection and try again.</p>';
+            }
+
+            if (loaderElement) loaderElement.style.display = 'none';
+            if (contentElement) contentElement.style.display = 'block';
+            if (optionsElement) optionsElement.style.visibility = 'visible';
+        }
+        
+        // Fetch marking scheme details dynamically
+        if (window.CURRENT_EXAM_CONFIG && window.CURRENT_EXAM_CONFIG.sections) {
+            const activeSection = window.CURRENT_EXAM_CONFIG.sections.find(s => s.id === q.sectionId);
+            if (activeSection) {
+                const posEl = document.querySelector('.fg-green');
+                const negEl = document.querySelector('.fg-red');
+                if (posEl) posEl.textContent = parseFloat(activeSection.positiveMarks).toFixed(2);
+                if (negEl) negEl.textContent = parseFloat(activeSection.negativeMarks).toFixed(2);
+            }
+        }
+
+        // Sync options radio matrix state
+        document.getElementsByName('mht-cet-option').forEach(r => {
+            r.checked = (r.value == q.selectedOption);
+        });
+
+        renderPalette();
+        updateStats();
+        updateSaveNextButtonState();
+    }
+
+    // 🟢 ADDED: When the current question is the LAST question of the LAST
+    // subject/section within the current paper, turn "Save & Next" into the
+    // same green submit action as the sidebar button. Any earlier subject's
+    // last question (e.g. Physics before Chemistry) still just rolls over
+    // to the next subject's first question as normal.
+    function updateSaveNextButtonState() {
+        const saveNextBtn = document.getElementById('btn-save-next');
+        const submitBtn = document.getElementById('btn-submit-exam');
+        if (!saveNextBtn || !submitBtn) return;
+
+        const q = examState[activeGIndex];
+        if (!q) return;
+
+        const currentPaperId = q.paperAllocation;
+        const paperSectionIds = [...new Set(
+            examState.filter(sq => sq.paperAllocation === currentPaperId).map(sq => sq.sectionId)
+        )];
+        const isLastSectionOfPaper = paperSectionIds.indexOf(currentSubjectFilter) === paperSectionIds.length - 1;
+
+        const subjectQs = examState.filter(sq => sq.sectionId === currentSubjectFilter);
+        const localIndex = subjectQs.findIndex(sq => sq.globalIndex === activeGIndex);
+        const isLastQuestionOfSubject = localIndex === subjectQs.length - 1;
+
+        if (isLastSectionOfPaper && isLastQuestionOfSubject) {
+            // Morphs into the exact same label the sidebar's persistent
+            // Submit button already shows — "Submit Paper N" if another
+            // paper/section follows, or "Submit Exam" if this is the last
+            // one — computed once in initializeActivePaperUI(), so both
+            // buttons always agree.
+            saveNextBtn.style.display = '';
+            saveNextBtn.textContent = submitBtn.textContent;
+            saveNextBtn.classList.remove('btn-primary');
+            saveNextBtn.classList.add('btn-submit-inline');
+            saveNextBtn.onclick = () => {
+                const qq = examState[activeGIndex];
+                qq.status = qq.selectedOption !== null ? 'answered' : 'unanswered';
+                if (typeof saveActiveSessionSnapshot === 'function') saveActiveSessionSnapshot();
+                renderPalette();
+                updateStats();
+                handlePhaseSubmissionTrigger();
+            };
+        } else {
+            saveNextBtn.style.display = '';
+            saveNextBtn.textContent = 'Save & Next >>';
+            saveNextBtn.classList.remove('btn-submit-inline');
+            saveNextBtn.classList.add('btn-primary');
+            saveNextBtn.onclick = () => processTransition('answered', 'unanswered');
+        }
+    }
+
+    // Cache of original <img src> -> blob: URL, so repeat visits to a
+    // question (or the same diagram reused across options) don't refetch.
+    const imageProxyCache = new Map();
+    const activeImageBlobUrls = [];
+
+    async function proxyImageSrc(originalSrc) {
+        if (imageProxyCache.has(originalSrc)) return imageProxyCache.get(originalSrc);
+        try {
+            const res = await fetch('/api/exam/image-proxy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: secureToken, src: originalSrc })
+            });
+            if (!res.ok) throw new Error('proxy failed');
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            activeImageBlobUrls.push(blobUrl);
+            imageProxyCache.set(originalSrc, blobUrl);
+            return blobUrl;
+        } catch (err) {
+            console.error('Embedded image proxy failed:', err);
+            return null;
+        }
+    }
+
+    // Every <img> inside the just-rendered question/option HTML still has
+    // its original absolute src (a Supabase Storage URL) at this point.
+    // Swap each one for a blob: URL fetched through our own server route,
+    // so the browser never makes a direct request to Supabase — "view
+    // image", drag-and-drop, and the Network tab all show only our own
+    // origin.
+    async function hardenEmbeddedImages(rootEl) {
+        if (!rootEl) return;
+        const imgs = rootEl.querySelectorAll('img[src^="http"]');
+        await Promise.all(Array.from(imgs).map(async (img) => {
+            const original = img.getAttribute('src');
+            const blobUrl = await proxyImageSrc(original);
+            if (blobUrl) img.src = blobUrl;
+        }));
+    }
+
+    window.addEventListener('beforeunload', () => {
+        activeImageBlobUrls.forEach(u => URL.revokeObjectURL(u));
+    });
+
+    // Paints a decrypted { question_html, options } payload into the DOM.
+    async function renderQuestionPayload(payload) {
+        const contentElement = document.getElementById('ui-question-content');
+        if (contentElement) contentElement.innerHTML = payload.question_html || '';
+
+        const optOrder = ['A', 'B', 'C', 'D'];
+        optOrder.forEach((letter, i) => {
+            const span = document.getElementById(`opt-${'abcd'[i]}-text`);
+            if (span) span.innerHTML = (payload.options && payload.options[letter]) || '';
+        });
+
+        await hardenEmbeddedImages(document.querySelector('.question-body-canvas'));
+    }
+
+
+    // Decrypts an AES-256-GCM { iv, data } chunk (both base64) using the
+    // per-session key imported in exam-engine.js from the manifest response.
+    async function decryptQuestionChunk(chunk) {
+        const iv = Uint8Array.from(atob(chunk.iv), c => c.charCodeAt(0));
+        const ciphertext = Uint8Array.from(atob(chunk.data), c => c.charCodeAt(0));
+        const plaintextBuf = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv },
+            window.CET_SESSION_KEY,
+            ciphertext
+        );
+        return JSON.parse(new TextDecoder().decode(plaintextBuf));
+    }
+
+    // Base Level Isolated Single Fetch Operation Handler.
+    // Fetches the question via the encrypted chunk transport — the
+    // browser only ever sees ciphertext in the Network tab, never raw
+    // question_html/options, and never a Supabase-origin URL.
+    async function fetchSingleQuestionPayload(gIndex) {
+        if (blobCache[gIndex]) return blobCache[gIndex];
+        if (activeLoadingTasks.has(gIndex)) {
+            return new Promise(resolve => {
+                let checkTimer = setInterval(() => {
+                    if (blobCache[gIndex]) {
+                        clearInterval(checkTimer);
+                        resolve(blobCache[gIndex]);
+                    }
+                }, 100);
+            });
+        }
+
+        activeLoadingTasks.add(gIndex);
+        try {
+            const targetQuestionAsset = examState[gIndex];
+
+            const requestChunk = () => fetch('/api/exam/question-chunk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: secureToken,
+                    q_id: targetQuestionAsset.q_id
+                })
+            });
+
+            let response = await requestChunk();
+
+            if (!response.ok) {
+                // Likely a session left 'paused' by a false pagehide (tab
+                // switch, screen lock, bfcache eviction). Reconnect and
+                // retry this exact request once before treating it as a
+                // real failure.
+                const reconnected = await window.CET_reconnectSession();
+                if (reconnected) {
+                    response = await requestChunk();
+                }
+            }
+
+            if (!response.ok) throw new Error("Security check failed");
+
+            const chunk = await response.json();
+            const payload = await decryptQuestionChunk(chunk);
+            blobCache[gIndex] = payload;
+            return payload;
+        } catch (err) {
+            console.error(`Question index ${gIndex} fetch/decrypt failed:`, err);
+            return null;
+        } finally {
+            activeLoadingTasks.delete(gIndex);
+        }
+    }
+
+    // 売 LAZY LOAD STEP-BY-STEP BACKGROUND ENGINE
+    async function preloadAllPaperImagesSlowly() {
+        // Collect all question objects matching the active testing session window phase
+        const activePaperQs = examState.filter(q => q.paperAllocation === currentActivePaperId);
+        
+        for (let i = 0; i < activePaperQs.length; i++) {
+            const targetQ = activePaperQs[i];
+            const idx = targetQ.globalIndex;
+
+            // Step aside if it's already pre-loaded or currently running a priority request loop
+            if (blobCache[idx] || activeLoadingTasks.has(idx)) continue;
+
+            // Fetch current index slowly
+            await fetchSingleQuestionPayload(idx);
+
+            // Cooldown delay timer loop to protect device CPU tracking loops
+            await new Promise(resolve => setTimeout(resolve, 300)); 
+        }
+    }
+
+    function switchSubjectTab(secId) {
+        currentSubjectFilter = secId;
+        
+        // Sync Active Class Visual Toggles across buttons
+        const tabsContainer = document.getElementById('ui-tabs-container');
+        Array.from(tabsContainer.children).forEach(btn => {
+            const matchData = examState.find(q => q.sectionId === secId);
+            if(matchData && btn.textContent === matchData.sectionName) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        const firstQ = examState.find(q => q.sectionId === secId);
+        if (firstQ) jumpToQuestion(firstQ.globalIndex);
+    }
+
+    function processTransition(statusIfChecked, statusIfUnchecked) {
+        const q = examState[activeGIndex];
+        q.status = q.selectedOption !== null ? statusIfChecked : statusIfUnchecked;
+        if (typeof saveActiveSessionSnapshot === 'function') saveActiveSessionSnapshot();
+
+        const subjectQs = examState.filter(q => q.sectionId === currentSubjectFilter);
+        const localIndex = subjectQs.findIndex(q => q.globalIndex === activeGIndex);
+        
+        if (localIndex < subjectQs.length - 1) {
+            jumpToQuestion(subjectQs[localIndex + 1].globalIndex);
+        } else {
+            // 🟢 ADDED: last question of this section — roll over to the next
+            // section's first question, if this paper has more than one section.
+            const currentPaperId = examState[activeGIndex].paperAllocation;
+            const paperSectionIds = [...new Set(
+                examState.filter(sq => sq.paperAllocation === currentPaperId).map(sq => sq.sectionId)
+            )];
+            const currentSecPos = paperSectionIds.indexOf(currentSubjectFilter);
+            const nextSectionId = paperSectionIds[currentSecPos + 1];
+
+            if (nextSectionId !== undefined) {
+                switchSubjectTab(nextSectionId);
+            } else {
+                renderPalette();
+                updateStats();
+            }
+        }
+    }
+
+    function renderPalette() {
+        const grid = document.getElementById('ui-palette-grid-target');
+        grid.innerHTML = '';
+        
+        const subjectQs = examState.filter(q => q.sectionId === currentSubjectFilter);
+        subjectQs.forEach(q => {
+            const btn = document.createElement('div');
+            btn.className = `q-btn shape-${q.status} ${q.globalIndex === activeGIndex ? 'active-focus' : ''}`;
+            btn.textContent = q.visualLabel;
+            btn.onclick = () => {
+                jumpToQuestion(q.globalIndex);
+                // 🟢 ADDED: on mobile, picking a question from the drawer should close it
+                if (window.innerWidth <= 920) {
+                    const panel = document.querySelector('.sidebar-panel');
+                    if (panel) panel.classList.remove('mobile-drawer-open');
+                }
+            };
+            grid.appendChild(btn);
+        });
+    }
+
+    function updateStats() {
+        const subjectQs = examState.filter(q => q.sectionId === currentSubjectFilter);
+        const counts = { answered: 0, unanswered: 0, unvisited: 0, review: 0, 'answered-review': 0 };
+        subjectQs.forEach(q => counts[q.status]++);
+        
+        document.getElementById('stat-answered').textContent = counts.answered;
+        document.getElementById('stat-unanswered').textContent = counts.unanswered;
+        document.getElementById('stat-unvisited').textContent = counts.unvisited;
+        document.getElementById('stat-review').textContent = counts.review;
+        document.getElementById('stat-answered-review').textContent = counts['answered-review'];
+    }
+
+    // Real-Time Clock Sync
+    setInterval(() => {
+        if (typeof timeRemainingSeconds !== 'undefined' && typeof formatTime === 'function') {
+            document.getElementById('ui-countdown-clock').textContent = formatTime(timeRemainingSeconds);
+        }
+    }, 1000);
+
+    // --- 🌟 INJECTED: ERROR REPORTING SYSTEM API CONNECTOR ---
+    window.closeReportModal = function() {
+        document.getElementById('ui-report-modal').style.display = 'none';
+        document.getElementById('report-description').value = '';
+    };
+
+    window.submitErrorReport = async function() {
+        const btn = document.getElementById('btn-submit-report');
+        const desc = document.getElementById('report-description').value;
+        const q = examState[activeGIndex];
+
+        btn.textContent = "Reporting...";
+        btn.disabled = true;
+
+        try {
+            // UPDATED: send q_id (+ sub_id/test_q_num fallback) instead of a
+            // guessed path. /api/exam/report-error needs a matching update
+            // to resolve the real file from exam_question_data server-side.
+            const res = await fetch('/api/exam/report-error', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    token: secureToken,
+                    questionIndex: q.globalIndex,
+                    questionLabel: q.visualLabel,
+                    sectionName: q.sectionName,
+                    q_id: q.q_id,
+                    sub_id: q.sub_id,
+                    test_q_num: q.test_q_num,
+                    description: desc
+                })
+            });
+
+            if (res.ok) {
+                alert("Error reported securely! Our team will review it.");
+                closeReportModal();
+            } else {
+                throw new Error("Server rejected report parameters.");
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Network error. Could not submit report.");
+        } finally {
+            btn.textContent = "Report Error";
+            btn.disabled = false;
+        }
+    };
+    /* ==========================================================================
+       🟢 BULLETPROOF EXTERNAL ENGINE OVERRIDES (ELIMINATES ALL BROWSER ALERTS)
+       ========================================================================== */
+
+    // 1. OVERWRITE: Intercepts the timer expiration function in exam-engine.js
+    // Replaces: alert("Time expired for Paper 1! Choices locked. Shifting to Paper 2.");
+    window.alert = function(message) {
+        if (message && message.includes("Time expired")) {
+            // Trigger our premium centered timeout modal overlay automatically
+            if (typeof updateTimeoutModalText === 'function') updateTimeoutModalText();
+            const timeoutModal = document.getElementById('ui-timeout-modal');
+            if (timeoutModal) timeoutModal.style.display = 'flex';
+            return;
+        }
+        // Fallback for any other system strings
+        console.log("Intercepted standard alert string: ", message);
+    };
+
+    // 2. OVERWRITE: Intercepts early manual submit confirmations in exam-engine.js
+    // Replaces: confirm("Are you sure you want to submit this section early?...")
+    window.confirm = function(message) {
+        if (message && (message.includes("submit this section early") || message.includes("submit Paper 1"))) {
+            // Reveal our custom structured confirmation card track overlay
+            if (typeof updatePhaseConfirmModalText === 'function') updatePhaseConfirmModalText();
+            const confirmModal = document.getElementById('ui-phase-confirm-modal');
+            if (confirmModal) confirmModal.style.display = 'flex';
+            
+            // We return false here to halt the external file's native thread.
+            // Our custom "Confirm & Proceed" button will trigger the transition securely!
+            return false;
+        }
+        return true;
+    };
+
+    /* ==========================================================================
+       🟢 MOBILE VERTICAL VIEWPORT CONTROLS
+       ========================================================================== */
+
+    // Connect the micro zoom slider to the global CSS variable.
+    // Slider is 0-100 with 50 as the default "normal" position — mapped
+    // to a 0.5x-1.5x multiplier on the same base sizing solutions.html
+    // uses, so 50 looks identical to solutions.html, and moving the
+    // slider left/right shrinks/grows from there.
+    const zoombarElement = document.getElementById('ui-global-image-zoombar');
+    if (zoombarElement) {
+        zoombarElement.addEventListener('input', (e) => {
+            const sliderValue = Number(e.target.value);
+            const factor = 0.5 + (sliderValue / 100); // 0 -> 0.5x, 50 -> 1x, 100 -> 1.5x
+            document.documentElement.style.setProperty('--zoom-factor', factor.toFixed(2));
+        });
+    }
+
+    // Toggle the slide-out question palette drawer
+    const menuToggleButton = document.getElementById('ui-mobile-hamburger-toggle');
+    const sidebarPanelElement = document.querySelector('.sidebar-panel');
+
+    if (menuToggleButton && sidebarPanelElement) {
+        menuToggleButton.onclick = (e) => {
+            e.stopPropagation();
+            sidebarPanelElement.classList.toggle('mobile-drawer-open');
+        };
+
+        document.addEventListener('click', (e) => {
+            if (!sidebarPanelElement.contains(e.target) && !menuToggleButton.contains(e.target) && sidebarPanelElement.classList.contains('mobile-drawer-open')) {
+                sidebarPanelElement.classList.remove('mobile-drawer-open');
+            }
+        });
+    }
+
+    // Touch swipe navigation between questions.
+    // 🟢 FIX: track both axes and require the gesture to be predominantly horizontal,
+    // so scrolling down a tall question image can't be mistaken for a page-turn swipe.
+    let touchStartXCoord = 0, touchStartYCoord = 0;
+    let touchEndXCoord = 0, touchEndYCoord = 0;
+    const canvasGestureArea = document.querySelector('.question-body-canvas');
+
+    if (canvasGestureArea) {
+        canvasGestureArea.addEventListener('touchstart', (e) => {
+            touchStartXCoord = e.changedTouches[0].screenX;
+            touchStartYCoord = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        canvasGestureArea.addEventListener('touchend', (e) => {
+            touchEndXCoord = e.changedTouches[0].screenX;
+            touchEndYCoord = e.changedTouches[0].screenY;
+            handleGestureSwipeActionRouting();
+        }, { passive: true });
+    }
+
+    function handleGestureSwipeActionRouting() {
+        const minSwipeDeltaThreshold = 60;
+        const deltaX = touchStartXCoord - touchEndXCoord;
+        const deltaY = touchStartYCoord - touchEndYCoord;
+
+        // Ignore the gesture if vertical movement dominates (the user was just scrolling)
+        if (Math.abs(deltaY) > Math.abs(deltaX)) return;
+
+        if (deltaX > minSwipeDeltaThreshold) {
+            const nextButton = document.getElementById('btn-save-next');
+            if (nextButton) nextButton.click();
+        } else if (-deltaX > minSwipeDeltaThreshold) {
+            const prevButton = document.getElementById('btn-prev');
+            if (prevButton) prevButton.click();
+        }
+    }
+  </script>
+</body>
+</html>

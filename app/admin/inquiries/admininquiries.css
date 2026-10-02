@@ -1,0 +1,92 @@
+@import url("../users/adminuser.css");
+
+/* Extends standard administrative properties with isolated utility helpers */
+
+.messageTruncate {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actionPickBtn {
+  border: none;
+  background: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success-border);
+  font-weight: 700;
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.15s ease;
+}
+
+.actionPickBtn:hover {
+  background: var(--success);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.checkmarkText {
+  font-size: 13px;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.queryLayoutGrid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr !important;
+  gap: 24px;
+}
+
+.messageBox {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink);
+  min-height: 140px;
+  white-space: pre-wrap;
+}
+
+.profileVerifiedCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.profileVerifyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+}
+
+.profileExtendedLines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13.5px;
+}
+
+.profileExtendedLines p {
+  display: flex;
+  justify-content: space-between;
+  color: var(--ink-soft);
+}
+
+.profileExtendedLines strong {
+  color: var(--ink);
+}
+
+@media (max-width: 1000px) {
+  .queryLayoutGrid {
+    grid-template-columns: 1fr !important;
+  }
+}

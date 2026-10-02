@@ -1,0 +1,1349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batches - Y N Classes | MHT-CET, JEE, NEET & Board Coaching</title>
+    
+    <link rel="icon" type="image/png" href="/images/other_images/ynclasses-logo.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/auth.js"></script>
+    <script src="/onboarding.js"></script>
+    <script src="/cookie-consent.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    
+    <style>
+        /* --- BRAND THEME TOKENS (matched to index.html / contact.html) --- */
+        :root {
+            --primary-blue: #0b4f8a;
+            --deep-blue: #06315c;
+            --accent-blue: #1d7fd6;
+            --brand-orange: #f2871a;
+            --brand-yellow: #f5b301;
+            --faint-blue: #e8f1fb;
+            --gray-bg: #f7f9fc;
+            --card-bg: #ffffff;
+            --text-main: #0f1f2e;
+            --text-muted: #5c6b7a;
+            --white: #ffffff;
+            --success: #10b981;
+            
+            --nav-height: 80px;
+            --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.05);
+            --shadow-premium: 0 20px 40px -5px rgba(11, 79, 138, 0.15);
+            --radius-lg: 16px;
+            --radius-md: 8px;
+            --nav-bg: rgba(255, 255, 255, 0.4);
+            --card-border: rgba(203, 220, 232, 0.8);
+        }
+
+      [data-theme="dark"] {
+            --primary-blue: #6cb2f4;
+            --accent-blue: #93c5fd;
+            --brand-orange: #fb923c;
+            --brand-yellow: #fbbf24;
+            --faint-blue: #12263a;
+            --gray-bg: #0a1a28;
+            --card-bg: #10233a;
+            --text-main: #f2f7fc;
+            --text-muted: #b7c6d6;
+            --white: #10233a;
+            --nav-bg: rgba(10, 26, 40, 0.5);
+            --card-border: rgba(255, 255, 255, 0.1);
+
+            /* Instantly inverts shop icons when dark mode flips on */
+            .shop-category-icon-img {
+                filter: invert(1) brightness(2) !important;
+            }
+        }
+
+        [data-theme="dark"] .nav-link { color: #b7c6d6 !important; }
+        [data-theme="dark"] .nav-link:hover { color: #6cb2f4 !important; }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        h1, h2, h3, .nav-brand-text, .section-header h2, .card-title, .empty-store h3 { font-family: 'Manrope', 'Plus Jakarta Sans', sans-serif; }
+        body { background-color: var(--gray-bg); color: var(--text-main); min-height: 100vh; overflow-x: hidden; transition: background-color 0.4s ease, color 0.4s ease; }
+
+        /* --- PERFECTLY CENTERED GRID NAVBAR CONSTRAINTS --- */
+        .navbar { 
+            height: var(--nav-height); 
+            background-color: var(--nav-bg); 
+            border-bottom: 1px solid var(--card-border); 
+            
+            /* Change flex to grid to create 3 independent target tracking zones */
+            display: grid;
+            grid-template-columns: 1fr auto 1fr; 
+            align-items: center; 
+            
+            padding: 0 40px; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            z-index: 1000; 
+            transition: background-color 0.4s ease, border-color 0.4s ease; 
+            transform: translateZ(0); 
+        }
+        .navbar::before { content: ""; position: absolute; inset: 0; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: -1; pointer-events: none; }
+        
+        /* Forces the right auth profile block to align perfectly to the right side of its track zone */
+        .nav-auth-zone { 
+            display: flex; 
+            align-items: center; 
+            position: relative; 
+            justify-content: flex-end; /* 🟢 Forces right-alignment */
+        }
+        .nav-brand { display: flex; align-items: center; gap: 12px; cursor: pointer; text-decoration: none; }
+        .nav-logo-wrap { position: relative; display: inline-flex; border-radius: 50%; }
+        .nav-logo-wrap::before {
+            content: ''; position: absolute; inset: -4px; border-radius: 50%; padding: 2px;
+            background: conic-gradient(from 0deg, var(--primary-blue), var(--brand-yellow), var(--brand-orange), var(--primary-blue));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            opacity: 0; transform: rotate(0deg);
+            transition: opacity 0.35s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none;
+        }
+        .nav-brand:hover .nav-logo-wrap::before { opacity: 1; transform: rotate(180deg); }
+        .nav-logo-img { height: 50px; width: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--white); background-color: var(--white); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .nav-brand:hover .nav-logo-img { transform: scale3d(1.05, 1.05, 1) rotate(-5deg); }
+        .nav-brand-text {
+            font-size: 20px; font-weight: 900; letter-spacing: -0.5px;
+            background: linear-gradient(90deg, var(--primary-blue) 0%, var(--brand-orange) 70%, var(--brand-yellow) 100%);
+            background-size: 250% 100%;
+            background-position: 0% 0%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transition: background-position 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        .nav-brand:hover .nav-brand-text { background-position: 100% 0%; }
+        
+        .nav-links-container { display: flex; align-items: center; gap: 32px; }
+        .nav-link { text-decoration: none; color: var(--text-muted); font-size: 14px; font-weight: 700; transition: color 0.25s ease; position: relative; }
+        .nav-link:hover { color: var(--primary-blue); }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 0; background: linear-gradient(90deg, var(--brand-orange), var(--brand-yellow)); transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        .nav-link:hover::after { width: 100%; }
+        
+        .nav-auth-zone { display: flex; align-items: center; position: relative; }
+        .btn-login { background-color: var(--primary-blue); color: var(--white); padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 700; text-decoration: none; transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease; box-shadow: 0 4px 10px rgba(30, 58, 138, 0.2); }
+        .btn-login:hover { background-color: #172554; transform: translate3d(0, -2px, 0); }
+
+        .profile-trigger { display: flex; align-items: center; justify-content: center; height: 42px; width: 42px; border-radius: 50%; background-color: var(--faint-blue); border: 2px solid var(--card-border); cursor: pointer; color: var(--primary-blue); font-weight: 700; font-size: 15px; text-transform: uppercase; user-select: none; transition: transform 0.2s ease; }
+        .profile-trigger:hover { transform: scale3d(1.05, 1.05, 1); border-color: var(--accent-blue); }
+        .profile-trigger img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+        
+        .dropdown-menu { position: absolute; top: 55px; right: 0; width: 220px; background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); display: none; flex-direction: column; overflow: hidden; transform-origin: top right; animation: dropdownPop 0.2s ease-out forwards; z-index: 1005;}
+        .dropdown-menu.active { display: flex; }
+        @keyframes dropdownPop { from { opacity: 0; transform: scale3d(0.95, 0.95, 1); } to { opacity: 1; transform: scale3d(1, 1, 1); } }
+        
+        .dropdown-header { padding: 16px; border-bottom: 1px solid var(--card-border); background-color: var(--gray-bg); font-size: 12px; color: var(--text-muted); font-weight: 600; word-break: break-all; }
+        .dropdown-item { padding: 14px 16px; font-size: 14px; font-weight: 600; color: var(--text-main); text-decoration: none; border-bottom: 1px solid var(--card-border); transition: background-color 0.2s ease, padding-left 0.2s ease; cursor: pointer; }
+        .dropdown-item:hover { background-color: var(--faint-blue); color: var(--primary-blue); padding-left: 20px; }
+
+        .theme-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--card-border); }
+        .theme-label { font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .theme-switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
+        .theme-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: background-color 0.4s; border-radius: 24px; }
+        .theme-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: transform 0.4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        input:checked + .theme-slider { background-color: var(--accent-blue); }
+        input:checked + .theme-slider:before { transform: translate3d(22px, 0, 0); }
+
+        /* --- MOBILE HAMBURGER & DRAWER --- */
+        .mobile-hamburger { display: none; cursor: pointer; z-index: 1003; position: relative; }
+
+        /* 🟢 MOBILE-ONLY QUICK SIGN IN (top-right corner, visible without
+           opening the hamburger drawer). Hidden on desktop and hidden
+           automatically when a session exists — see renderMobileQuickAuth(). */
+        .mobile-quick-signin { display: none; }
+        .mobile-quick-signin .btn-login {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+        #mobile-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1001; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        #mobile-drawer-overlay.active { opacity: 1; pointer-events: auto; }
+        #mobile-drawer { position: fixed; top: 0; left: -60%; bottom: 0; width: 50%; min-width: 260px; background-color: rgba(255, 255, 255, 0.5); border-right: 1px solid var(--card-border); box-shadow: 5px 0 25px rgba(0, 0, 0, 0.1); z-index: 1002; display: flex; flex-direction: column; padding: 80px 24px 30px; transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s ease; overflow-y: auto; box-sizing: border-box; }
+        #mobile-drawer::before { content: ""; position: absolute; inset: 0; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: -1; }
+        #mobile-drawer.active { left: 0; }
+        
+        [data-theme="dark"] #mobile-drawer { background-color: rgba(15, 23, 42, 0.8); }
+
+        .store-layout { 
+            max-width: 1250px; 
+            margin: 100px auto 80px; 
+            padding: 0 24px; 
+        }
+
+        .batches-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 34px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .batches-topbar-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+            font-family: 'Manrope', sans-serif;
+        }
+        .batches-topbar-dot {
+            width: 9px; height: 9px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-orange), var(--brand-yellow));
+            flex-shrink: 0;
+        }
+        .shop-search-box {
+            display: flex; align-items: center; gap: 8px;
+            background: var(--card-bg); border: 1.5px solid var(--card-border);
+            border-radius: 999px;
+            width: 280px;
+            padding: 10px 16px;
+        }
+        .shop-search-box:focus-within { border-color: var(--primary-blue); box-shadow: 0 0 0 3px var(--faint-blue); }
+        .search-icon-inline { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; }
+        .shop-search-box input {
+            flex: 1; min-width: 0; background: transparent; border: none; outline: none;
+            font-size: 13.5px; font-weight: 500; color: var(--text-main); font-family: inherit;
+        }
+        .shop-search-box input::placeholder { color: var(--text-muted); }
+        .shop-search-clear {
+            background: none; border: none; color: var(--text-muted);
+            cursor: pointer; font-size: 16px; line-height: 1; padding: 0 4px;
+            display: none; flex-shrink: 0;
+        }
+/* --- ROW-BY-ROW SECTION STYLING --- */
+        .store-section { 
+            margin-bottom: 50px; 
+            transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+        }
+
+        /* 🟢 The magic premium frosted-blur class */
+        .store-section.blurred-out {
+            filter: blur(8px);
+            opacity: 0.35; /* Fades out the other rows slightly so the center active grid pops */
+            pointer-events: none; /* Prevents accidental clicks on background cards while expanded */
+        }
+        .section-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: flex-end; 
+            margin-bottom: 20px; 
+            border-bottom: 1px solid var(--card-border); /* 🟢 Keeps it perfectly dynamic across both themes */
+            padding-bottom: 12px; 
+        }
+
+        .section-header h2 { 
+            font-size: 22px; 
+            font-weight: 800; 
+            color: var(--text-main); 
+            letter-spacing: -0.5px;
+        }
+        .view-all-link { 
+            font-size: 14px; 
+            font-weight: 600; 
+            color: var(--accent-blue); 
+            text-decoration: none; 
+            transition: color 0.2s; 
+            cursor: pointer;
+        }
+        .view-all-link:hover { color: var(--primary-blue); text-decoration: underline; }
+
+        /* 🟢 NETFLIX STYLE HORIZONTAL SCROLLING TRAY */
+       /* 🟢 NETFLIX STYLE HORIZONTAL SCROLLING TRAY - WITH HOVER ROOM */
+        .horizontal-tray {
+            display: flex;
+            gap: 28px;
+            overflow-x: auto;
+            overflow-y: hidden; /* Prevent vertical scrollbars while keeping horizontal slide */
+            
+            /* Add breathing room at the top and bottom so hover animations don't get cut off */
+            padding-top: 12px;   
+            padding-bottom: 16px;
+            margin-top: -12px;   /* Pulls the row back up to keep your layout alignment tight */
+            
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; /* Hides scrollbar in Firefox */
+            -ms-overflow-style: none; /* Hides scrollbar in IE/Edge */
+        }
+
+        .horizontal-tray::-webkit-scrollbar {
+            display: none; /* Hides scrollbar in Chrome/Safari */
+        }
+        
+        .horizontal-tray .shop-card {
+            flex: 0 0 auto;
+            width: 280px;
+            scroll-snap-align: start;
+        }
+
+        /* 🟢 EXPANDED GRID VIEW (When clicking 'View All') */
+        .expanded-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); 
+            gap: 20px; 
+        }
+        .expanded-grid .shop-card {
+            width: 100%;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        /* Base Card Styling */
+        .shop-card { 
+            background-color: var(--card-bg); 
+            border: 1px solid var(--card-border); 
+            border-radius: var(--radius-lg); 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; 
+        }
+        .shop-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: var(--shadow-premium); 
+            border-color: var(--primary-blue); 
+        }
+        .thumbnail-box { position: relative; width: 100%; aspect-ratio: 16/9; background-color: #f1f5f9; border-bottom: 1px solid var(--card-border); overflow: hidden; }
+        .thumbnail-box img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .card-badge { position: absolute; bottom: 12px; right: 12px; background: linear-gradient(90deg, #ef4444, #b91c1c); color: white; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .card-badge.free { background: linear-gradient(90deg, #f59e0b, #d97706); }
+        .card-badge.pro { background: linear-gradient(90deg, #8b5cf6, #6d28d9); }
+
+        .card-details { padding: 24px; display: flex; flex-direction: column; flex: 1; }
+        
+        .card-title { font-size: 14px; font-weight: 500; color: var(--text-main); line-height: 1.4; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .instructor-text { font-size: 13px; color: var(--text-muted); font-weight: 400; margin-bottom: auto; padding-bottom: 20px; }
+        
+        .price-row { display: flex; align-items: baseline; gap: 8px; margin-bottom: 16px; border-top: 1px solid var(--card-border); padding-top: 12px; }
+        .original-price { font-size: 12px; color: var(--text-muted); text-decoration: line-through; font-weight: 500; }
+        .active-price { font-size: 16px; font-weight: 800; color: var(--primary-blue); }
+        .active-price.free-text { font-size: 16px; color: var(--success); font-weight: 700; }
+        
+        .btn-action { width: 100%; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s ease; border: none; text-align: center; }
+        .btn-buy { background-color: var(--primary-blue); color: var(--white); }
+        .btn-buy:hover { background-color: var(--accent-blue); transform: translateY(-2px); }
+        .btn-owned { background-color: transparent; border: 1px solid var(--card-border); color: var(--primary-blue); }
+        .btn-owned:hover { background-color: var(--faint-blue); border-color: var(--primary-blue); }
+
+        .empty-store { grid-column: 1 / -1; text-align: center; padding: 80px 20px; background: var(--card-bg); border-radius: var(--radius-lg); border: 1px dashed var(--card-border); }
+        .empty-store h3 { font-size: 20px; font-weight: 800; color: var(--text-main); margin-bottom: 8px; }
+        .empty-store p { color: var(--text-muted); font-size: 15px; font-weight: 500; }
+
+        /* --- COURSE CARD: identical shape to product card, stacking illusion via box-shadow --- */
+        /* Two extra card outlines are drawn behind using layered box-shadows.
+           No pseudo-elements, no layout padding, perfectly aligned in the tray. */
+        /* --- BATCH TILE: compact, professional, PW-inspired layout --- */
+        .course-card-wrap {
+            flex: 0 0 auto;
+            width: 258px;
+            scroll-snap-align: start;
+            position: relative;
+        }
+        .course-card-wrap .shop-card {
+            border-radius: 10px;
+            border: 1px solid var(--card-border);
+            position: relative;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+        .course-card-wrap:hover .shop-card {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-premium);
+            border-color: var(--primary-blue);
+        }
+
+        .course-card-wrap .thumbnail-box { aspect-ratio: 16/10; }
+        .course-card-wrap .card-badge {
+            position: absolute;
+            top: 10px; right: 10px; left: auto; bottom: auto;
+            background: rgba(255,255,255,0.92);
+            color: var(--text-main);
+            font-size: 9.5px; font-weight: 800;
+            padding: 3px 9px;
+            border-radius: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: none;
+        }
+        [data-theme="dark"] .course-card-wrap .card-badge { background: rgba(16,35,58,0.92); color: var(--text-main); }
+
+        .course-card-wrap .card-details { padding: 14px 16px 16px; gap: 3px; }
+        .course-card-wrap .card-title { font-size: 14.5px; font-weight: 800; -webkit-line-clamp: 2; margin-bottom: 5px; letter-spacing: -0.1px; }
+        .course-card-wrap .instructor-text {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 11.5px; font-weight: 600; color: var(--text-muted);
+            margin-bottom: 10px; padding-bottom: 10px;
+            border-bottom: 1px solid var(--card-border);
+        }
+        .course-card-wrap .instructor-text svg { color: var(--primary-blue); flex-shrink: 0; }
+
+        .course-card-wrap .price-row {
+            border-top: none;
+            padding-top: 0;
+            margin-bottom: 12px;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .course-card-wrap .active-price { font-size: 18px; font-weight: 900; color: var(--text-main); }
+        .course-card-wrap .original-price { font-size: 12px; }
+        .course-card-wrap .active-price.free-text { font-size: 16px; }
+        .course-card-wrap .discount-pill {
+            font-size: 10.5px; font-weight: 800;
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.12);
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .course-card-wrap .card-action-row { display: flex; align-items: stretch; gap: 8px; }
+        .course-card-wrap .btn-action {
+            width: auto;
+            flex: 1;
+            border-radius: 7px;
+            font-size: 13px;
+            padding: 10px 14px;
+        }
+        .course-card-wrap .btn-buy {
+            background: var(--deep-blue);
+            box-shadow: none;
+        }
+        .course-card-wrap .btn-buy:hover {
+            background: var(--primary-blue);
+            transform: none;
+        }
+        .course-card-wrap .card-arrow-btn {
+            flex-shrink: 0;
+            width: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--card-border);
+            border-radius: 7px;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: border-color 0.2s ease, color 0.2s ease;
+        }
+        .course-card-wrap .card-arrow-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+
+        .horizontal-tray .course-card-wrap { padding: 0 0 4px 0; width: 258px; }
+
+        /* --- NEW: COURSE SANDBOX OVERLAY (responsive) --- */
+        #course-sandbox-overlay {
+            position: fixed; inset: 0; background: rgba(5,10,25,0.88);
+            z-index: 2000; display: flex; align-items: center; justify-content: center;
+            padding: 24px;
+        }
+        .sandbox-frame {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 1400px;
+            max-height: 900px;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-premium);
+            display: flex;
+            flex-direction: column;
+        }
+        .sandbox-close-btn {
+            position: absolute; top: 14px; right: 14px; z-index: 2002;
+            width: 38px; height: 38px; border-radius: 50%; border: none;
+            background: rgba(15,23,42,0.65); color: white; font-size: 20px;
+            cursor: pointer; line-height: 1;
+        }
+        .sandbox-iframe-wrap {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            /* Hide scrollbar chrome on all browsers — content still scrolls */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .sandbox-iframe-wrap::-webkit-scrollbar { display: none; }
+        .sandbox-iframe-wrap iframe {
+            width: 100%;
+            min-height: 100%;
+            border: none;
+            display: block;
+            /* Let iframe grow to its content, parent wrapper scrolls */
+            height: auto;
+        }
+        .sandbox-action-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 2002;
+        }
+        .sandbox-enroll-cta {
+            width: auto;
+            padding: 14px 32px;
+            font-size: 15px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 999px;
+            box-shadow: 0 10px 25px rgba(16,185,129,0.4);
+        }
+
+        @media (max-width: 700px) {
+            #course-sandbox-overlay { padding: 0; }
+            .sandbox-frame { max-height: none; border-radius: 0; }
+            .sandbox-close-btn { top: 10px; right: 10px; width: 34px; height: 34px; font-size: 18px; }
+            .sandbox-action-bar { bottom: 14px; width: 100%; padding: 0 16px; }
+            .sandbox-enroll-cta { width: 100%; padding: 13px 20px; font-size: 14px; }
+        }
+
+        @media (max-width: 900px) {
+            /* 🟢 OVERHAUL NAVBAR GRID TO FLEX ON MOBILE Screens */
+            .navbar {
+                display: flex !important;
+                justify-content: flex-start !important;
+                align-items: center !important;
+                width: 100% !important;
+                gap: 14px;
+                
+                /* Pulls the logo and sandwich inward from the screen corners perfectly */
+                padding-left: 28px !important;  
+                padding-right: 28px !important;
+                box-sizing: border-box !important;
+            }
+
+            /* 🟢 FORCE HAMBURGER TO THE LEFT SIDE, BEFORE THE LOGO
+               (same order:-1 flex trick as index.html / contact.html) */
+            .mobile-hamburger { 
+                display: block !important; 
+                order: -1;
+                margin: 0 !important;
+                cursor: pointer;
+                z-index: 1003;
+                position: relative;
+            }
+
+            .navbar .nav-links-container, .navbar .nav-auth-zone { display: none !important; }
+
+            /* Quick sign-in button pinned to the right edge of the mobile
+               navbar, sitting alongside the hamburger — only shown when
+               renderMobileQuickAuth() decides there's no active session. */
+            .mobile-quick-signin { display: flex !important; align-items: center; margin-left: auto; }
+            
+            #mobile-drawer .nav-links-container { display: flex !important; flex-direction: column; align-items: flex-start; gap: 20px; width: 100%; }
+            #mobile-drawer .nav-link { font-size: 18px; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; width: 100%; display: block; }
+            #mobile-drawer .nav-link::after { display: none; }
+            #mobile-drawer .nav-auth-zone { display: flex !important; margin-top: 30px; width: 100%; justify-content: flex-start; }
+            #mobile-drawer .btn-login { width: 100%; text-align: center; padding: 14px; font-size: 16px; }
+
+            /* FIX: without this, .dropdown-menu keeps its default
+               position:absolute; right:0 (see the base .dropdown-menu rule
+               above), which anchors it to the right edge of the tiny
+               42px-wide profile-trigger circle -- since that circle sits
+               near the LEFT edge of the drawer (nav-auth-zone is
+               flex-start here), the 220px-wide menu ends up rendered
+               mostly off to the left of the drawer / off-screen instead
+               of appearing under the avatar the user tapped. Making it
+               position:static drops it back into normal document flow,
+               directly below the avatar, full width of the drawer. */
+            #mobile-drawer .dropdown-menu { position: static; box-shadow: none; border: 1px solid var(--card-border); width: 100%; margin-top: 12px; display: none; animation: none; }
+            #mobile-drawer .dropdown-menu.active { display: flex; }
+            #mobile-drawer .nav-auth-zone > div:not(.profile-trigger) { width: 100%; }
+            #mobile-drawer .nav-auth-zone { justify-content: flex-start; }
+
+            .store-layout { margin-top: 100px; padding: 0 16px; }
+
+            /* 🟢 NEW: shrink everything — fonts, boxes, spacing — to 80% on mobile */
+            html { zoom: 0.8; }
+        }
+        /* --- MOBILE 80% SHRINK --- */
+        @media (max-width: 900px) {
+            html {
+                zoom: 0.8;
+                -webkit-text-size-adjust: 80%;
+            }
+        }
+        @supports not (zoom: 1) {
+            @media (max-width: 900px) {
+                html {
+                    transform: scale(0.8);
+                    transform-origin: top left;
+                    width: 125%;
+                }
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="nav-brand">
+            <span class="nav-logo-wrap">
+                <img src="/images/other_images/ynclasses-logo.png" alt="Y N Classes Logo" class="nav-logo-img" id="dynamic-nav-logo">
+            </span>
+            <span class="nav-brand-text" id="dynamic-nav-title">Y N CLASSES</span>
+        </a>
+        <div class="nav-links-container" id="nav-links-target">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/dashboard" class="nav-link">My Dashboard</a>
+            <a href="/contact" class="nav-link">Contact Us</a>
+        </div>
+        <div class="nav-auth-zone" id="nav-auth-target"></div>
+        <div class="mobile-quick-signin" id="mobile-quick-signin"></div>
+    </nav>
+    
+    <div id="mobile-drawer-overlay"></div>
+    <div id="mobile-drawer">
+        <div id="mobile-drawer-close" style="position:absolute; top:15px; right:20px; font-size:40px; color:var(--text-muted); cursor:pointer; line-height:1; font-weight:300;">&times;</div>
+    </div>
+
+   <main class="store-layout">
+        <div class="batches-topbar">
+            <div class="batches-topbar-label">
+                <span class="batches-topbar-dot"></span>
+                Batches
+            </div>
+            <div class="shop-search-box" id="shopSearchBox">
+                <svg class="search-icon-inline" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
+                    <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <input type="text" id="shopSearchInput" placeholder="Search batches..." oninput="handleShopSearch(this.value)">
+                <button class="shop-search-clear" id="shopSearchClear" onclick="clearShopSearch()">×</button>
+            </div>
+        </div>
+
+        <div id="shopSectionsContainer">
+            <div style="display: flex; justify-content: center; align-items: center; padding: 60px 0; width: 100%;">
+        <lottie-player src="/loading.json" background="transparent" speed="1" style="width: 120px; height: 120px;" loop autoplay></lottie-player>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- GLOBAL STORE STATES ---
+        let userAuthenticatedSession = null;
+        let allProducts = [];
+        let allCategories = [];
+        let allSegments = []; 
+        let userEnrolledProductIds = [];
+        let currentActiveFilter = 'all';
+        let searchQuery = ''; // NEW: drives the search-box filter
+        let searchDebounceTimer = null;
+
+        // NEW: Course support -- courses are top-level sellable bundles (sidebar_main_sections
+        // rows with is_course = true). Their child products live under course subsections and
+        // are never rendered as standalone shop cards.
+        let allCourses = [];
+        let userEnrolledCourseIds = [];
+        // NEW: robust course-ownership detection. A product can be linked to a course
+        // through THREE different legacy/current columns (subsection_id, course_subsection_id,
+        // or chapter_id) depending on when it was created. We build sets for all three
+        // paths so nothing slips through regardless of which column was populated.
+        let courseOwnedSubsectionIds = new Set();
+        let courseOwnedChapterIds = new Set();
+
+        document.addEventListener("DOMContentLoaded", () => {
+            bootStoreEngine();
+            
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                userAuthenticatedSession = session;
+                renderHeaderProfileControls(); 
+            });
+        });
+
+        async function bootStoreEngine() {
+            try {
+                let { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) {
+                    const match = document.cookie.match(new RegExp('(^| )cet_session_token=([^;]+)'));
+                    if (match && match[2]) {
+                        const token = match[2];
+                        const { data: syncData } = await supabaseClient.auth.setSession({ access_token: token, refresh_token: token });
+                        if (syncData && syncData.session) session = syncData.session;
+                    }
+                }
+                userAuthenticatedSession = session;
+            } catch (err) { console.error("Auth Sync Error:", err); }
+
+            renderHeaderProfileControls();
+
+            // Fetch and render everything
+            await fetchStoreData();
+            renderStorefrontGrid();
+            
+            bootMobileResponsiveness();
+        }
+
+        function renderHeaderProfileControls() {
+            const navAuthZone = document.getElementById('nav-auth-target');
+            if (userAuthenticatedSession) {
+                const email = userAuthenticatedSession.user?.email || "User";
+                const initial = email.charAt(0).toUpperCase();
+                const avatarUrl = userAuthenticatedSession.user?.user_metadata?.avatar_url || userAuthenticatedSession.user?.user_metadata?.picture || "";
+                
+                const avatarHtml = avatarUrl 
+                    ? `<img src="${avatarUrl}" alt="Profile" referrerpolicy="no-referrer" onerror="this.onerror=null; this.parentNode.innerHTML='${initial}';">` 
+                    : initial;
+
+                const currentSavedTheme = localStorage.getItem('theme') || 'light';
+                const isChecked = currentSavedTheme === 'dark' ? 'checked' : '';
+
+                navAuthZone.innerHTML = `
+                    <div style="position: relative;">
+                        <div class="profile-trigger" id="profile-trigger-btn">${avatarHtml}</div>
+                        <div class="dropdown-menu" id="profile-dropdown">
+                            <div class="dropdown-header">${email}</div>
+                            <a href="/dashboard" class="dropdown-item">My Dashboard</a>
+                            <a href="/profile" class="dropdown-item">My Profile</a>
+                            
+                            <div class="theme-toggle-row">
+                                <span class="theme-label">Dark Mode</span>
+                                <label class="theme-switch">
+                                    <input type="checkbox" id="themeModeCheckbox" ${isChecked} onchange="toggleGlobalThemeMode(this)">
+                                    <span class="theme-slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="dropdown-item" style="color: #ef4444; cursor: pointer;" onclick="triggerSessionLogoutSequence()">Logout</div>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('profile-trigger-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.getElementById('profile-dropdown').classList.toggle('active');
+                });
+                document.addEventListener('click', () => {
+                    const dropdown = document.getElementById('profile-dropdown');
+                    if (dropdown) dropdown.classList.remove('active');
+                });
+            } else {
+                navAuthZone.innerHTML = `<button class="btn-login" onclick="window.location.href='/login'">Sign In</button>`;
+            }
+
+            renderMobileQuickAuth();
+        }
+
+        // 🟢 Mobile-only "Sign In" button in the navbar's top-right corner.
+        // Independent of nav-auth-target (which gets moved into the
+        // hamburger drawer on mobile) so users can sign in with one tap,
+        // without opening the drawer. Hidden entirely once signed in.
+        function renderMobileQuickAuth() {
+            const el = document.getElementById('mobile-quick-signin');
+            if (!el) return;
+            el.innerHTML = userAuthenticatedSession
+                ? ''
+                : `<button class="btn-login" onclick="window.location.href='/login'">Sign In</button>`;
+        }
+
+        // --- DATA FETCHING ENGINE ---
+        async function fetchStoreData() {
+            try {
+                // Fetch dynamic top-row classifications (11th, 12th, etc.)
+                const { data: segments } = await supabaseClient.from('target_segments').select('*').order('display_order', { ascending: true });
+                if (segments) allSegments = segments;
+
+                // Fetch resource sub-categories
+                const { data: categories } = await supabaseClient.from('sidebar_subsections').select('id, name').order('display_order', { ascending: true });
+                if (categories) allCategories = categories;
+
+                // Fetch Products
+                const { data: products } = await supabaseClient.from('products').select('*');
+                if (products) allProducts = products;
+
+                // NEW: Fetch courses (top-level sections flagged is_course = true) with their subsections
+                const { data: courseRows } = await supabaseClient
+                    .from('sidebar_main_sections')
+                    .select('*, sidebar_subsections(*)')
+                    .eq('is_course', true)
+                    .order('display_order', { ascending: true });
+                if (courseRows) allCourses = courseRows;
+
+                // NEW: Build the course-owned subsection/chapter sets. A product only
+                // counts as "standalone" if none of its linkage columns (subsection_id,
+                // course_subsection_id, chapter_id) trace back to a course's own
+                // subsections. sidebar_subsections(*) on the course query above already
+                // gives us every subsection that belongs to a course.
+                courseOwnedSubsectionIds = new Set(
+                    (allCourses || []).flatMap(c => (c.sidebar_subsections || []).map(s => s.id))
+                );
+                courseOwnedChapterIds = new Set();
+                if (courseOwnedSubsectionIds.size > 0) {
+                    const { data: chapterRows } = await supabaseClient
+                        .from('sidebar_chapters')
+                        .select('id, subsection_id');
+                    (chapterRows || []).forEach(ch => {
+                        if (courseOwnedSubsectionIds.has(ch.subsection_id)) {
+                            courseOwnedChapterIds.add(ch.id);
+                        }
+                    });
+                }
+
+                if (userAuthenticatedSession) {
+                    const { data: enrollments } = await supabaseClient
+                        .from('user_enrollments')
+                        .select('product_id')
+                        .eq('student_id', userAuthenticatedSession.user.email);
+                        
+                    if (enrollments) {
+                        userEnrolledProductIds = enrollments.map(record => record.product_id);
+                    }
+
+                    // NEW: separate course enrollment lookup (course_id column, not product_id)
+                    const { data: courseEnrollments } = await supabaseClient
+                        .from('user_enrollments')
+                        .select('course_id')
+                        .eq('student_id', userAuthenticatedSession.user.email)
+                        .not('course_id', 'is', null);
+
+                    if (courseEnrollments) {
+                        userEnrolledCourseIds = courseEnrollments.map(record => record.course_id);
+                    }
+                }
+            } catch (err) { console.error("Store Fetch Error:", err); }
+        }
+
+        // --- SEARCH (replaces category filter) ---
+        function handleShopSearch(value) {
+            clearTimeout(searchDebounceTimer);
+            searchDebounceTimer = setTimeout(() => {
+                searchQuery = value.trim().toLowerCase();
+                const clearBtn = document.getElementById('shopSearchClear');
+                if (clearBtn) clearBtn.style.display = searchQuery ? 'block' : 'none';
+                renderStorefrontGrid();
+            }, 220);
+        }
+
+        function clearShopSearch() {
+            searchQuery = '';
+            const input = document.getElementById('shopSearchInput');
+            const clearBtn = document.getElementById('shopSearchClear');
+            if (input) input.value = '';
+            if (clearBtn) clearBtn.style.display = 'none';
+            renderStorefrontGrid();
+        }
+
+        // --- ROW-BY-ROW RENDER ENGINE ---
+        function renderStorefrontGrid() {
+            const container = document.getElementById('shopSectionsContainer');
+
+            const q = searchQuery;
+
+            // Standalone products only. Excludes a product if ANY of its linkage
+            // columns point into a course's own subsections/chapters -- covers both
+            // legacy rows (subsection_id / course_subsection_id) and current rows
+            // (chapter_id only) so nothing course-owned leaks in here.
+            const standaloneProducts = allProducts.filter(p =>
+                !courseOwnedSubsectionIds.has(p.subsection_id) &&
+                !courseOwnedSubsectionIds.has(p.course_subsection_id) &&
+                !courseOwnedChapterIds.has(p.chapter_id)
+            );
+            const filteredProducts = q
+                ? standaloneProducts.filter(p => (p.title || '').toLowerCase().includes(q))
+                : standaloneProducts;
+
+            // Courses -- search by name
+            const filteredCourses = q
+                ? allCourses.filter(c => (c.name || '').toLowerCase().includes(q))
+                : allCourses;
+
+            const hasCourses = filteredCourses.length > 0;
+
+            if (filteredProducts.length === 0 && !hasCourses) {
+                container.innerHTML = `
+                    <div class="empty-store">
+                        <h3>No Batches Found</h3>
+                        <p>We don't have items matching this category yet. Check back soon!</p>
+                    </div>`;
+                return;
+            }
+
+            let html = '';
+
+            // NEW: Courses row -- shown only on the "All Items" filter, since courses
+            // aren't scoped to a single subsection the way standalone products are
+            if (hasCourses) {
+                html += `
+                    <div class="store-section">
+                        <div class="section-header">
+                            <h2>Batches</h2>
+                        </div>
+                        <div class="horizontal-tray">
+                `;
+                filteredCourses.forEach(course => {
+                    html += generateCourseCardHTML(course);
+                });
+                html += `</div></div>`;
+            }
+            
+            // Loop through all Segments (11th, 12th) to build rows
+            allSegments.forEach(segment => {
+                const segmentProducts = filteredProducts.filter(p => p.segment_id === segment.id);
+                // Courses can optionally ALSO be listed inside a target segment's row
+                // (in addition to always showing in the top Batches row above) --
+                // set via the admin "Where should this appear?" dropdown.
+                const segmentCourses = filteredCourses.filter(c => c.segment_id === segment.id);
+
+                if (segmentProducts.length > 0 || segmentCourses.length > 0) {
+                    const rowId = `tray-${segment.id}`; // Unique ID for toggling this specific row
+                    
+                    html += `
+                        <div class="store-section">
+                            <div class="section-header">
+                                <h2>${segment.name}</h2>
+                                <!-- Only show 'View All' if there are multiple cards to expand -->
+                                <div class="view-all-link" onclick="toggleTrayExpansion(this, '${rowId}')">View All</div>
+                            </div>
+                            <!-- Defaults to the horizontal scrolling tray -->
+                            <div id="${rowId}" class="horizontal-tray">
+                    `;
+                    
+                    segmentCourses.forEach(course => {
+                        html += generateCourseCardHTML(course);
+                    });
+                    segmentProducts.forEach(product => {
+                        html += generateProductCardHTML(product);
+                    });
+                    
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            container.innerHTML = html;
+        }
+
+        // --- HELPER TO BUILD CARDS CLEANLY ---
+        // NEW: supports both a raw Supabase Storage path (routed through the
+        // /api/images proxy, same as before) AND a direct absolute URL (http/https)
+        // typed straight into the thumbnail/icon field -- used as-is, no proxy.
+        function resolveImageUrl(value) {
+            if (!value) return 'https://placehold.co/600x338/1e3a8a/ffffff?text=Y+N+Classes';
+            if (/^https?:\/\//i.test(value)) return value;
+            return `/api/images?path=${value}`;
+        }
+
+        function generateProductCardHTML(product) {
+            const isEnrolled = userEnrolledProductIds.includes(product.id);
+            const badgeClass = product.badge_label ? product.badge_label.toLowerCase() : 'free';
+            
+            let priceDisplayHtml = product.is_paid 
+                ? `<span class="original-price">₹${Math.round(product.price * 1.5)}</span><span class="active-price">₹${product.price}</span>` 
+                : `<span class="active-price free-text">FREE</span>`;
+
+            let actionButtonHtml = '';
+            if (isEnrolled) {
+                actionButtonHtml = `<button class="btn-action btn-owned" onclick="window.location.href='/dashboard/${product.id}'">Go to Dashboard</button>`;
+            } else if (product.is_paid) {
+                actionButtonHtml = `<button class="btn-action btn-buy" onclick="processPremiumEnrollment('${product.id}', ${product.price})">Buy Now</button>`;
+            } else {
+                actionButtonHtml = `<button class="btn-action btn-buy" onclick="processFreeEnrollment('${product.id}', this)">Enroll for Free</button>`;
+            }
+
+            return `
+                <div class="shop-card">
+                    <div class="thumbnail-box">
+                        <img src="${resolveImageUrl(product.thumbnail_url)}" alt="${product.title}" onerror="this.src='https://placehold.co/600x338/1e3a8a/ffffff?text=Y+N+Classes'">
+                        <div class="card-badge ${badgeClass}">${product.badge_label}</div>
+                    </div>
+                    <div class="card-details">
+                        <h3 class="card-title">${product.title}</h3>
+                        <div class="instructor-text">By ${product.instructor}</div>
+                        
+                        <div class="price-row">
+                            ${priceDisplayHtml}
+                        </div>
+                        
+                        ${actionButtonHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- NEW: COURSE CARD BUILDER ---
+        function generateCourseCardHTML(course) {
+            const isEnrolled = userEnrolledCourseIds.includes(course.id);
+            const badgeClass = course.badge_label ? course.badge_label.toLowerCase() : 'course';
+
+            let priceDisplayHtml = course.is_paid
+                ? (() => {
+                    const original = Math.round(course.price * 1.5);
+                    const discountPct = Math.round((1 - course.price / original) * 100);
+                    return `<span class="original-price">₹${original}</span><span class="active-price">₹${course.price}</span><span class="discount-pill">${discountPct}% OFF</span>`;
+                })()
+                : `<span class="active-price free-text">FREE</span>`;
+
+            let actionButtonHtml = '';
+            if (isEnrolled) {
+                actionButtonHtml = `<button class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white;" onclick="event.stopPropagation(); window.location.href='/dashboard/${course.id}'">Go Study</button>`;
+            } else if (course.is_paid) {
+                actionButtonHtml = `<button class="btn-action btn-buy" onclick="event.stopPropagation(); processPremiumCourseEnrollment('${course.id}', ${course.price})">Buy Now</button>`;
+            } else {
+                actionButtonHtml = `<button class="btn-action btn-buy" onclick="event.stopPropagation(); processFreeCourseEnrollment('${course.id}', this)">Enroll for Free</button>`;
+            }
+
+            return `
+                <div class="course-card-wrap" onclick="navigateToBatchPage('${course.slug || slugifyText(course.name)}')" style="cursor: pointer;">
+                    <div class="shop-card">
+                        <div class="thumbnail-box">
+                            <img src="${resolveImageUrl(course.thumbnail_url)}" alt="${course.name}" onerror="this.src='https://placehold.co/600x338/0b4f8a/ffffff?text=Y+N+CLASSES'">
+                            <div class="card-badge ${badgeClass}">${course.badge_label || 'Batch'}</div>
+                        </div>
+                        <div class="card-details">
+                            <h3 class="card-title">${course.name}</h3>
+                            <div class="instructor-text">
+                                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                                ${(course.sidebar_subsections || []).length} sections included
+                            </div>
+                            <div class="price-row">${priceDisplayHtml}</div>
+                            <div class="card-action-row">
+                                ${actionButtonHtml}
+                                <span class="card-arrow-btn" onclick="event.stopPropagation(); navigateToBatchPage('${course.slug || slugifyText(course.name)}')">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Simple slug generator — fallback for batches that don't have an
+        // explicit `slug` column set yet in Supabase (lowercase, hyphenated).
+        function slugifyText(text) {
+            return (text || '')
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/(^-|-$)/g, '');
+        }
+
+        // Clicking a batch bundle card takes the whole screen to its own
+        // dedicated page at /cources/<slug> — built independently per batch.
+        function navigateToBatchPage(slug) {
+            window.location.href = `/cources/${slug}`;
+        }
+
+        // --- NEW: COURSE SANDBOX OVERLAY (details page + floating Enroll Now button) ---
+        function openCourseSandbox(courseId) {
+            const course = allCourses.find(c => c.id === courseId);
+            if (!course) return;
+
+            const isEnrolled = userEnrolledCourseIds.includes(course.id);
+
+            let overlay = document.getElementById('course-sandbox-overlay');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'course-sandbox-overlay';
+                document.body.appendChild(overlay);
+            }
+            overlay.onclick = (e) => { if (e.target === overlay) closeCourseSandbox(); };
+
+            // NEW: enrolled state keeps the same green floating CTA style, just relabeled
+            // and pointed at the dashboard instead of triggering enrollment again
+            let enrollButtonHtml = '';
+            if (isEnrolled) {
+                enrollButtonHtml = `<button class="btn-action sandbox-enroll-cta" onclick="window.location.href='/dashboard/${course.id}'">Go Study</button>`;
+            } else if (course.is_paid) {
+                enrollButtonHtml = `<button id="sandbox-enroll-btn" class="btn-action sandbox-enroll-cta" onclick="processPremiumCourseEnrollment('${course.id}', ${course.price})">Enroll Now — ₹${course.price}</button>`;
+            } else {
+                enrollButtonHtml = `<button id="sandbox-enroll-btn" class="btn-action sandbox-enroll-cta" onclick="processFreeCourseEnrollment('${course.id}', document.getElementById('sandbox-enroll-btn'))">Enroll Now — Free</button>`;
+            }
+
+            overlay.innerHTML = `
+                <div class="sandbox-frame">
+                    <button class="sandbox-close-btn" onclick="closeCourseSandbox()">×</button>
+                    <div class="sandbox-iframe-wrap">
+                        <iframe
+                            id="sandbox-details-iframe"
+                            src="/api/course-details?id=${encodeURIComponent(course.id)}"
+                            title="${course.name} details"
+                            onload="try { const doc = this.contentDocument; if (doc) this.style.height = doc.documentElement.scrollHeight + 'px'; } catch(e) {}"
+                        ></iframe>
+                    </div>
+                    <div class="sandbox-action-bar">
+                        ${enrollButtonHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeCourseSandbox() {
+            const overlay = document.getElementById('course-sandbox-overlay');
+            if (overlay) overlay.remove();
+        }
+
+        // --- NEW: COURSE ENROLLMENT LOGIC (mirrors processFreeEnrollment / processPremiumEnrollment) ---
+        async function processFreeCourseEnrollment(courseId, btnElement) {
+            if (!userAuthenticatedSession) {
+                window.location.href = '/login?redirect=/shop';
+                return;
+            }
+
+            if (btnElement) {
+                btnElement.innerText = "Enrolling...";
+                btnElement.disabled = true;
+                btnElement.style.opacity = "0.7";
+            }
+
+            try {
+                // 1. Enroll in the course itself
+                const { error: courseEnrollErr } = await supabaseClient
+                    .from('user_enrollments')
+                    .insert([{
+                        student_id: userAuthenticatedSession.user.email,
+                        course_id: courseId
+                    }]);
+
+                if (courseEnrollErr && courseEnrollErr.code !== '23505') throw courseEnrollErr;
+
+                // 2. NEW: auto-enroll in every product currently inside this course so the
+                //    dashboard's existing enrolledProductIds check works for course products too.
+                //    Future products added to the course are visible directly (sidebar gate-keeps
+                //    access) without any extra enrollment step.
+                const course = allCourses.find(c => c.id === courseId);
+                const subsectionIds = (course?.sidebar_subsections || []).map(s => s.id);
+
+                if (subsectionIds.length > 0) {
+                    const { data: courseProducts } = await supabaseClient
+                        .from('products')
+                        .select('id')
+                        .in('course_subsection_id', subsectionIds);
+
+                    if (courseProducts && courseProducts.length > 0) {
+                        const rows = courseProducts.map(p => ({
+                            student_id: userAuthenticatedSession.user.email,
+                            product_id: p.id
+                        }));
+                        // upsert so duplicate rows are silently ignored
+                        await supabaseClient
+                            .from('user_enrollments')
+                            .upsert(rows, { onConflict: 'student_id,product_id', ignoreDuplicates: true });
+                    }
+                }
+
+                userEnrolledCourseIds.push(courseId);
+                renderStorefrontGrid();
+                closeCourseSandbox();
+                alert("Successfully Enrolled! This batch is now unlocked in your Dashboard.");
+
+            } catch (err) {
+                console.error("Course Enrollment Error:", err);
+                alert("Something went wrong. Please try again.");
+                if (btnElement) {
+                    btnElement.innerText = "Enroll for Free";
+                    btnElement.disabled = false;
+                    btnElement.style.opacity = "1";
+                }
+            }
+        }
+
+        function processPremiumCourseEnrollment(courseId, price) {
+            if (!userAuthenticatedSession) {
+                window.location.href = '/login?redirect=/cources';
+                return;
+            }
+            // Send straight to the course's own detail page instead of
+            // handling payment inline here -- that page is where BuyBox +
+            // CouponBox actually live, so the student sees the real
+            // server-verified price and can apply a coupon BEFORE any
+            // transaction happens, instead of this card jumping straight
+            // into a payment attempt.
+            const course = allCourses.find(c => c.id === courseId);
+            const slug = course?.slug || (course?.name ? slugifyText(course.name) : null);
+            if (!slug) {
+                alert('This course page is not set up yet -- contact the admin.');
+                return;
+            }
+            window.location.href = `/cources/${slug}`;
+        }
+
+
+        function toggleTrayExpansion(btnElement, rowId) {
+            const rowContainer = document.getElementById(rowId);
+            const currentSection = rowContainer.closest('.store-section');
+            const allSections = document.querySelectorAll('.store-section');
+            
+            if (rowContainer.classList.contains('horizontal-tray')) {
+                // 1. Expand the clicked container row to a full grid matrix
+                rowContainer.classList.remove('horizontal-tray');
+                rowContainer.classList.add('expanded-grid');
+                btnElement.innerText = "Show Less";
+                
+                // 2. Loop through all rows and apply blur to EVERYTHING except this active one
+                allSections.forEach(section => {
+                    if (section !== currentSection) {
+                        section.classList.add('blurred-out');
+                    }
+                });
+
+                // 3. 🟢 PERFECT BALANCE SCROLL: Calculates layout coordinates to prevent navbar overlaps
+                const navHeight = 80; // Matches your var(--nav-height) layout clearance
+                const safetyPadding = 20; // Elegant breathing gap below the frosted border
+                
+                // Get section position relative to the entire document window axis
+                const elementPosition = currentSection.getBoundingClientRect().top + window.scrollY;
+                const offsetPosition = elementPosition - navHeight - safetyPadding;
+
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
+                });
+
+            } else {
+                // 1. Collapse it back to the clean horizontal scroll layout format
+                rowContainer.classList.remove('expanded-grid');
+                rowContainer.classList.add('horizontal-tray');
+                btnElement.innerText = "View All";
+                
+                // 2. Instantly remove blur from all other categories smoothly
+                allSections.forEach(section => {
+                    section.classList.remove('blurred-out');
+                });
+            }
+        }
+
+        // --- ENROLLMENT LOGIC ---
+        async function processFreeEnrollment(productId, btnElement) {
+            if (!userAuthenticatedSession) {
+                window.location.href = '/login?redirect=/shop';
+                return;
+            }
+
+            btnElement.innerText = "Enrolling...";
+            btnElement.disabled = true;
+            btnElement.style.opacity = "0.7";
+
+            try {
+                const { error } = await supabaseClient
+                    .from('user_enrollments')
+                    .insert([{ 
+                        student_id: userAuthenticatedSession.user.email, 
+                        product_id: productId 
+                    }]);
+
+                if (error && error.code !== '23505') throw error; 
+
+                userEnrolledProductIds.push(productId);
+                renderStorefrontGrid();
+                alert("Successfully Enrolled! This material is now unlocked in your Dashboard.");
+                
+            } catch (err) {
+                console.error("Enrollment Error:", err);
+                alert("Something went wrong. Please try again.");
+                btnElement.innerText = "Enroll for Free";
+                btnElement.disabled = false;
+                btnElement.style.opacity = "1";
+            }
+        }
+
+        function processPremiumEnrollment(productId, price) {
+            if (!userAuthenticatedSession) {
+                window.location.href = '/login?redirect=/shop';
+                return;
+            }
+            alert(`Payment Gateway initialization for ₹${price} will go here!`);
+        }
+
+        function toggleGlobalThemeMode(checkboxEl) {
+            if (checkboxEl.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        (function applySavedThemeOnLoad() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        })();
+
+        async function triggerSessionLogoutSequence() {
+            try {
+                document.cookie = "cet_session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+                await supabaseClient.auth.signOut();
+                window.location.href = '/';
+            } catch (e) { window.location.href = '/'; }
+        }
+
+        function bootMobileResponsiveness() {
+            const navbar = document.querySelector('.navbar');
+            if (!navbar) return;
+            
+            let hamburger = document.querySelector('.mobile-hamburger');
+            if (!hamburger) {
+                hamburger = document.createElement('div');
+                hamburger.className = 'mobile-hamburger';
+                hamburger.innerHTML = `<svg viewBox="0 0 24 24" width="32" height="32" fill="var(--primary-blue)"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>`;
+                navbar.appendChild(hamburger);
+            }
+
+            let overlay = document.getElementById('mobile-drawer-overlay');
+            let drawer = document.getElementById('mobile-drawer');
+            let closeBtn = document.getElementById('mobile-drawer-close');
+            
+            function toggleMobileMenu() {
+                drawer.classList.toggle('active');
+                overlay.classList.toggle('active');
+            }
+            
+            hamburger.removeEventListener('click', toggleMobileMenu);
+            hamburger.addEventListener('click', toggleMobileMenu);
+            
+            if(closeBtn) {
+                closeBtn.removeEventListener('click', toggleMobileMenu);
+                closeBtn.addEventListener('click', toggleMobileMenu);
+            }
+            
+            overlay.removeEventListener('click', toggleMobileMenu);
+            overlay.addEventListener('click', toggleMobileMenu);
+
+            const navAuth = document.getElementById('nav-auth-target');
+            const mobileLinksTarget = document.getElementById('mobile-drawer');
+
+            function handleScreenResize() {
+                if (window.innerWidth <= 900) {
+                    if (navAuth) mobileLinksTarget.appendChild(navAuth);
+                    // Add manual links to drawer so they don't break the main navbar
+                    if (!document.getElementById('drawer-links')) {
+                        const drawerLinks = document.createElement('div');
+                        drawerLinks.id = 'drawer-links';
+                        drawerLinks.className = 'nav-links-container';
+                        drawerLinks.innerHTML = `
+                            <a href="/" class="nav-link">Home</a>
+                            <a href="/dashboard" class="nav-link">My Dashboard</a>
+                            <a href="/contact" class="nav-link">Contact Us</a>
+                        `;
+                        mobileLinksTarget.insertBefore(drawerLinks, navAuth);
+                    }
+                } else {
+                    if (navAuth) navbar.appendChild(navAuth);
+                    drawer.classList.remove('active');
+                    overlay.classList.remove('active');
+                }
+            }
+            
+            window.addEventListener('resize', handleScreenResize);
+            handleScreenResize(); 
+        }
+    </script>
+</body>
+</html>

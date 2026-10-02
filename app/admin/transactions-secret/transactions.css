@@ -1,0 +1,448 @@
+/* SAVE THIS FILE AT: app/admin/transactions-secret/transactions.css  (new file) */
+
+.tx-gate-wrap {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.tx-gate-card {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 28px;
+  border-radius: 14px;
+  border: 1px solid #e2e2e2;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  background: #fff;
+}
+
+.tx-gate-card h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.tx-gate-input {
+  padding: 10px 12px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #cfcfcf;
+  letter-spacing: 3px;
+  text-align: center;
+}
+
+.tx-muted {
+  color: #6b6b6b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.tx-error {
+  color: #c0392b;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.tx-btn {
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tx-btn-primary {
+  background: #1e293b;
+  color: #fff;
+}
+
+.tx-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.tx-btn-ghost {
+  background: transparent;
+  border: 1px solid #cfcfcf;
+  color: #333;
+}
+
+.tx-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 60px;
+}
+
+.tx-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.tx-header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.tx-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.tx-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+}
+
+.tx-box-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.tx-box-link:hover {
+  border-color: #1e293b;
+  background: #f2f4f7;
+}
+
+.tx-box-label {
+  font-size: 0.82rem;
+  color: #6b6b6b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tx-box-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111;
+}
+
+.tx-box-arrow {
+  font-size: 1.8rem;
+}
+
+.tx-box-sub {
+  font-size: 0.78rem;
+  color: #8a8a8a;
+}
+
+.tx-placeholder {
+  padding: 40px 0;
+  text-align: center;
+  border: 1px dashed #dcdcdc;
+  border-radius: 12px;
+}
+
+/* APPEND THIS TO THE END OF: app/admin/transactions-secret/transactions.css */
+/* (Part 3 additions — calendar filter + history table. Nothing above this
+   line needs to change; just add everything below to the existing file.) */
+
+.tx-filter {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tx-filter-clear {
+  background: none;
+  border: none;
+  color: #6b6b6b;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tx-filter-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  width: min(560px, 90vw);
+}
+
+.tx-filter-cals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.tx-filter-cal-label {
+  margin: 0 0 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+
+.tx-filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.tx-cal {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.tx-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.tx-cal-nav {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+}
+
+.tx-cal-nav:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.tx-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  font-size: 0.7rem;
+  color: #999;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.tx-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.tx-cal-cell {
+  aspect-ratio: 1;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.tx-cal-cell:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.tx-cal-cell:disabled {
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+.tx-cal-empty {
+  cursor: default;
+}
+
+.tx-cal-selected {
+  background: #1e293b !important;
+  color: #fff;
+  font-weight: 700;
+}
+
+.tx-history {
+  margin-top: 8px;
+}
+
+.tx-history-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.tx-history-toolbar h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.tx-table-wrap {
+  overflow-x: auto;
+  border: 1px solid #eee;
+  border-radius: 12px;
+}
+
+.tx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.tx-table th {
+  text-align: left;
+  padding: 10px 14px;
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #8a8a8a;
+}
+
+.tx-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.tx-table tr:last-child td {
+  border-bottom: none;
+}
+
+.tx-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tx-table-empty {
+  text-align: center;
+  color: #999;
+  padding: 24px !important;
+}
+
+.tx-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #eef2f7;
+  color: #334155;
+}
+
+.tx-status-captured {
+  background: #e6f7ec;
+  color: #1a7f4b;
+}
+
+.tx-status-failed {
+  background: #fdeaea;
+  color: #b3261e;
+}
+
+.tx-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.tx-pagination-btns {
+  display: flex;
+  gap: 8px;
+}
+
+/* APPEND THIS TO THE END OF: app/admin/transactions-secret/transactions.css */
+/* (Part 4 additions — client-admin sub-page: back link, single-box row, edit
+   button, and the add/edit modal.) */
+
+.tx-back-link {
+  display: inline-block;
+  font-size: 0.82rem;
+  color: #6b6b6b;
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+
+.tx-back-link:hover {
+  text-decoration: underline;
+}
+
+.tx-boxes-single {
+  grid-template-columns: minmax(220px, 320px);
+}
+
+.tx-link-btn {
+  background: none;
+  border: none;
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.tx-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.tx-modal {
+  width: 100%;
+  max-width: 380px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tx-modal h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.tx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.tx-field input {
+  padding: 9px 10px;
+  border-radius: 8px;
+  border: 1px solid #cfcfcf;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+.tx-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}

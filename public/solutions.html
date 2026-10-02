@@ -1,0 +1,847 @@
+<!-- SAVE TO: public/solutions.html (or wherever review.html currently lives — same folder) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<title>Solutions - Y N Classes</title>
+<link rel="icon" id="dynamic-favicon" type="image/png" href="/images/other_images/ynclasses-logo.png">
+<style>
+  :root {
+    --green: #22c55e; --green-bg: #dcfce7; --green-dark:#15803d;
+    --red: #ef4444; --red-bg: #fee2e2; --red-dark:#b91c1c;
+    --yellow: #eab308; --yellow-bg: #fef9c3; --yellow-dark:#a16207;
+    --blue: #2563eb;
+    --border: #e2e8f0;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', system-ui, sans-serif; }
+  body { background:#c7cacd; color: var(--text-main); }
+
+  .sol-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 16px 24px; background:#fff; border-bottom:1px solid var(--border);
+    flex-wrap: wrap; gap: 12px; position:sticky; top:0; z-index:20;
+  }
+  .sol-header-left { display:flex; align-items:center; gap:14px; min-width:0; }
+  .back-arrow { cursor:pointer; font-size:20px; color:var(--text-muted); flex-shrink:0; }
+  .sol-title { font-size:18px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px; }
+  .sol-attempt-tag { font-size:12px; font-weight:700; color:var(--blue); background:#eff6ff; padding:4px 10px; border-radius:999px; }
+
+  .attempt-select-wrap { position:relative; }
+  .attempt-select-btn {
+    display:flex; align-items:center; gap:6px; padding:8px 14px; border:1px solid var(--border);
+    border-radius:8px; background:#fff; font-size:13px; font-weight:600; cursor:pointer; color:var(--text-main);
+  }
+  .attempt-dropdown {
+    display:none; position:absolute; top:calc(100% + 6px); right:0; background:#fff; border:1px solid var(--border);
+    border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.08); min-width:200px; z-index:50;
+    max-height:60vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .attempt-dropdown.open { display:block; }
+  .attempt-dropdown-item { padding:10px 14px; font-size:13px; cursor:pointer; display:flex; flex-direction:column; gap:2px; }
+  .attempt-dropdown-item:hover { background:#f1f5f9; }
+  .attempt-dropdown-item .a-label { font-weight:700; }
+  .attempt-dropdown-item .a-date { color:var(--text-muted); font-size:11px; }
+
+  .sol-jump-row { display:flex; gap:8px; align-items:center; }
+  .sol-jump-row select { padding:8px 12px; border-radius:8px; border:1px solid var(--border); font-size:12px; font-weight:600; }
+
+  .question-palette-trigger {
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    min-width:126px; padding:8px 12px; border:1px solid var(--border);
+    border-radius:8px; background:#fff; color:var(--text-main);
+    font-size:13px; font-weight:700; cursor:pointer;
+    box-shadow:0 1px 2px rgba(0,0,0,.03);
+  }
+  .question-palette-trigger:hover { background:#f8fafc; }
+  .question-palette-trigger:active { transform:scale(.98); }
+
+  .question-palette-overlay {
+    display:none; position:fixed; inset:0; z-index:9998;
+    background:rgba(15,23,42,.45);
+    backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+  }
+  .question-palette-overlay.open { display:block; }
+
+  .question-palette {
+    display:none; position:fixed; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    width:min(520px, calc(100vw - 28px));
+    max-height:min(78vh, 680px);
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    background:#fff; border-radius:18px;
+    box-shadow:0 24px 70px rgba(0,0,0,.28);
+    padding:16px; z-index:9999;
+  }
+  .question-palette.open { display:block; }
+
+  .question-palette-header {
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding-bottom:13px; margin-bottom:14px;
+    border-bottom:1px solid #e5e7eb;
+    position:sticky; top:0; background:#fff; z-index:2;
+  }
+  .question-palette-title {
+    margin:0; font-size:18px; font-weight:800; color:#152561;
+  }
+  .question-palette-subtitle {
+    margin-top:3px; font-size:11px; color:var(--text-muted); font-weight:600;
+  }
+  .question-palette-close {
+    width:34px; height:34px; border:0; border-radius:50%;
+    background:#f1f5f9; color:#334155; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; line-height:1;
+  }
+
+  .question-palette-grid {
+    display:grid; grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:4px;
+  }
+  .question-palette-box {
+    min-height:42px; border-radius:9px; border:1.5px solid transparent;
+    display:flex; flex-direction:column; align-items:center;
+    justify-content:center; gap:1px; cursor:pointer;
+    font-size:11px; font-weight:800; line-height:1;
+    transition:transform .12s ease, box-shadow .12s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .question-palette-box:active { transform:scale(.95); }
+
+  .question-palette-box.correct {
+    background:var(--green-bg); color:var(--green-dark); border-color:var(--green);
+  }
+  .question-palette-box.wrong {
+    background:var(--red-bg); color:var(--red-dark); border-color:var(--red);
+  }
+  .question-palette-box.unanswered {
+    background:var(--yellow-bg); color:var(--yellow-dark); border-color:var(--yellow);
+  }
+  .question-palette-box.bonus {
+    background:#ede9fe; color:#6d28d9; border-color:#8b5cf6;
+  }
+  .question-palette-box.current {
+    box-shadow:0 0 0 3px rgba(21,37,97,.16);
+    border-color:#152561;
+  }
+  .question-palette-number { font-size:12px; font-weight:900; line-height:1; }
+  .question-palette-status { font-size:8px; font-weight:700; line-height:1; opacity:.9; }
+
+  .question-palette-legend {
+    display:flex; flex-wrap:wrap; gap:8px 14px;
+    padding-top:14px; margin-top:14px;
+    border-top:1px solid #e5e7eb;
+  }
+  .question-palette-legend-item {
+    display:flex; align-items:center; gap:6px;
+    color:#475569; font-size:11px; font-weight:700;
+  }
+  .question-palette-dot {
+    width:10px; height:10px; border-radius:50%; display:inline-block;
+  }
+  .question-palette-dot.correct { background:var(--green); }
+  .question-palette-dot.wrong { background:var(--red); }
+  .question-palette-dot.unanswered { background:var(--yellow); }
+  .question-palette-dot.bonus { background:#8b5cf6; }
+
+  @media (max-width:480px) {
+    .question-palette-trigger { min-width:112px; padding:8px 10px; }
+    .question-palette {
+      width:calc(100vw - 20px); max-height:82vh; padding:14px;
+      border-radius:16px;
+    }
+    .question-palette-grid { grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px; }
+    .question-palette-box { min-height:38px; border-radius:8px; border-width:1.5px; }
+    .question-palette-number { font-size:11px; }
+    .question-palette-status { font-size:7px; }
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 20px 24px 80px; }
+
+  .sol-section-heading {
+    font-size:14px; font-weight:800; color:#1e3a8a; background:#eef2ff;
+    padding:10px 16px; border-radius:8px; margin: 24px 0 14px;
+  }
+  .sol-section-heading:first-child { margin-top:0; }
+
+  .q-card { background:#fff; border:1px solid var(--border); border-radius:12px; margin-bottom:18px; overflow:hidden; scroll-margin-top:80px; }
+  .q-card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; border-bottom:1px solid var(--border); }
+  .q-card-title { font-size:14px; font-weight:800; }
+  .q-status-chip { font-size:11px; font-weight:800; padding:4px 10px; border-radius:999px; }
+  .q-status-chip.correct { color:var(--green-dark); background:var(--green-bg); }
+  .q-status-chip.incorrect { color:var(--red-dark); background:var(--red-bg); }
+  .q-status-chip.unanswered { color:var(--yellow-dark); background:var(--yellow-bg); }
+  .q-report-btn { background:none; border:none; cursor:pointer; color:var(--text-muted); display:flex; align-items:center; padding:4px; border-radius:6px; }
+  .q-report-btn:hover { background:#fef2f2; color:var(--red-dark); }
+  .q-report-btn svg { width:18px; height:18px; }
+
+  /* --- REPORT ERROR MODAL — matches exam.html's dim/blur overlay --- */
+  .modal-overlay {
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background-color: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    z-index:10000; justify-content:center; align-items:center;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal-card { background:#fff; border-radius:8px; width:450px; max-width:90%; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.2); text-align:center; }
+  .modal-card h3 { color:#152561; margin-bottom:12px; font-size:17px; }
+  .modal-card p { font-size:14px; color:#555; margin-bottom:20px; }
+  .report-textarea { width:100%; height:90px; padding:10px; border:1px solid #ccc; border-radius:4px; resize:none; margin-bottom:15px; font-size:13px; font-family:inherit; }
+  .modal-footer-btns { display:flex; gap:10px; justify-content:center; }
+  .footer-btn { padding:9px 22px; border-radius:6px; border:1px solid transparent; font-size:13px; font-weight:600; cursor:pointer; }
+  .btn-secondary { background:#fff; border-color:#ccc; color:#444; }
+  .btn-secondary:hover { background:#f5f5f5; }
+  .btn-danger { background:#d9534f; border-color:#d43f3a; color:#fff; }
+  .btn-danger:hover { background:#c9302c; }
+
+  .q-card-body { padding:18px; }
+  .q-img-wrap { width:100%; border-radius:8px; overflow:hidden; border:1px solid var(--border); background:#fafafa; min-height:80px; }
+  .q-img-wrap img { width:100%; display:block; }
+  .img-placeholder { padding:24px; text-align:center; font-size:12px; color:var(--text-muted); }
+  .img-error { padding:24px; text-align:center; font-size:12px; color:var(--red-dark); }
+
+  .q-options-row { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+  .q-html-body { font-size:15px; line-height:1.65; color:var(--ink); overflow-x:auto; }
+  .q-html-body p { margin:0 0 8px; }
+  .q-html-body img { max-width:100%; max-height:280px; width:auto; height:auto; object-fit:contain; display:block; margin:10px 0; border:1px solid var(--border); border-radius:6px; background:#fff; padding:6px; }
+  .q-options-full { display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .q-opt-full-row { display:flex; align-items:flex-start; gap:10px; padding:8px 10px; border-radius:8px; border:1px solid var(--border); background:#fafafa; }
+  .q-opt-full-row.correct-answer { background:var(--green-bg); border-color:var(--green); }
+  .q-opt-full-row.wrong-pick { background:var(--red-bg); border-color:var(--red); }
+  .q-opt-full-text { font-size:14px; line-height:1.55; }
+  .q-opt-full-text p { margin:0; }
+  .q-opt-full-text img { max-width:100%; max-height:220px; width:auto; height:auto; object-fit:contain; display:block; margin:6px 0; border:1px solid var(--border); border-radius:6px; background:#fff; padding:4px; }
+  .q-opt-badge {
+    width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:800; border:1.5px solid var(--border); color:var(--text-muted); background:#fff;
+  }
+  .q-opt-badge.correct-answer { background:var(--green-bg); border-color:var(--green); color:var(--green-dark); }
+  .q-opt-badge.wrong-pick { background:var(--red-bg); border-color:var(--red); color:var(--red-dark); }
+
+  .q-answer-summary { display:flex; gap:16px; flex-wrap:wrap; margin-top:12px; font-size:12px; color:var(--text-muted); }
+  .q-answer-summary b { color:var(--text-main); }
+
+  .q-marks-row { margin-top:10px; font-size:12px; font-weight:700; }
+  .q-marks-row.positive { color:var(--green-dark); }
+  .q-marks-row.negative { color:var(--red-dark); }
+  .q-marks-row.neutral { color:var(--text-muted); }
+
+  .view-solution-btn {
+    margin-top:16px; padding:9px 16px; border-radius:8px; border:1px solid var(--blue);
+    background:#fff; color:var(--blue); font-size:13px; font-weight:700; cursor:pointer;
+  }
+  .view-solution-btn:hover { background:#eff6ff; }
+  .solution-wrap { display:none; margin-top:14px; }
+  .solution-wrap.open { display:block; }
+  .solution-label { font-size:12px; font-weight:800; color:var(--text-muted); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.03em; }
+
+  .jump-nav { position:fixed; right:20px; bottom:20px; display:flex; gap:8px; }
+  .jump-nav button {
+    width:44px; height:44px; border-radius:50%; border:1px solid var(--border); background:#fff;
+    font-size:16px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  .loading-state, .error-state { text-align:center; padding: 80px 20px; color: var(--text-muted); font-size:14px; }
+</style>
+</head>
+<body>
+
+  <div class="sol-header">
+    <div class="sol-header-left">
+      <span class="back-arrow" id="ui-back-arrow">&#8592;</span>
+      <span class="sol-title" id="ui-sol-title">Loading...</span>
+    </div>
+    <div class="sol-jump-row">
+      <button
+          type="button"
+          class="question-palette-trigger"
+          id="ui-question-palette-trigger"
+          onclick="toggleQuestionPalette()"
+          aria-haspopup="dialog"
+          aria-expanded="false"
+        >
+          <span id="ui-question-palette-label">Questions</span>
+          <span class="material-icons" style="font-size:18px;">expand_more</span>
+        </button>
+      <div class="attempt-select-wrap">
+        <button class="attempt-select-btn" id="ui-attempt-select-btn" onclick="toggleAttemptDropdown()">
+          <span id="ui-attempt-select-label">Attempt --</span> &#9662;
+        </button>
+        <div class="attempt-dropdown" id="ui-attempt-dropdown"></div>
+      </div>
+
+        <select id="ui-jump-select" onchange="jumpToQuestion(this.value)" style="display:none;"></select>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="ui-loading" class="loading-state">Loading solutions...</div>
+    <div id="ui-error" class="error-state" style="display:none;"></div>
+    <div id="ui-content"></div>
+  </div>
+
+
+  <div
+    class="question-palette-overlay"
+    id="ui-question-palette-overlay"
+    onclick="closeQuestionPalette()"
+  ></div>
+
+  <div
+    class="question-palette"
+    id="ui-question-palette"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="ui-question-palette-title"
+  >
+    <div class="question-palette-header">
+      <div>
+        <h3 class="question-palette-title" id="ui-question-palette-title">Question Palette</h3>
+        <div class="question-palette-subtitle">Tap a question to jump to it</div>
+      </div>
+      <button
+        type="button"
+        class="question-palette-close"
+        onclick="closeQuestionPalette()"
+        aria-label="Close question palette"
+      >×</button>
+    </div>
+
+    <div class="question-palette-grid" id="ui-question-palette-grid"></div>
+
+    <div class="question-palette-legend">
+      <div class="question-palette-legend-item">
+        <span class="question-palette-dot correct"></span> Correct
+      </div>
+      <div class="question-palette-legend-item">
+        <span class="question-palette-dot wrong"></span> Wrong
+      </div>
+      <div class="question-palette-legend-item">
+        <span class="question-palette-dot unanswered"></span> Unattempted
+      </div>
+      <div class="question-palette-legend-item">
+        <span class="question-palette-dot bonus"></span> Bonus
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="ui-report-modal">
+    <div class="modal-card" style="border-top: 4px solid #d9534f;">
+      <h3><i class="material-icons" style="vertical-align: bottom;">error_outline</i> Report an Error</h3>
+      <p id="ui-report-modal-sub" style="font-size: 13px; color: #555; margin-bottom: 15px;">Found a mistake in this question? Let us know.</p>
+      <textarea id="report-description" class="report-textarea" placeholder="Add a description of the error (Optional)..."></textarea>
+      <div class="modal-footer-btns">
+        <button class="footer-btn btn-secondary" onclick="closeReportModal()">Cancel</button>
+        <button class="footer-btn btn-danger" id="btn-submit-report" onclick="submitErrorReport()">Report Error</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeSecureToken = null;
+    let REVIEW_CONFIG = null;
+    let ANSWER_MANIFEST = [];
+    let QUESTION_MANIFEST = [];
+    let RESULTS_HISTORY = [];
+    let VOIDED_SET = new Set();    // test_q_num values marked as bonus/void — always scored correct
+
+    document.addEventListener('DOMContentLoaded', bootSolutionsPage);
+
+    let currentAttemptIndex = 0;
+
+    async function bootSolutionsPage() {
+      const params = new URLSearchParams(window.location.search);
+      activeSecureToken = params.get('token');
+      const requestedAttempt = parseInt(params.get('attempt') || '0');
+
+      if (!activeSecureToken) {
+        window.location.replace('/dashboard');
+        return;
+      }
+
+      document.getElementById('ui-back-arrow').onclick = () =>
+        window.location.href = `/review.html?token=${encodeURIComponent(activeSecureToken)}`;
+
+      try {
+        // Same endpoint, same token, same completed-attempt gate as review.html —
+        // this page cannot be opened for a question without a valid token,
+        // exactly like the review page.
+        const res = await fetch(`/api/exam/review?token=${encodeURIComponent(activeSecureToken)}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Unable to load solutions.');
+
+        REVIEW_CONFIG = data.config;
+        ANSWER_MANIFEST = data.answerManifest || [];
+        QUESTION_MANIFEST = data.questionManifest || [];
+        RESULTS_HISTORY = data.resultsHistory || [];
+        VOIDED_SET = new Set((data.voidedQuestions || []).map(n => Number(n)));
+
+        if (RESULTS_HISTORY.length === 0) throw new Error("No completed attempts found for this test.");
+
+        // resultsHistory is newest-first; attempt N (oldest = 1) → index (length - N)
+        let idx = RESULTS_HISTORY.length - requestedAttempt;
+        if (isNaN(idx) || idx < 0 || idx >= RESULTS_HISTORY.length) idx = 0; // fallback: latest attempt
+        currentAttemptIndex = idx;
+
+        document.getElementById('ui-sol-title').textContent = REVIEW_CONFIG.title || 'Solutions';
+
+        buildAttemptDropdown();
+        selectAttempt(currentAttemptIndex, false);
+
+        document.getElementById('ui-loading').style.display = 'none';
+
+        // Scroll to the specific question the chip was clicked from, once
+        // rendered. Fixed timeouts race against image loading (which keeps
+        // shifting layout), so instead we poll for a stable position.
+        if (window.location.hash) {
+          scrollToHashWhenReady(window.location.hash);
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('ui-loading').style.display = 'none';
+        const errEl = document.getElementById('ui-error');
+        errEl.textContent = err.message || 'Something went wrong loading solutions.';
+        errEl.style.display = 'block';
+      }
+    }
+
+    function scrollToHashWhenReady(hash, attemptsLeft) {
+      attemptsLeft = attemptsLeft === undefined ? 20 : attemptsLeft;
+      let el;
+      try { el = document.querySelector(hash); } catch (e) { return; }
+      if (!el) {
+        if (attemptsLeft > 0) setTimeout(() => scrollToHashWhenReady(hash, attemptsLeft - 1), 100);
+        return;
+      }
+      el.scrollIntoView({ behavior: 'auto', block: 'start' });
+      // Images inside the card (question + revealed solution) load async and
+      // shift page height afterwards — re-snap a couple more times so the
+      // final resting position is actually correct, not just "close enough".
+      let recheck = 6;
+      const stabilize = () => {
+        el.scrollIntoView({ behavior: 'auto', block: 'start' });
+        recheck--;
+        if (recheck > 0) requestAnimationFrame(() => setTimeout(stabilize, 120));
+      };
+      requestAnimationFrame(() => setTimeout(stabilize, 120));
+    }
+
+    function buildAttemptDropdown() {
+      const menu = document.getElementById('ui-attempt-dropdown');
+      menu.innerHTML = '';
+      RESULTS_HISTORY.forEach((row, idx) => {
+        const item = document.createElement('div');
+        item.className = 'attempt-dropdown-item';
+        const dateStr = row.submitted_at ? new Date(row.submitted_at).toLocaleString(undefined, {
+          day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        }) : '';
+        const attemptNum = RESULTS_HISTORY.length - idx; // oldest = Attempt 1
+        item.innerHTML = `<span class="a-label">Attempt ${attemptNum}</span><span class="a-date">${dateStr}</span>`;
+        item.onclick = () => { selectAttempt(idx, true); toggleAttemptDropdown(true); };
+        menu.appendChild(item);
+      });
+    }
+
+    function toggleAttemptDropdown(forceClose) {
+      const menu = document.getElementById('ui-attempt-dropdown');
+      if (forceClose) { menu.classList.remove('open'); return; }
+      menu.classList.toggle('open');
+    }
+
+    document.addEventListener('click', (e) => {
+      const wrap = document.querySelector('.attempt-select-wrap');
+      if (wrap && !wrap.contains(e.target)) toggleAttemptDropdown(true);
+    });
+
+    function selectAttempt(idx, scrollToTop) {
+      currentAttemptIndex = idx;
+      const attemptNum = RESULTS_HISTORY.length - idx;
+      document.getElementById('ui-attempt-select-label').textContent = `Attempt ${attemptNum}`;
+      const paletteLabel = document.getElementById('ui-question-palette-label');
+      if (paletteLabel) paletteLabel.textContent = 'Questions';
+
+      // Keep the URL in sync so refreshes/shares/back-button all land on the right attempt.
+      const newUrl = `${window.location.pathname}?token=${encodeURIComponent(activeSecureToken)}&attempt=${attemptNum}`;
+      window.history.replaceState({}, '', newUrl);
+
+      renderSolutions();
+      if (scrollToTop) window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Embedded <img> tags inside question_html/options/solution_html point
+    // straight at Supabase Storage. Swap each src for a blob: URL fetched
+    // through our own server, so drag-and-drop / "open image in new tab" /
+    // Network tab never reveal Supabase as the origin.
+    const imageProxyCache = new Map();
+    const activeImageBlobUrls = [];
+
+    async function proxyImageSrc(originalSrc) {
+        if (imageProxyCache.has(originalSrc)) return imageProxyCache.get(originalSrc);
+        try {
+            const res = await fetch('/api/exam/image-proxy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: activeSecureToken, src: originalSrc })
+            });
+            if (!res.ok) throw new Error('proxy failed');
+            const blob = await res.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            activeImageBlobUrls.push(blobUrl);
+            imageProxyCache.set(originalSrc, blobUrl);
+            return blobUrl;
+        } catch (err) {
+            console.error('Embedded image proxy failed:', err);
+            return null;
+        }
+    }
+
+    async function hardenEmbeddedImages(rootEl) {
+        if (!rootEl) return;
+        const imgs = rootEl.querySelectorAll('img[src^="http"]');
+        await Promise.all(Array.from(imgs).map(async (img) => {
+            const original = img.getAttribute('src');
+            const blobUrl = await proxyImageSrc(original);
+            if (blobUrl) img.src = blobUrl;
+        }));
+    }
+
+    window.addEventListener('beforeunload', () => {
+        activeImageBlobUrls.forEach(u => URL.revokeObjectURL(u));
+    });
+
+    function resolveCorrectIndex(rawKeyVal) {
+      if (rawKeyVal === null || rawKeyVal === undefined) return null;
+      const val = String(rawKeyVal).trim().toUpperCase();
+      if (val === 'A' || val === '1') return 0;
+      if (val === 'B' || val === '2') return 1;
+      if (val === 'C' || val === '3') return 2;
+      if (val === 'D' || val === '4') return 3;
+      const n = parseInt(val);
+      return isNaN(n) ? null : n;
+    }
+
+    function findByQId(list, q) {
+      if (q.q_id) {
+        const byId = list.find(k => k.q_id === q.q_id);
+        if (byId) return byId;
+      }
+      return list.find(k => k.sub_id === q.sub_id && k.test_q_num === q.test_q_num);
+    }
+
+
+    let questionPaletteOpen = false;
+
+    function getQuestionEntriesForPalette() {
+      const sections = REVIEW_CONFIG.sections || [];
+      const rawMatrix = RESULTS_HISTORY[currentAttemptIndex].raw_response_matrix || [];
+      const entries = [];
+
+      sections.forEach(sec => {
+        rawMatrix
+          .filter(q => q.sectionId === sec.id)
+          .sort((a, b) => (a.test_q_num || 0) - (b.test_q_num || 0))
+          .forEach(q => {
+            const keyEntry = findByQId(ANSWER_MANIFEST, q);
+            const correctIdx = keyEntry ? resolveCorrectIndex(keyEntry.answer_key) : null;
+            const userPick =
+              (q.selectedOption === null || q.selectedOption === undefined)
+                ? null
+                : parseInt(q.selectedOption);
+
+            const isVoided = VOIDED_SET.has(q.test_q_num);
+            let status = 'unanswered';
+
+            if (isVoided) {
+              status = 'bonus';
+            } else if (userPick === null || isNaN(userPick)) {
+              status = 'unanswered';
+            } else if (correctIdx !== null && userPick === correctIdx) {
+              status = 'correct';
+            } else {
+              status = 'wrong';
+            }
+
+            entries.push({
+              q,
+              sec,
+              cardId: `qcard-${q.sectionId}-${q.test_q_num}`,
+              status
+            });
+          });
+      });
+
+      return entries;
+    }
+
+    function openQuestionPalette() {
+      if (!REVIEW_CONFIG || !RESULTS_HISTORY.length) return;
+
+      const overlay = document.getElementById('ui-question-palette-overlay');
+      const palette = document.getElementById('ui-question-palette');
+      const grid = document.getElementById('ui-question-palette-grid');
+      const trigger = document.getElementById('ui-question-palette-trigger');
+
+      if (!overlay || !palette || !grid) return;
+
+      grid.innerHTML = '';
+
+      const entries = getQuestionEntriesForPalette();
+
+      entries.forEach(entry => {
+        const box = document.createElement('button');
+        box.type = 'button';
+        box.className = `question-palette-box ${entry.status}`;
+
+        const currentCard = document.getElementById(entry.cardId);
+        if (currentCard) {
+          const rect = currentCard.getBoundingClientRect();
+          if (rect.top >= -10 && rect.top < window.innerHeight * 0.65) {
+            box.classList.add('current');
+          }
+        }
+
+        const number = document.createElement('span');
+        number.className = 'question-palette-number';
+
+        const status = document.createElement('span');
+        status.className = 'question-palette-status';
+
+        if (entry.status === 'bonus') {
+          number.textContent = '🎁';
+          status.textContent = `Q${entry.q.test_q_num} • Bonus`;
+        } else {
+          number.textContent = `Q${entry.q.test_q_num}`;
+          status.textContent =
+            entry.status === 'correct' ? 'Correct' :
+            entry.status === 'wrong' ? 'Wrong' : 'Unattempted';
+        }
+
+        box.appendChild(number);
+        box.appendChild(status);
+
+        box.title = `${entry.sec.name} — Question ${entry.q.test_q_num}`;
+
+        box.addEventListener('click', () => {
+          closeQuestionPalette();
+          jumpToQuestion(entry.cardId);
+        });
+
+        grid.appendChild(box);
+      });
+
+      overlay.classList.add('open');
+      palette.classList.add('open');
+      if (trigger) trigger.setAttribute('aria-expanded', 'true');
+
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeQuestionPalette() {
+      const overlay = document.getElementById('ui-question-palette-overlay');
+      const palette = document.getElementById('ui-question-palette');
+      const trigger = document.getElementById('ui-question-palette-trigger');
+
+      if (overlay) overlay.classList.remove('open');
+      if (palette) palette.classList.remove('open');
+      if (trigger) trigger.setAttribute('aria-expanded', 'false');
+
+      document.body.style.overflow = '';
+      questionPaletteOpen = false;
+    }
+
+    function toggleQuestionPalette() {
+      if (questionPaletteOpen) {
+        closeQuestionPalette();
+      } else {
+        questionPaletteOpen = true;
+        openQuestionPalette();
+      }
+    }
+
+    function renderSolutions() {
+      const container = document.getElementById('ui-content');
+      const jumpSelect = document.getElementById('ui-jump-select');
+      container.innerHTML = '';
+      jumpSelect.innerHTML = '';
+
+      const sections = REVIEW_CONFIG.sections || [];
+      const rawMatrix = RESULTS_HISTORY[currentAttemptIndex].raw_response_matrix || [];
+
+      sections.forEach(sec => {
+        const qs = rawMatrix
+          .filter(q => q.sectionId === sec.id)
+          .sort((a, b) => (a.test_q_num || 0) - (b.test_q_num || 0));
+        if (qs.length === 0) return;
+
+        const heading = document.createElement('div');
+        heading.className = 'sol-section-heading';
+        heading.textContent = sec.name;
+        container.appendChild(heading);
+
+        qs.forEach(q => {
+          const cardId = `qcard-${q.sectionId}-${q.test_q_num}`;
+          const keyEntry = findByQId(ANSWER_MANIFEST, q);
+          const questionEntry = findByQId(QUESTION_MANIFEST, q);
+          const correctIdx = keyEntry ? resolveCorrectIndex(keyEntry.answer_key) : null;
+          const userPick = (q.selectedOption === null || q.selectedOption === undefined) ? null : parseInt(q.selectedOption);
+
+          const isVoided = VOIDED_SET.has(q.test_q_num);
+          let status, marksHtml;
+          const posMarks = parseFloat(sec.positiveMarks) || 0;
+          const negMarks = parseFloat(sec.negativeMarks) || 0;
+
+          if (isVoided) {
+            // Bonus/void question — awarded to every student regardless of
+            // what (if anything) they selected.
+            status = 'correct';
+            marksHtml = `<div class="q-marks-row positive">+${posMarks} marks &middot; Bonus question, awarded to all students</div>`;
+          } else if (userPick === null || isNaN(userPick)) {
+            status = 'unanswered';
+            marksHtml = `<div class="q-marks-row neutral">Not attempted &middot; 0 marks</div>`;
+          } else if (correctIdx !== null && userPick === correctIdx) {
+            status = 'correct';
+            marksHtml = `<div class="q-marks-row positive">+${posMarks} marks</div>`;
+          } else {
+            status = 'incorrect';
+            marksHtml = `<div class="q-marks-row negative">&minus;${negMarks} marks</div>`;
+          }
+
+          const optionLetters = ['A', 'B', 'C', 'D'];
+
+          const yourAnswerLabel = userPick !== null && !isNaN(userPick) ? optionLetters[userPick] || '--' : 'Not attempted';
+          const correctAnswerLabel = correctIdx !== null ? optionLetters[correctIdx] || '--' : '--';
+
+          const questionAvailable = !!questionEntry;
+          const solutionAvailable = !!(keyEntry && keyEntry.solution_html);
+
+          const card = document.createElement('div');
+          card.className = 'q-card';
+          card.id = cardId;
+          card.innerHTML = `
+            <div class="q-card-header">
+              <span class="q-card-title">Question ${q.test_q_num}</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button class="q-report-btn" title="Report an error in this question" onclick="openReportModal('${q.q_id}', ${q.test_q_num}, '${sec.name.replace(/'/g, "\\'")}')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </button>
+                <span class="q-status-chip ${status}">${isVoided ? '🎁 Bonus' : status === 'correct' ? 'Correct' : status === 'incorrect' ? 'Wrong' : 'Unanswered'}</span>
+              </div>
+            </div>
+            <div class="q-card-body">
+              ${questionAvailable
+                ? `<div class="q-html-body">${questionEntry.question_html}</div>`
+                : `<div class="q-marks-row neutral">Question content unavailable.</div>`}
+              <div class="q-options-full">
+                ${optionLetters.map((letter, i) => {
+                  let cls = '';
+                  if (correctIdx === i) cls = 'correct-answer';
+                  if (!isVoided && userPick === i && userPick !== correctIdx) cls = 'wrong-pick';
+                  const optHtml = questionAvailable && questionEntry.options ? (questionEntry.options[letter] || '') : '';
+                  return `<div class="q-opt-full-row ${cls}"><span class="q-opt-badge ${cls}">${letter}</span><div class="q-opt-full-text">${optHtml}</div></div>`;
+                }).join('')}
+              </div>
+              <div class="q-answer-summary">
+                <span>Your answer: <b>${yourAnswerLabel}</b></span>
+                <span>Correct answer: <b>${correctAnswerLabel}</b></span>
+                ${(q.timeSpentSeconds !== undefined && q.timeSpentSeconds !== null) ? `<span>Time spent: <b>${q.timeSpentSeconds}s</b></span>` : ''}
+              </div>
+              ${marksHtml}
+              ${solutionAvailable ? `
+                <button class="view-solution-btn" onclick="toggleSolution(this)">View Solution</button>
+                <div class="solution-wrap">
+                  <div class="solution-label">Solution</div>
+                  <div class="q-html-body">${keyEntry.solution_html}</div>
+                </div>
+              ` : ''}
+            </div>
+          `;
+          container.appendChild(card);
+          hardenEmbeddedImages(card);
+
+          const opt = document.createElement('option');
+          opt.value = cardId;
+          opt.textContent = `${sec.name} — Q${q.test_q_num} (${isVoided ? '🎁' : status === 'correct' ? '✓' : status === 'incorrect' ? '✗' : '—'})`;
+          jumpSelect.appendChild(opt);
+        });
+      });
+    }
+
+    function toggleSolution(btn) {
+      const wrap = btn.nextElementSibling;
+      const isOpen = wrap.classList.toggle('open');
+      btn.textContent = isOpen ? 'Hide Solution' : 'View Solution';
+    }
+
+
+    function jumpToQuestion(cardId) {
+      const el = document.getElementById(cardId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && questionPaletteOpen) {
+        closeQuestionPalette();
+      }
+    });
+
+    // ==========================================
+    // REPORT AN ERROR — same /api/exam/report-error endpoint and payload
+    // shape exam.html/exam-engine.js already use for the live exam, just
+    // triggered from a per-question icon here instead of a toolbar link.
+    // ==========================================
+    let reportContext = null; // { q_id, test_q_num, sectionName }
+
+    function openReportModal(q_id, test_q_num, sectionName) {
+      reportContext = { q_id, test_q_num, sectionName };
+      document.getElementById('ui-report-modal-sub').textContent = `Question ${test_q_num} — ${sectionName}`;
+      document.getElementById('ui-report-modal').classList.add('open');
+    }
+
+    function closeReportModal() {
+      document.getElementById('ui-report-modal').classList.remove('open');
+      document.getElementById('report-description').value = '';
+      reportContext = null;
+    }
+
+    async function submitErrorReport() {
+      if (!reportContext) return;
+      const btn = document.getElementById('btn-submit-report');
+      const desc = document.getElementById('report-description').value;
+
+      btn.textContent = "Reporting...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/exam/report-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: activeSecureToken,
+            questionLabel: reportContext.test_q_num,
+            sectionName: reportContext.sectionName,
+            q_id: reportContext.q_id,
+            description: desc
+          })
+        });
+
+        if (res.ok) {
+          alert("Error reported securely! Our team will review it.");
+          closeReportModal();
+        } else {
+          throw new Error("Server rejected report parameters.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Network error. Could not submit report.");
+      } finally {
+        btn.textContent = "Report Error";
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

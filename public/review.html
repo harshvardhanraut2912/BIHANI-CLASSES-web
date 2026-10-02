@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review - Y N Classes</title>
+<link rel="icon" id="dynamic-favicon" type="image/png" href="/images/other_images/ynclasses-logo.png">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+  :root {
+    --green: #22c55e; --green-bg: #dcfce7;
+    --yellow: #eab308; --yellow-bg: #fef9c3;
+    --red: #ef4444; --red-bg: #fee2e2;
+    --blue: #2563eb;
+    --border: #e2e8f0;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', system-ui, sans-serif; }
+  body { background:#f8fafc; color: var(--text-main); }
+
+  .review-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 16px 24px; background:#fff; border-bottom:1px solid var(--border);
+    flex-wrap: wrap; gap: 12px;
+  }
+  .review-header-left { display:flex; align-items:center; gap:14px; min-width:0; }
+  .back-arrow { cursor:pointer; font-size:20px; color:var(--text-muted); flex-shrink:0; }
+  .test-title { font-size:18px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px; }
+
+  .attempt-select-wrap { position:relative; }
+  .attempt-select-btn {
+    display:flex; align-items:center; gap:6px; padding:8px 14px; border:1px solid var(--border);
+    border-radius:8px; background:#fff; font-size:13px; font-weight:600; cursor:pointer; color:var(--text-main);
+  }
+  .attempt-dropdown {
+    display:none; position:absolute; top:calc(100% + 6px); left:0; background:#fff; border:1px solid var(--border);
+    border-radius:8px; box-shadow:0 8px 24px rgba(0,0,0,0.08); min-width:220px; z-index:50; overflow:hidden;
+  }
+  .attempt-dropdown.open { display:block; }
+  .attempt-dropdown-item { padding:10px 14px; font-size:13px; cursor:pointer; display:flex; flex-direction:column; gap:2px; }
+  .attempt-dropdown-item:hover { background:#f1f5f9; }
+  .attempt-dropdown-item .a-label { font-weight:700; }
+  .attempt-dropdown-item .a-date { color:var(--text-muted); font-size:11px; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 20px 24px 60px; }
+
+  .stat-cards-row { display:grid; grid-template-columns: repeat(6, 1fr); gap:14px; margin-bottom:20px; }
+  @media (max-width: 900px) { .stat-cards-row { grid-template-columns: repeat(2, 1fr); } }
+
+  .leaderboard-trigger-wrap { display:flex; justify-content:flex-end; gap:8px; margin-top:8px; }
+  .leaderboard-trigger-btn {
+    display:flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid var(--border);
+    border-radius:8px; background:#fff; font-size:12px; font-weight:600; cursor:pointer; color:var(--text-main);
+  }
+  .leaderboard-trigger-btn:hover { background:#f8fafc; }
+
+  .lb-modal-overlay {
+    display:none; position:fixed; inset:0; background:rgba(15,23,42,0.35); backdrop-filter: blur(4px);
+    z-index:200; align-items:center; justify-content:center; padding:20px;
+  }
+  .lb-modal-overlay.open { display:flex; }
+  .lb-modal-box {
+    background:#fff; border-radius:14px; width:100%; max-width:520px; max-height:80vh;
+    display:flex; flex-direction:column; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.2);
+  }
+  .lb-modal-header { display:flex; align-items:center; justify-content:space-between; padding:18px 20px; border-bottom:1px solid var(--border); }
+  .lb-modal-title { font-size:16px; font-weight:800; }
+  .lb-modal-close { cursor:pointer; font-size:18px; color:var(--text-muted); }
+  .lb-modal-sub { padding: 12px 20px 0; font-size:12px; color:var(--text-muted); }
+  .lb-filter-row { display:flex; gap:8px; padding: 12px 20px; }
+  .lb-filter-btn {
+    flex:1; padding:8px; border-radius:8px; border:1px solid var(--border); background:#fff;
+    font-size:12px; font-weight:700; cursor:pointer; color:var(--text-muted);
+  }
+  .lb-filter-btn.active { background: var(--blue); color:#fff; border-color: var(--blue); }
+  .lb-attempt-picker { padding: 0 20px 8px; }
+  .lb-attempt-picker select { width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); font-size:12px; }
+  .lb-list { overflow-y:auto; padding: 6px 12px 16px; }
+  .lb-row {
+    display:flex; align-items:center; gap:12px; padding:10px 10px; border-radius:10px;
+  }
+  .lb-row.you { background: #eff6ff; }
+  .lb-rank-num { width:26px; text-align:center; font-weight:800; font-size:13px; color:var(--text-muted); flex-shrink:0; }
+  .lb-row:nth-child(1) .lb-rank-num { color:#eab308; }
+  .lb-row:nth-child(2) .lb-rank-num { color:#94a3b8; }
+  .lb-row:nth-child(3) .lb-rank-num { color:#b45309; }
+  .lb-name { flex:1; font-size:13px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lb-name .you-tag { font-size:10px; color: var(--blue); font-weight:800; margin-left:6px; }
+  .lb-pct { font-size:13px; font-weight:800; flex-shrink:0; }
+  .lb-attempt-tag { font-size:10px; color:var(--text-muted); font-weight:600; margin-left:6px; }
+  .lb-empty { text-align:center; padding: 30px; color:var(--text-muted); font-size:13px; }
+  .lb-live-notice {
+    margin: 0 20px 8px; padding: 8px 10px; border-radius: 8px; background: #fffbeb;
+    border: 1px solid #fde68a; color: #92400e; font-size: 11px; font-weight: 600; line-height: 1.4;
+  }
+  .stat-card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:16px 18px; }
+  .stat-card-label { font-size:13px; color:var(--text-muted); margin-bottom:8px; }
+  .stat-card-value { font-size:22px; font-weight:800; }
+  .stat-card-value .unit { font-size:13px; font-weight:600; color:var(--text-muted); margin-left:2px; }
+  .stat-card-value.green { color: var(--green); }
+  .stat-card-value.red { color: var(--red); }
+  .stat-card-value.yellow { color: var(--yellow); }
+
+  .section-block {
+    background:#fff; border:1px solid var(--border); border-radius:10px; padding:20px; margin-bottom:20px;
+    display:flex; gap:24px;
+  }
+  @media (max-width: 900px) { .section-block { flex-direction: column; } }
+  .section-list-panel { flex: 0 0 300px; display:flex; flex-direction:column; gap:10px; }
+  @media (max-width: 900px) { .section-list-panel { flex: 1; } }
+  .section-block-title { font-size:15px; font-weight:700; margin-bottom:2px; }
+  .section-block-sub { font-size:12px; color:var(--text-muted); margin-bottom:10px; }
+
+  .section-row {
+    display:flex; align-items:center; justify-content:space-between; padding:10px 12px;
+    border-radius:8px; border:1px solid var(--border);
+  }
+  .section-row-name { display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; }
+  .section-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .section-row-marks { font-size:13px; font-weight:700; }
+  .section-row-pct { font-size:11px; color:var(--text-muted); margin-left:6px; font-weight:500; }
+
+  .chart-panel { flex:1; min-width:0; position:relative; }
+  .chart-canvas-wrap { position:relative; height: 280px; }
+
+  .trend-block { background:#fff; border:1px solid var(--border); border-radius:10px; padding:20px; }
+  .trend-canvas-wrap { position:relative; height: 340px; margin-top: 14px; }
+
+  .trend-flex-row { display:flex; gap:24px; align-items:stretch; }
+  @media (max-width: 900px) { .trend-flex-row { flex-direction: column; } }
+  .trend-line-wrap { flex: 1 1 65%; min-width:0; }
+  .trend-pie-wrap { flex: 1 1 35%; min-width:0; display:flex; flex-direction:column; border-left:1px solid var(--border); padding-left:24px; }
+  @media (max-width: 900px) { .trend-pie-wrap { border-left:none; padding-left:0; border-top:1px solid var(--border); padding-top:16px; } }
+  .pie-canvas-wrap { position:relative; height: 300px; margin-top: 14px; flex:1; }
+
+  .qgrid-section-card { background:#fff; border:1px solid var(--border); border-radius:10px; margin-bottom:20px; overflow:hidden; }
+  .qgrid-section-header { background:#eef2ff; padding:14px 20px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .qgrid-section-name { font-size:15px; font-weight:800; color:#1e3a8a; }
+  .qgrid-section-meta { font-size:12px; color:var(--text-muted); }
+  .qgrid-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap:8px; padding:16px 20px; }
+  .qgrid-chip {
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;
+    border-radius:18px; padding:6px 2px; font-size:12px; font-weight:700; border:1.5px solid;
+    min-height:38px; text-decoration:none; cursor:pointer;
+  }
+  .qgrid-chip .qg-time { font-size:9px; font-weight:600; opacity:0.8; }
+  .qgrid-chip.correct { color:#15803d; background:#dcfce7; border-color:#22c55e; border-style:solid; }
+  .qgrid-chip.incorrect { color:#b91c1c; background:#fee2e2; border-color:#ef4444; border-style:solid; }
+  .qg-bonus { font-size: 0.7em; margin-right: 2px; }
+  .qgrid-chip.unanswered { color:#a16207; background:transparent; border-color:#eab308; border-style:dashed; }
+  .qgrid-section-footer { display:flex; gap:20px; padding: 4px 20px 16px; font-size:12px; font-weight:700; }
+  .qgrid-section-footer .fc-correct { color:#22c55e; }
+  .qgrid-section-footer .fc-incorrect { color:#ef4444; }
+  .qgrid-section-footer .fc-unanswered { color:#eab308; }
+
+  .loading-state, .error-state { text-align:center; padding: 80px 20px; color: var(--text-muted); font-size:14px; }
+</style>
+</head>
+<body>
+
+  <div class="review-header">
+    <div class="review-header-left">
+      <span class="back-arrow" onclick="window.location.href='/dashboard'">&#8592;</span>
+      <span class="test-title" id="ui-review-test-title">Loading...</span>
+    </div>
+    <div class="attempt-select-wrap">
+      <button class="attempt-select-btn" id="ui-attempt-select-btn" onclick="toggleAttemptDropdown()">
+        <span id="ui-attempt-select-label">Attempt --</span> &#9662;
+      </button>
+      <div class="attempt-dropdown" id="ui-attempt-dropdown"></div>
+      <div class="leaderboard-trigger-wrap">
+        <button class="leaderboard-trigger-btn" id="ui-view-solution-btn" onclick="goToSolutions()">&#128269; View Solution</button>
+        <button class="leaderboard-trigger-btn" onclick="openLeaderboardModal()">&#127942; Leaderboard</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div id="ui-loading" class="loading-state">Loading your results...</div>
+    <div id="ui-error" class="error-state" style="display:none;"></div>
+
+    <div id="ui-content" style="display:none;">
+      <div class="stat-cards-row">
+        <div class="stat-card">
+          <div class="stat-card-label">Percentage</div>
+          <div class="stat-card-value" id="ui-stat-percentage">--<span class="unit">%</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Rank</div>
+          <div class="stat-card-value" id="ui-stat-rank">--<span class="unit" id="ui-stat-rank-total">/-- students</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Your Score</div>
+          <div class="stat-card-value" id="ui-stat-score">--<span class="unit" id="ui-stat-maxscore">/-- marks</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Correct</div>
+          <div class="stat-card-value green" id="ui-stat-correct">--<span class="unit">marks</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Incorrect</div>
+          <div class="stat-card-value red" id="ui-stat-incorrect">--<span class="unit">marks</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label">Unanswered</div>
+          <div class="stat-card-value yellow" id="ui-stat-unanswered">--<span class="unit">marks</span></div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="section-list-panel">
+          <div class="section-block-title">Section-wise Marks</div>
+          <div class="section-block-sub">Each bar is scaled to that section's own maximum, so subjects with different total marks are directly comparable.</div>
+          <div id="ui-section-list"></div>
+        </div>
+        <div class="chart-panel">
+          <div class="chart-canvas-wrap"><canvas id="ui-section-bar-chart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="trend-block">
+        <div class="trend-flex-row">
+          <div class="trend-line-wrap">
+            <div class="section-block-title">Performance Across Attempts</div>
+            <div class="section-block-sub">Overall and section-wise percentage score for every attempt of this test.</div>
+            <div class="trend-canvas-wrap"><canvas id="ui-trend-line-chart"></canvas></div>
+          </div>
+          <div class="trend-pie-wrap">
+            <div class="section-block-title">Question Breakdown</div>
+            <div class="section-block-sub">Correct answers by subject, plus incorrect and unattempted questions for this attempt.</div>
+            <div class="pie-canvas-wrap"><canvas id="ui-composition-pie-chart"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="ui-qgrid-block"></div>
+    </div>
+  </div>
+
+  <div class="lb-modal-overlay" id="ui-lb-overlay" onclick="if(event.target===this) closeLeaderboardModal()">
+    <div class="lb-modal-box">
+      <div class="lb-modal-header">
+        <span class="lb-modal-title">Leaderboard</span>
+        <span class="lb-modal-close" onclick="closeLeaderboardModal()">&#10005;</span>
+      </div>
+      <div class="lb-modal-sub" id="ui-lb-total-students">-- students have attempted this test</div>
+      <div class="lb-filter-row" id="ui-lb-filter-row">
+        <button class="lb-filter-btn" id="ui-lb-filter-live" style="display:none;" onclick="setLeaderboardMode('live')">Live Results</button>
+        <button class="lb-filter-btn active" id="ui-lb-filter-best" onclick="setLeaderboardMode('best')">Best Score</button>
+        <button class="lb-filter-btn" id="ui-lb-filter-attempt" onclick="setLeaderboardMode('attempt')">By Attempt No.</button>
+      </div>
+      <div class="lb-live-notice" id="ui-lb-live-notice" style="display:none;">These scores are of only students who attempted this exam live in the scheduled time.</div>
+      <div class="lb-attempt-picker" id="ui-lb-attempt-picker" style="display:none;">
+        <select id="ui-lb-attempt-select" onchange="renderLeaderboardList()"></select>
+      </div>
+      <div class="lb-list" id="ui-lb-list"></div>
+    </div>
+  </div>
+
+  <script>
+    let activeSecureToken = null;
+    let REVIEW_CONFIG = null;      // { title, sections }
+    let ANSWER_MANIFEST = [];      // [{q_id, sub_id, answer_key, test_q_num}]
+    let RESULTS_HISTORY = [];      // raw exam_results rows, newest first
+    let VOIDED_SET = new Set();    // test_q_num values marked as bonus/void — always scored correct
+    let LEADERBOARD_DATA = null;   // { totalStudents, currentStudentRank, leaderboard }
+    let leaderboardMode = 'best';  // 'best' | 'attempt'
+    let currentAttemptIndex = 0;   // index into RESULTS_HISTORY currently displayed
+    let sectionBarChartInstance = null;
+    let trendLineChartInstance = null;
+    let compositionPieChartInstance = null;
+    const COMPOSITION_YELLOW = '#eab308'; // unanswered (matches "Unanswered" stat card)
+    const COMPOSITION_RED = '#ef4444';    // incorrect (matches "Incorrect" stat card)
+    const COMPOSITION_GREEN_SHADES = ['#166534', '#22c55e', '#86efac', '#4ade80', '#15803d', '#bbf7d0']; // correct, per subject (matches "Correct" stat card's green)
+
+    document.addEventListener('DOMContentLoaded', bootReviewPage);
+
+    async function bootReviewPage() {
+      const params = new URLSearchParams(window.location.search);
+      activeSecureToken = params.get('token');
+
+      if (!activeSecureToken) {
+        window.location.replace('/dashboard');
+        return;
+      }
+
+      try {
+        const [reviewRes, lbRes] = await Promise.all([
+          fetch(`/api/exam/review?token=${encodeURIComponent(activeSecureToken)}`),
+          fetch(`/api/exam/leaderboard?token=${encodeURIComponent(activeSecureToken)}`)
+        ]);
+        const data = await reviewRes.json();
+
+        if (!reviewRes.ok) throw new Error(data.error || 'Unable to load review data.');
+
+        // Leaderboard is treated as best-effort — if it fails, the rank card
+        // just shows placeholders and the leaderboard button opens an empty
+        // state, but the rest of the review page still works fully.
+        if (lbRes.ok) {
+          LEADERBOARD_DATA = await lbRes.json();
+        } else {
+          console.error("Leaderboard fetch failed:", await lbRes.json().catch(() => ({})));
+        }
+
+        REVIEW_CONFIG = data.config;
+        ANSWER_MANIFEST = data.answerManifest || [];
+        RESULTS_HISTORY = data.resultsHistory || [];
+        VOIDED_SET = new Set((data.voidedQuestions || []).map(n => Number(n)));
+
+        if (RESULTS_HISTORY.length === 0) {
+          throw new Error("No completed attempts found for this test.");
+        }
+
+        document.getElementById('ui-review-test-title').textContent = REVIEW_CONFIG.title || 'Review';
+
+        buildAttemptDropdown();
+        currentAttemptIndex = 0; // newest attempt (resultsHistory ordered desc) shown by default
+        renderAttempt(currentAttemptIndex);
+        renderTrendChart();
+        renderRankCard();
+
+        document.getElementById('ui-loading').style.display = 'none';
+        document.getElementById('ui-content').style.display = 'block';
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('ui-loading').style.display = 'none';
+        const errEl = document.getElementById('ui-error');
+        errEl.textContent = err.message || 'Something went wrong loading your review.';
+        errEl.style.display = 'block';
+      }
+    }
+
+    // ==========================================
+    // ANSWER KEY MATCHING — case-insensitive letter/number → index
+    // ==========================================
+    function resolveCorrectIndex(rawKeyVal) {
+      if (rawKeyVal === null || rawKeyVal === undefined) return null;
+      const val = String(rawKeyVal).trim().toUpperCase();
+      if (val === 'A' || val === '1') return 0;
+      if (val === 'B' || val === '2') return 1;
+      if (val === 'C' || val === '3') return 2;
+      if (val === 'D' || val === '4') return 3;
+      const n = parseInt(val);
+      return isNaN(n) ? null : n;
+    }
+
+    function findAnswerKeyEntry(q) {
+      if (q.q_id) {
+        const byId = ANSWER_MANIFEST.find(k => k.q_id === q.q_id);
+        if (byId) return byId;
+      }
+      return ANSWER_MANIFEST.find(k => k.sub_id === q.sub_id && k.test_q_num === q.test_q_num);
+    }
+
+    // ==========================================
+    // SCORING — client-side, per attempt, per section
+    // ==========================================
+    function computeAttemptScoring(rawMatrix) {
+      const sections = REVIEW_CONFIG.sections || [];
+      const sectionResults = sections.map(sec => ({
+        id: sec.id,
+        name: sec.name,
+        positiveMarks: parseFloat(sec.positiveMarks) || 0,
+        negativeMarks: parseFloat(sec.negativeMarks) || 0,
+        totalQuestions: parseInt(sec.totalQuestions) || 0,
+        maxMarks: (parseFloat(sec.positiveMarks) || 0) * (parseInt(sec.totalQuestions) || 0),
+        score: 0,
+        correctCount: 0,
+        incorrectCount: 0,
+        unansweredCount: 0
+      }));
+
+      const sectionMap = {};
+      sectionResults.forEach(s => sectionMap[s.id] = s);
+
+      let totalScore = 0, totalMax = 0, totalCorrect = 0, totalIncorrect = 0, totalUnanswered = 0;
+      let totalCorrectMarks = 0, totalIncorrectMarks = 0;
+
+      rawMatrix.forEach(q => {
+        const secBucket = sectionMap[q.sectionId];
+        if (!secBucket) return;
+
+        if (VOIDED_SET.has(q.test_q_num)) {
+          // Bonus/void question — awarded to every student regardless of
+          // what (if anything) they selected. Never counted as unanswered
+          // or incorrect.
+          secBucket.correctCount++;
+          secBucket.score += secBucket.positiveMarks;
+          totalCorrectMarks += secBucket.positiveMarks;
+          totalCorrect++;
+          return;
+        }
+
+        const keyEntry = findAnswerKeyEntry(q);
+        const correctIdx = keyEntry ? resolveCorrectIndex(keyEntry.answer_key) : null;
+        const userPick = (q.selectedOption === null || q.selectedOption === undefined) ? null : parseInt(q.selectedOption);
+
+        if (userPick === null || isNaN(userPick)) {
+          secBucket.unansweredCount++;
+          totalUnanswered++;
+        } else if (correctIdx !== null && userPick === correctIdx) {
+          secBucket.correctCount++;
+          secBucket.score += secBucket.positiveMarks;
+          totalCorrectMarks += secBucket.positiveMarks;
+          totalCorrect++;
+        } else {
+          secBucket.incorrectCount++;
+          secBucket.score -= secBucket.negativeMarks;
+          totalIncorrectMarks += secBucket.negativeMarks;
+          totalIncorrect++;
+        }
+      });
+
+      sectionResults.forEach(s => {
+        totalScore += s.score;
+        totalMax += s.maxMarks;
+      });
+
+      return {
+        sections: sectionResults,
+        totalScore, totalMax,
+        totalCorrect, totalIncorrect, totalUnanswered,
+        totalCorrectMarks, totalIncorrectMarks,
+        percentage: totalMax > 0 ? (totalScore / totalMax * 100) : 0
+      };
+    }
+
+    // ==========================================
+    // SECTION-WISE QUESTION GRID — dynamic per REVIEW_CONFIG.sections,
+    // one chip per question, colored by correct/incorrect/unanswered.
+    // Shows per-question time only if the raw matrix entry has a
+    // `timeSpentSeconds` field (not currently sent by exam-engine.js's
+    // submit call — add it there if you want this populated).
+    // ==========================================
+    function renderQuestionGrid(rawMatrix) {
+      const container = document.getElementById('ui-qgrid-block');
+      container.innerHTML = '';
+      const sections = REVIEW_CONFIG.sections || [];
+
+      sections.forEach(sec => {
+        const qs = rawMatrix
+          .filter(q => q.sectionId === sec.id)
+          .sort((a, b) => (a.test_q_num || 0) - (b.test_q_num || 0));
+        if (qs.length === 0) return;
+
+        let correctCount = 0, incorrectCount = 0, unansweredCount = 0;
+
+        const chipsHtml = qs.map(q => {
+          const isVoided = VOIDED_SET.has(q.test_q_num);
+          const keyEntry = findAnswerKeyEntry(q);
+          const correctIdx = keyEntry ? resolveCorrectIndex(keyEntry.answer_key) : null;
+          const userPick = (q.selectedOption === null || q.selectedOption === undefined) ? null : parseInt(q.selectedOption);
+
+          let status;
+          if (isVoided) { status = 'correct'; correctCount++; }
+          else if (userPick === null || isNaN(userPick)) { status = 'unanswered'; unansweredCount++; }
+          else if (correctIdx !== null && userPick === correctIdx) { status = 'correct'; correctCount++; }
+          else { status = 'incorrect'; incorrectCount++; }
+
+          const timeLabel = (q.timeSpentSeconds !== undefined && q.timeSpentSeconds !== null)
+            ? `<span class="qg-time">${q.timeSpentSeconds}s</span>` : '';
+          const bonusLabel = isVoided ? `<span class="qg-bonus" title="Bonus — awarded to all students">🎁</span>` : '';
+
+          const attemptNum = RESULTS_HISTORY.length - currentAttemptIndex;
+          const cardId = `qcard-${q.sectionId}-${q.test_q_num}`;
+          const href = `/solutions.html?token=${encodeURIComponent(activeSecureToken)}&attempt=${attemptNum}#${cardId}`;
+
+          return `<a class="qgrid-chip ${status}" href="${href}">${bonusLabel}<span>Q${q.test_q_num}</span>${timeLabel}</a>`;
+        }).join('');
+
+        const card = document.createElement('div');
+        card.className = 'qgrid-section-card';
+        card.innerHTML = `
+          <div class="qgrid-section-header">
+            <span class="qgrid-section-name">${sec.name}</span>
+            <span class="qgrid-section-meta">${qs.length} question${qs.length === 1 ? '' : 's'} in this section</span>
+          </div>
+          <div class="qgrid-grid">${chipsHtml}</div>
+          <div class="qgrid-section-footer">
+            <span class="fc-correct">${correctCount} correct</span>
+            <span class="fc-incorrect">${incorrectCount} wrong</span>
+            <span class="fc-unanswered">${unansweredCount} skipped</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function sectionColor(pct) {
+      if (pct >= 75) return { solid: 'var(--green)'.startsWith('var') ? '#22c55e' : '', hex: '#22c55e' };
+      if (pct >= 50) return { hex: '#eab308' };
+      return { hex: '#ef4444' };
+    }
+
+    // ==========================================
+    // ATTEMPT DROPDOWN
+    // ==========================================
+    function buildAttemptDropdown() {
+      const menu = document.getElementById('ui-attempt-dropdown');
+      menu.innerHTML = '';
+      RESULTS_HISTORY.forEach((row, idx) => {
+        const item = document.createElement('div');
+        item.className = 'attempt-dropdown-item';
+        const dateStr = row.submitted_at ? new Date(row.submitted_at).toLocaleString(undefined, {
+          day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        }) : '';
+        const attemptNum = RESULTS_HISTORY.length - idx; // oldest = Attempt 1
+        item.innerHTML = `<span class="a-label">Attempt ${attemptNum}</span><span class="a-date">${dateStr}</span>`;
+        item.onclick = () => {
+          currentAttemptIndex = idx;
+          renderAttempt(idx);
+          toggleAttemptDropdown(true);
+        };
+        menu.appendChild(item);
+      });
+    }
+
+    function goToSolutions() {
+      const attemptNum = RESULTS_HISTORY.length - currentAttemptIndex; // oldest = Attempt 1, same numbering as the dropdown
+      window.location.href = `/solutions.html?token=${encodeURIComponent(activeSecureToken)}&attempt=${attemptNum}`;
+    }
+
+    function toggleAttemptDropdown(forceClose) {
+      const menu = document.getElementById('ui-attempt-dropdown');
+      if (forceClose) { menu.classList.remove('open'); return; }
+      menu.classList.toggle('open');
+    }
+
+    document.addEventListener('click', (e) => {
+      const wrap = document.querySelector('.attempt-select-wrap');
+      if (wrap && !wrap.contains(e.target)) toggleAttemptDropdown(true);
+    });
+
+    // ==========================================
+    // RENDER — score cards, section list, section bar chart
+    // ==========================================
+    function renderAttempt(idx) {
+      const attemptRow = RESULTS_HISTORY[idx];
+      const attemptNum = RESULTS_HISTORY.length - idx;
+      document.getElementById('ui-attempt-select-label').textContent = `Attempt ${attemptNum}`;
+
+      const scoring = computeAttemptScoring(attemptRow.raw_response_matrix || []);
+
+      document.getElementById('ui-stat-percentage').innerHTML = `${scoring.percentage.toFixed(0)}<span class="unit">%</span>`;
+      document.getElementById('ui-stat-score').innerHTML = `${scoring.totalScore.toFixed(0)}<span class="unit">/${scoring.totalMax.toFixed(0)} marks</span>`;
+      document.getElementById('ui-stat-correct').innerHTML = `${scoring.totalCorrect}<span class="unit">questions</span>`;
+      document.getElementById('ui-stat-incorrect').innerHTML = `${scoring.totalIncorrect}<span class="unit">questions</span>`;
+      document.getElementById('ui-stat-unanswered').innerHTML = `${scoring.totalUnanswered}<span class="unit">questions</span>`;
+
+      renderSectionList(scoring.sections);
+      renderSectionBarChart(scoring.sections);
+      renderCompositionPieChart(scoring.sections);
+      renderQuestionGrid(attemptRow.raw_response_matrix || []);
+    }
+
+    // ==========================================
+    // COMPOSITION PIE CHART — unattempted (gray) + incorrect (red)
+    // + one correct-answers slice per subject, using the same colors
+    // as that subject's line in the trend chart above.
+    // ==========================================
+    function renderCompositionPieChart(sections) {
+      const labels = ['Unattempted', 'Incorrect'];
+      const data = [
+        sections.reduce((sum, s) => sum + s.unansweredCount, 0),
+        sections.reduce((sum, s) => sum + s.incorrectCount, 0)
+      ];
+      const colors = [COMPOSITION_YELLOW, COMPOSITION_RED];
+
+      sections.forEach((s, i) => {
+        labels.push(`${s.name} (Correct)`);
+        data.push(s.correctCount);
+        colors.push(COMPOSITION_GREEN_SHADES[i % COMPOSITION_GREEN_SHADES.length]); // a distinct green shade per subject
+      });
+
+      const ctx = document.getElementById('ui-composition-pie-chart').getContext('2d');
+      if (compositionPieChartInstance) compositionPieChartInstance.destroy();
+
+      compositionPieChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+            tooltip: { callbacks: { label: (item) => `${item.label}: ${item.parsed} question${item.parsed === 1 ? '' : 's'}` } }
+          }
+        }
+      });
+    }
+
+    function renderSectionList(sections) {
+      const listEl = document.getElementById('ui-section-list');
+      listEl.innerHTML = '';
+      sections.forEach(sec => {
+        const pct = sec.maxMarks > 0 ? (sec.score / sec.maxMarks * 100) : 0;
+        const color = sectionColor(pct).hex;
+        const row = document.createElement('div');
+        row.className = 'section-row';
+        row.innerHTML = `
+          <div class="section-row-name"><span class="section-dot" style="background:${color};"></span>${sec.name}</div>
+          <div>
+            <span class="section-row-marks">${sec.score.toFixed(0)}/${sec.maxMarks.toFixed(0)}</span>
+            <span class="section-row-pct">(${pct.toFixed(0)}%)</span>
+          </div>
+        `;
+        listEl.appendChild(row);
+      });
+    }
+
+    function renderSectionBarChart(sections) {
+      const ctx = document.getElementById('ui-section-bar-chart').getContext('2d');
+      const labels = sections.map(s => s.name);
+      const dataPct = sections.map(s => s.maxMarks > 0 ? Math.max(0, (s.score / s.maxMarks * 100)) : 0);
+      const colors = dataPct.map(pct => sectionColor(pct).hex);
+
+      if (sectionBarChartInstance) sectionBarChartInstance.destroy();
+
+      sectionBarChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Score %',
+            data: dataPct,
+            backgroundColor: colors,
+            borderRadius: 6,
+            maxBarThickness: 60
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: 0, max: 100, ticks: { callback: v => v + '%' } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: (item) => `${item.parsed.y.toFixed(1)}%` } }
+          }
+        }
+      });
+    }
+
+    // ==========================================
+    // TREND CHART — overall + per-section % across all attempts
+    // ==========================================
+    const TREND_COLORS = ['#2563eb', '#f97316', '#16a34a', '#a855f7', '#db2777', '#0891b2'];
+
+    function renderTrendChart() {
+      // Oldest → newest for a left-to-right timeline
+      const chronological = [...RESULTS_HISTORY].reverse();
+      const labels = chronological.map((_, i) => `Attempt ${i + 1}`);
+
+      const allSectionIds = (REVIEW_CONFIG.sections || []).map(s => s.id);
+      const sectionNameMap = {};
+      (REVIEW_CONFIG.sections || []).forEach(s => sectionNameMap[s.id] = s.name);
+
+      const overallSeries = [];
+      const sectionSeries = {}; // id -> [pct per attempt]
+      allSectionIds.forEach(id => sectionSeries[id] = []);
+
+      chronological.forEach(row => {
+        const scoring = computeAttemptScoring(row.raw_response_matrix || []);
+        overallSeries.push(scoring.percentage);
+        scoring.sections.forEach(sec => {
+          const pct = sec.maxMarks > 0 ? (sec.score / sec.maxMarks * 100) : 0;
+          sectionSeries[sec.id].push(pct);
+        });
+      });
+
+      const datasets = [{
+        label: 'Overall',
+        data: overallSeries,
+        borderColor: TREND_COLORS[0],
+        backgroundColor: TREND_COLORS[0],
+        tension: 0.3,
+        borderWidth: 3
+      }];
+
+      allSectionIds.forEach((id, i) => {
+        datasets.push({
+          label: sectionNameMap[id] || id,
+          data: sectionSeries[id],
+          borderColor: TREND_COLORS[(i + 1) % TREND_COLORS.length],
+          backgroundColor: TREND_COLORS[(i + 1) % TREND_COLORS.length],
+          tension: 0.3,
+          borderWidth: 2
+        });
+      });
+
+      const ctx = document.getElementById('ui-trend-line-chart').getContext('2d');
+      if (trendLineChartInstance) trendLineChartInstance.destroy();
+
+      trendLineChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { min: 0, max: 100, ticks: { callback: v => v + '%' } }
+          },
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { callbacks: { label: (item) => `${item.dataset.label}: ${item.parsed.y.toFixed(1)}%` } }
+          }
+        }
+      });
+    }
+    // ==========================================
+    // RANK CARD + LEADERBOARD MODAL
+    // ==========================================
+    function renderRankCard() {
+      const rankEl = document.getElementById('ui-stat-rank');
+      const totalEl = document.getElementById('ui-stat-rank-total');
+      if (!LEADERBOARD_DATA || !LEADERBOARD_DATA.currentStudentRank) {
+        rankEl.innerHTML = `--<span class="unit">/-- students</span>`;
+        return;
+      }
+      rankEl.innerHTML = `${LEADERBOARD_DATA.currentStudentRank}<span class="unit">/${LEADERBOARD_DATA.totalStudents} students</span>`;
+    }
+
+    function openLeaderboardModal() {
+      document.getElementById('ui-lb-overlay').classList.add('open');
+      if (!LEADERBOARD_DATA) {
+        document.getElementById('ui-lb-total-students').textContent = 'Leaderboard is unavailable right now.';
+        document.getElementById('ui-lb-list').innerHTML = `<div class="lb-empty">Couldn't load leaderboard data. Try again shortly.</div>`;
+        return;
+      }
+      document.getElementById('ui-lb-total-students').textContent =
+        `${LEADERBOARD_DATA.totalStudents} student${LEADERBOARD_DATA.totalStudents === 1 ? '' : 's'} have attempted this test`;
+
+      // "Live Results" tab only exists for scheduled exams — set it as the
+      // default first tab there; otherwise keep the original best-score default.
+      const liveBtn = document.getElementById('ui-lb-filter-live');
+      if (LEADERBOARD_DATA.isScheduled) {
+        liveBtn.style.display = '';
+        leaderboardMode = 'live';
+      } else {
+        liveBtn.style.display = 'none';
+        leaderboardMode = 'best';
+      }
+      document.getElementById('ui-lb-filter-best').classList.toggle('active', leaderboardMode === 'best');
+      document.getElementById('ui-lb-filter-attempt').classList.toggle('active', leaderboardMode === 'attempt');
+      liveBtn.classList.toggle('active', leaderboardMode === 'live');
+      document.getElementById('ui-lb-attempt-picker').style.display = leaderboardMode === 'attempt' ? 'block' : 'none';
+
+      buildAttemptFilterOptions();
+      renderLeaderboardList();
+    }
+
+    function closeLeaderboardModal() {
+      document.getElementById('ui-lb-overlay').classList.remove('open');
+    }
+
+    function setLeaderboardMode(mode) {
+      leaderboardMode = mode;
+      document.getElementById('ui-lb-filter-live').classList.toggle('active', mode === 'live');
+      document.getElementById('ui-lb-filter-best').classList.toggle('active', mode === 'best');
+      document.getElementById('ui-lb-filter-attempt').classList.toggle('active', mode === 'attempt');
+      document.getElementById('ui-lb-attempt-picker').style.display = mode === 'attempt' ? 'block' : 'none';
+      renderLeaderboardList();
+    }
+
+    function buildAttemptFilterOptions() {
+      if (!LEADERBOARD_DATA) return;
+      const maxAttempts = Math.max(1, ...LEADERBOARD_DATA.leaderboard.map(s => s.attempts.length));
+      const select = document.getElementById('ui-lb-attempt-select');
+      select.innerHTML = '';
+      for (let i = 1; i <= maxAttempts; i++) {
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `Attempt ${i}`;
+        select.appendChild(opt);
+      }
+    }
+
+    function renderLeaderboardList() {
+      const listEl = document.getElementById('ui-lb-list');
+      const noticeEl = document.getElementById('ui-lb-live-notice');
+      if (!LEADERBOARD_DATA) return;
+      listEl.innerHTML = '';
+      noticeEl.style.display = leaderboardMode === 'live' ? 'block' : 'none';
+
+      let rows;
+      if (leaderboardMode === 'live') {
+        rows = (LEADERBOARD_DATA.liveLeaderboard || []).map(s => ({ fullName: s.fullName, isYou: s.isYou, percentage: s.percentage, attemptNumber: 1 }));
+      } else if (leaderboardMode === 'best') {
+        rows = LEADERBOARD_DATA.leaderboard.map(s => {
+          const bestAttempt = s.attempts.reduce((a, b) => (b.percentage > a.percentage ? b : a), s.attempts[0]);
+          return { fullName: s.fullName, isYou: s.isYou, percentage: s.bestPercentage, attemptNumber: bestAttempt.attemptNumber };
+        });
+      } else {
+        const attemptNum = parseInt(document.getElementById('ui-lb-attempt-select').value || '1');
+        rows = LEADERBOARD_DATA.leaderboard
+          .filter(s => s.attempts.some(a => a.attemptNumber === attemptNum))
+          .map(s => {
+            const a = s.attempts.find(a => a.attemptNumber === attemptNum);
+            return { fullName: s.fullName, isYou: s.isYou, percentage: a.percentage, attemptNumber: attemptNum };
+          });
+      }
+
+      rows.sort((a, b) => b.percentage - a.percentage);
+
+      if (rows.length === 0) {
+        listEl.innerHTML = `<div class="lb-empty">${leaderboardMode === 'live' ? 'No one attempted this exam live during the scheduled window.' : 'No attempts found for this filter.'}</div>`;
+        return;
+      }
+
+      rows.forEach((row, idx) => {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'lb-row' + (row.isYou ? ' you' : '');
+        rowEl.innerHTML = `
+          <div class="lb-rank-num">${idx + 1}</div>
+          <div class="lb-name">${row.fullName}${row.isYou ? '<span class="you-tag">YOU</span>' : ''}</div>
+          <div>
+            <span class="lb-pct">${row.percentage.toFixed(1)}%</span>
+            ${leaderboardMode === 'live' ? '' : `<span class="lb-attempt-tag">Attempt ${row.attemptNumber}</span>`}
+          </div>
+        `;
+        listEl.appendChild(rowEl);
+      });
+    }
+  </script>
+</body>
+</html>

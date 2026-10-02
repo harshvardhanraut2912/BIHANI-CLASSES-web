@@ -1,0 +1,902 @@
+/* =========================================================
+   GLOBAL GLASSMORPHISM BASE & CORE RESET
+   ========================================================= */
+.glass-cms-viewport-wrapper {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  min-height: 100vh; /* Changed from fixed height to min-height */
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #020617 100%);
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* 🟢 This makes the entire master portal scrollable! */
+}
+
+/* =========================================================
+   TOP CONFIGURATION FLOATING BAR (KOSH DRONARJUN STYLE)
+   ========================================================= */
+.glass-topbar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+.engine-brand-emblem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  background-color: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #38bdf8;
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(56, 189, 248, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+}
+
+.brand-txt-glow {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(120deg, #f8fafc, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* TAXONOMY DROPDOWN FLEX MATRICES */
+.glass-selector-row {
+  display: flex;
+  gap: 15px;
+  flex: 1;
+  max-width: 65%;
+  margin-left: 40px;
+}
+
+.glass-dropdown {
+  flex: 1;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-dropdown:hover:not(:disabled) {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+}
+
+.glass-dropdown:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.wide-chapter-dropdown {
+  flex: 2 !important;
+}
+
+/* INVENTORY ITEM COUNTER BADGE */
+.floating-metric-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 6px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.metric-lbl {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.metric-count-glow {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #38bdf8;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+
+/* =========================================================
+   MAIN 50/50 GLASSMORPHIC SPLIT WORKSPACE
+   ========================================================= */
+/* 2. Remove fixed height restrictions from the main grid viewports container */
+.glass-workspace-split-viewport {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  height: auto; /* 🟢 Changed from calc(100vh - 145px) to auto for dynamic tracking */
+  overflow: visible; /* Prevents text boxes or preview boxes from clipping out */
+}
+
+.glass-panel-lane {
+  flex: 1;
+  width: 50%;
+  height: auto; /* 🟢 Allow natural column expansions */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* LEFT SIDE WORKSPACE FIELD STRUCTURE */
+.layout-editor-left {
+  padding: 25px 15px 25px 30px;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-panel-box-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.01);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.panel-box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.panel-box-badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #cbd5e1;
+}
+
+.panel-box-counter-pill {
+  font-size: 0.75rem;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+/* MONOLITHIC BULK CONTENT BOX ENTRY */
+.glass-monolithic-textarea {
+  width: 100%;
+  min-height: 550px; /* Gives you a massive code entry area right out of the gate */
+  padding: 20px;
+  background: rgba(15, 23, 42, 0.4);
+  border: none;
+  resize: vertical; /* 🟢 Lets you drag it down to make it even bigger manually! */
+  outline: none;
+  color: #f1f5f9;
+  font-family: "Fira Code", Consolas, Monaco, monospace;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  box-sizing: border-box;
+  transition: background 0.3s ease;
+}
+
+.glass-monolithic-textarea:focus {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+/* WORKSPACE UTILITY OPERATION ACTION ROW */
+.glass-panel-action-row {
+  margin-top: 20px;
+  display: flex;
+}
+
+.btn-glass-action {
+  width: 100%;
+  padding: 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+}
+
+.action-trigger-batch-render {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(2, 132, 199, 0.2) 100%);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.1);
+}
+
+.action-trigger-batch-render:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.35) 0%, rgba(2, 132, 199, 0.35) 100%);
+  border-color: #38bdf8;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   RIGHT SIDE SCROLLABLE MATRIX MONITOR LAYOUT
+   ========================================================= */
+.layout-monitor-right {
+  padding: 25px 30px 25px 15px;
+}
+
+.glass-monitor-scaffold-scroll {
+  width: 100%;
+  height: auto;
+  overflow-y: visible; /* 🟢 Kills isolated side scrolling completely */
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  box-sizing: border-box;
+}
+/* CUSTOM SCROLLBAR INTERFACES */
+.glass-monitor-scaffold-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.glass-monitor-scaffold-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.01);
+  border-radius: 10px;
+}
+.glass-monitor-scaffold-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+.glass-monitor-scaffold-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.4);
+}
+
+/* COMPOSITE CARD COMPONENT WRAPPERS */
+.glass-preview-item-card {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.4s ease;
+}
+
+.glass-preview-item-card.state-ready {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.item-card-control-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.item-sequence-lbl {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+/* COMPACT CORNER DROP-DOWN SELECTOR LAYOUT */
+.micro-dropdown-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.micro-dropdown-lbl {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #38bdf8;
+}
+
+.glass-micro-select {
+  background: transparent;
+  border: none;
+  color: #f1f5f9;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  padding-right: 4px;
+}
+
+.glass-micro-select option {
+  background: #1e1b4b;
+  color: #f1f5f9;
+}
+
+/* CARD INTERNAL VIEWPORTS DOUBLE COLUMNS GRID */
+.card-asset-viewports-grid {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+}
+
+.micro-asset-frame {
+  flex: 1;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.frame-badge-tag {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.embedded-img-viewport {
+  width: 100%;
+  background: #ffffff; /* Preserves textbook paper layout canvas color rules natively */
+  border-radius: 8px;
+  padding: 12px;
+  box-sizing: border-box;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+}
+
+.compiled-engine-png-asset {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+}
+
+/* EMPTY CONSOLE STATE ARTIFACT WRAPPER */
+.glass-empty-placeholder-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border: 2px dashed rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  color: #64748b;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+/* =========================================================
+   BOTTOM TRANSACTION CONTROL INFRASTRUCTURE SHELF
+   ========================================================= */
+.glass-bottom-control-shelf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 30px;
+  background: rgba(10, 15, 30, 0.85); /* Slightly darker mask to elevate text contrast */
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  bottom: 0;
+  z-index: 999999 !important; /* 🟢 Forces footer interactive area above body layers */
+}
+
+.shelf-active-breadcrumb {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.breadcrumb-meta-lbl {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.breadcrumb-value-glow {
+  font-size: 1rem;
+  color: #e2e8f0;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.action-trigger-batch-push {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  color: #ffffff;
+  min-width: 300px;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.2);
+}
+
+.action-trigger-batch-push:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  border-color: #38bdf8;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-glass-action:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   🟢 GLOBAL HORIZONTAL BRIGHT FLOATING ACTION CONTROL MATRIX
+   ========================================================= */
+.global-floating-control-dock {
+  position: fixed !important; /* 🟢 Forces them to float dynamically over the entire viewport */
+  right: 30px !important;     /* Pins them to the right edge */
+  bottom: 16px !important;    /* Positions them right in the bottom corner over the footer space */
+  display: flex !important;
+  flex-direction: row !important; /* 🟢 Forces side-by-side horizontal alignment */
+  gap: 12px !important;
+  align-items: center !important;
+  z-index: 999999999 !important; /* 🟢 Higher than everything else to prevent unclickable layering */
+  pointer-events: auto !important; /* 🟢 Guarantees mouse click interaction captures instantly */
+}
+
+/* HIGH BRIGHTNESS SOLID EMERALD ACTIONS */
+.btn-floating-glass {
+  width: 100px !important;
+  height: 38px !important;
+  border-radius: 6px !important;
+  font-size: 0.82rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #10b981 !important; /* Vibrant solid green */
+  border: 1px solid #34d399 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+/* HOVER ANIMATION GLOW */
+.btn-floating-glass:hover:not(:disabled) {
+  background: #059669 !important; /* Richer deep emerald green */
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.75) !important;
+  transform: translateY(-2px) !important;
+}
+
+.btn-floating-glass:active:not(:disabled) {
+  transform: translateY(0px) scale(0.96) !important;
+}
+
+.btn-floating-glass:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+/* 🟢 Bright, highly visible emerald style sheet override */
+.variant-green-engine {
+  background: #10b981 !important; /* Vibrant solid emerald green background */
+  border: 1px solid #34d399;
+  color: #ffffff !important; /* Crisp white text color */
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+/* =========================================================
+   🟢 GLASSMORPHIC GOOGLE LENS SEARCH BUTTON
+   ========================================================= */
+.glass-micro-lens-btn {
+  background: rgba(56, 189, 248, 0.1) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  color: #38bdf8 !important;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  outline: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease-in-out;
+}
+
+.glass-micro-lens-btn:hover {
+  background: rgba(56, 189, 248, 0.25) !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  transform: translateY(-1px);
+}
+
+.glass-micro-lens-btn:active {
+  transform: translateY(0px) scale(0.96);
+}
+
+/* =========================================================
+   🟢 GLASSMORPHIC REAL-TIME AI AUDITING BADGES
+   ========================================================= */
+.ai-audit-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid transparent;
+}
+
+.ai-audit-badge.state-loading {
+  background: rgba(234, 179, 8, 0.1) !important;
+  border-color: rgba(234, 179, 8, 0.3) !important;
+  color: #eab308 !important;
+}
+
+.ai-audit-badge.state-valid {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #34d399 !important;
+}
+
+/* Update this inside your cms.css custom badges area */
+.ai-audit-badge.state-error {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  color: #f87171 !important;
+  cursor: help; /* 🟢 Changes cursor to a help question mark indicating hover capabilities! */
+}
+
+
+/* =========================================================
+   🟢 GLASSMORPHIC COLLAPSABLE SIDE CHAT WORKSPACE STUDIO
+   ========================================================= */
+.glass-sliding-chat-panel {
+  position: fixed;
+  top: 0;
+  right: -420px; /* Hidden off-screen right edge layout paths by default */
+  width: 380px;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  z-index: 99999999 !important; /* Ensure it floats crisp on top of all text lane elements */
+  transition: right 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.glass-sliding-chat-panel.panel-active {
+  right: 0; /* Slides smooth into focus view layout paths */
+}
+
+.chat-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.chat-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+}
+
+.chat-panel-close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.chat-panel-close-btn:hover { color: #f87171; }
+
+/* CHAT MESSAGE TRACK CHANNELS SCROLLING CANVAS */
+.chat-messages-scroll-box {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.chat-message-row-bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.chat-message-row-bubble.ai-bubble {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #cbd5e1;
+  align-self: flex-start;
+  border-top-left-radius: 2px;
+}
+
+.chat-message-row-bubble.user-bubble {
+  background: #a855f7;
+  color: #ffffff;
+  align-self: flex-end;
+  border-top-right-radius: 2px;
+  box-shadow: 0 4px 12px rgba(168, 85, 247, 0.2);
+}
+
+/* INPUT FOOTER & ATTACH SLOT STYLINGS */
+.chat-panel-input-footer {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(10, 15, 30, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-input-wrapper-row {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input-text-field {
+  flex: 1;
+  padding: 10px 14px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #f1f5f9;
+  font-size: 0.85rem;
+  outline: none;
+}
+.chat-input-text-field:focus { border-color: #a855f7; }
+
+.chat-send-btn-arrow {
+  width: 36px;
+  height: 36px;
+  background: #a855f7;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+.chat-send-btn-arrow:hover:not(:disabled) { background: #9333ea; }
+
+/* DRAG DROP PREVIEW IMAGE BANNER ATTACH SLOT */
+.chat-attached-preview-slot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px dashed rgba(168, 85, 247, 0.4);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  color: #c084fc;
+}
+
+.remove-attach-btn {
+  background: transparent;
+  border: none;
+  color: #f87171;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* TYPING DOTS LOADER ANIMATIONS */
+.typing-dot {
+  display: inline-block;
+  animation: waveDot 1.4s infinite both;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+
+@keyframes waveDot {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-4px); }
+}
+
+/* =========================================================
+   🟢 REAL-TIME CEREBRAS BACKGROUND VERIFICATION BADGES
+   ========================================================= */
+.ai-audit-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid transparent;
+}
+
+.ai-audit-badge.state-loading {
+  background: rgba(234, 179, 8, 0.15) !important;
+  border-color: rgba(234, 179, 8, 0.35) !important;
+  color: #eab308 !important;
+}
+
+.ai-audit-badge.state-valid {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #34d399 !important;
+}
+
+.ai-audit-badge.state-error {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  color: #f87171 !important;
+}
+
+/* =========================================================
+   🟢 CUSTOM MODAL SYSTEM PORTAL DIALOG STYLES
+   ========================================================= */
+.custom-modal-blur-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999999999 !important; /* Force layout position on top of the footer panel docks */
+}
+
+.custom-modal-alert-box {
+  width: 440px;
+  max-width: 90%;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 
+              0 0 50px rgba(56, 189, 248, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-inner-accent-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #38bdf8, #a855f7);
+}
+
+.modal-title-text {
+  margin: 0 0 12px 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.3px;
+  text-align: left;
+}
+
+.modal-message-body {
+  margin: 0 0 24px 0;
+  font-size: 0.92rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.modal-actions-wrapper-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  width: 100%;
+}
+
+.modal-btn {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.modal-btn-secondary {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+}
+.modal-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* 🟢 High-visibility active focus styling element */
+.modal-btn-primary {
+  background: #10b981;
+  border: 1px solid #34d399;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+.modal-btn-primary:hover,
+.auto-selected-focus {
+  background: #059669 !important;
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.6) !important;
+  transform: scale(1.02);
+}
+
+/* POP ANIMATION FRAME ROUTINES */
+.animate-modal-pop {
+  animation: modalScalePop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes modalScalePop {
+  0% { transform: scale(0.92); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* =========================================================
+   🟢 GLASSMORPHIC HUD DRAG DROP IN-MEMORY CANVAS VIEWPORTS
+   ========================================================= */
+.glass-drag-drop-hudbox-container {
+  border: 2px dashed rgba(52, 211, 153, 0.3);
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 8px;
+  padding: 30px 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
+.glass-drag-drop-hudbox-container:hover {
+  background: rgba(16, 185, 129, 0.04);
+  border-color: #10b981;
+  box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.1);
+}

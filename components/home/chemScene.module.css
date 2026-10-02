@@ -1,0 +1,26 @@
+.scene{display:none;position:relative;border-radius:20px;border:1px solid #d6e2f3;overflow:hidden;margin-bottom:20px;background:radial-gradient(circle at 20% 15%,#fff,#e4eeff 70%);box-shadow:0 10px 30px rgba(23,42,133,.12)}
+.svg{display:block;width:100%;height:auto;font-family:var(--font-body),system-ui,sans-serif;font-size:12px}
+@media(max-width:900px){.scene{display:block}}
+
+.wave{animation:tint 9s ease-in-out infinite,wave 2.4s linear infinite}
+.bub{fill:#fff;opacity:.8;animation:rise 3s ease-in infinite;transform-box:fill-box}
+.vapor{fill:#12a0ee;opacity:0;animation:vapor 2.4s ease-out infinite;transform-box:fill-box}
+.pulse{animation:pulse 2s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.bob{animation:bob 3.2s ease-in-out infinite}
+.spinSlow{animation:spin 14s linear infinite}
+.floaters text{opacity:.4}
+.f1{animation:drift 5s ease-in-out infinite}
+.f2{animation:drift 6s ease-in-out -2s infinite}
+.f3{animation:drift 7s ease-in-out -1s infinite}
+.f4{animation:drift 5.5s ease-in-out -3s infinite}
+.f1,.f2,.f3,.f4,.bob,.spinSlow{transform-box:fill-box;transform-origin:center}
+
+@keyframes tint{0%,100%{fill:#12a0ee}25%{fill:#4fb848}50%{fill:#f5b81d}75%{fill:#e8532a}}
+@keyframes wave{to{transform:translateX(60px)}}
+@keyframes rise{from{transform:translateY(0);opacity:.85}to{transform:translateY(-100px);opacity:0}}
+@keyframes vapor{0%{transform:translateY(0) scale(.6);opacity:.7}100%{transform:translateY(-20px) scale(1.4);opacity:0}}
+@keyframes pulse{50%{transform:scale(1.15)}}
+@keyframes bob{50%{transform:translateY(-6px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes drift{50%{transform:translateY(-8px)}}
+@media(prefers-reduced-motion:reduce){.liquid,.wave,.bub,.vapor,.pulse,.bob,.spinSlow,.f1,.f2,.f3,.f4{animation:none}}

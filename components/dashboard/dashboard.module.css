@@ -1,0 +1,1255 @@
+/* components/dashboard/dashboard.module.css
+   Reuses the real global CSS variables defined in app/globals.css
+   (--primary-blue, --gray-light, --text-main, --nav-height, etc.) so this
+   automatically matches the YN Classes theme, including dark mode. */
+
+.appLayout {
+    display: flex;
+    min-height: 100vh;
+    /* Navbar is intentionally zoomed to 80% (.navbarShrink), so its real
+       rendered height is 64px (80px * 0.8), not the global --nav-height.
+       Using the unshrunk var here left a grey gap above the sidebar/content
+       on mobile -- this is why. */
+    padding-top: 64px;
+    background-color: var(--gray-light, #f8fafc);
+    color: var(--text-main, #0f172a);
+}
+
+/* ---------- Sidebar (main sections only) ---------- */
+
+.sidebar {
+    width: 264px;
+    flex-shrink: 0;
+    background-color: var(--white, #fff);
+    border-right: 1px solid var(--card-border, rgba(226, 232, 240, 0.8));
+    padding: 28px 16px;
+    position: sticky;
+    top: 64px; /* matches the shrunk navbar's real height -- see .appLayout comment */
+    height: calc(100vh - 64px);
+    overflow-y: auto;
+}
+
+.sidebarLabel {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--text-muted, #64748b);
+    padding: 0 12px 14px;
+}
+
+.sidebarNav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.sidebarItem {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-main, #0f172a);
+    text-align: left;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.sidebarItem:hover {
+    background-color: var(--faint-blue, #eff6ff);
+    transform: translateX(2px);
+}
+
+.sidebarItemActive {
+    background-color: var(--primary-blue, #1e3a8a);
+    color: #fff;
+    box-shadow: 0 6px 16px -4px rgba(30, 58, 138, 0.45);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebarItemActive:hover {
+    background-color: var(--primary-blue, #1e3a8a);
+    transform: translateX(2px);
+}
+
+/* Thin accent bar that slides in on the active item -- the "dark colored
+   animation" cue, echoing PW's highlighted sidebar entry. */
+.sidebarItemActive::before {
+    content: '';
+    position: absolute;
+    left: -16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    border-radius: 0 4px 4px 0;
+    background-color: var(--brand-orange, #f2871a);
+    animation: sidebarAccentGrow 0.22s ease-out;
+    z-index: 1;
+}
+
+@keyframes sidebarAccentGrow {
+    from { height: 0; opacity: 0; }
+    to { height: 60%; opacity: 1; }
+}
+
+/* Diagonal shine sweep across the active sidebar item, replayed on hover --
+   pure animation addition, no new colors: reuses the same white overlay
+   trick as the batch banner sheen. */
+.sidebarItemActive::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+    transform: skewX(-20deg);
+    pointer-events: none;
+    animation: sidebarItemShine 2.6s ease-in-out infinite;
+}
+
+@keyframes sidebarItemShine {
+    0% { left: -75%; }
+    22%, 100% { left: 130%; }
+}
+
+.sidebarItem:hover .sidebarIconFallback {
+    transform: scale(1.08) rotate(-4deg);
+}
+
+.sidebarIcon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+}
+
+.sidebarItemActive .sidebarIcon {
+    filter: brightness(0) invert(1);
+}
+
+.sidebarIconFallback {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    background-color: var(--faint-blue, #eff6ff);
+    color: var(--primary-blue, #1e3a8a);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Colorful first-letter icon backgrounds -- cycles blue/orange/green/purple
+   down the sidebar list so each section gets its own tint, same treatment
+   requested for the Notes/Test cards on the dashboard home. */
+.sidebarNav .sidebarItem:nth-of-type(4n+2) .sidebarIconFallback { background-color: rgba(242, 135, 26, 0.14); color: #f2871a; }
+.sidebarNav .sidebarItem:nth-of-type(4n+3) .sidebarIconFallback { background-color: rgba(22, 163, 74, 0.14); color: #16a34a; }
+.sidebarNav .sidebarItem:nth-of-type(4n+4) .sidebarIconFallback { background-color: rgba(124, 58, 237, 0.14); color: #7c3aed; }
+
+.sidebarItemActive .sidebarIconFallback {
+    background-color: rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+.sidebarItemLabel {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: relative;
+    z-index: 2;
+}
+
+.sidebarBadge {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background-color: rgba(16, 185, 129, 0.12);
+    color: #0d7d59;
+    letter-spacing: 0.2px;
+    position: relative;
+    z-index: 2;
+}
+
+.sidebarItemActive .sidebarBadge {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.sidebarEmpty {
+    padding: 12px;
+    font-size: 12px;
+    color: var(--text-muted, #64748b);
+}
+
+/* ---------- Right panel ---------- */
+
+.main {
+    flex: 1;
+    padding: 32px 40px;
+    min-width: 0;
+}
+
+.panelHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+/* ---------- 80% shrink -- ONLY the top navbar and the breadcrumb/
+   heading row (PanelHeader), nothing else on the page. `zoom` scales the
+   element's own box + font-size without a reflow-breaking transform, so
+   layout below it isn't affected; the `transform: scale` rule is a
+   fallback for browsers without `zoom` support (older Firefox). Applied
+   directly on the elements themselves (not wrapped around the whole
+   page) so only these two pieces shrink. */
+.navbarShrink {
+    zoom: 0.8;
+    -webkit-text-size-adjust: 80%;
+}
+@supports not (zoom: 1) {
+    .navbarShrink {
+        transform: scale(0.8);
+        transform-origin: top left;
+    }
+}
+
+.panelHeaderShrink {
+    zoom: 0.8;
+    -webkit-text-size-adjust: 80%;
+}
+@supports not (zoom: 1) {
+    .panelHeaderShrink {
+        transform: scale(0.8);
+        transform-origin: top left;
+    }
+}
+
+.backBtn {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--card-border, rgba(226, 232, 240, 0.8));
+    background-color: var(--white, #fff);
+    color: var(--text-main, #0f172a);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 9px 16px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.backBtn:hover {
+    border-color: var(--primary-blue, #1e3a8a);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    transform: translateX(-2px);
+}
+
+.breadcrumb {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+}
+
+.breadcrumbSegment {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.breadcrumbLink {
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--text-muted, #64748b);
+    font-size: 17px;
+    font-weight: 700;
+    padding: 0;
+    transition: color 0.2s ease;
+}
+
+.breadcrumbLink:hover {
+    color: var(--primary-blue, #1e3a8a);
+}
+
+.breadcrumbCurrent {
+    color: var(--text-main, #0f172a);
+}
+
+.breadcrumbSep {
+    color: var(--text-muted, #64748b);
+    opacity: 0.6;
+}
+
+/* Simplified single-crumb label shown only on mobile in place of the
+   full breadcrumb chain (see PanelHeader.js) -- hidden on desktop. */
+.mobileCrumb {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .panelHeader {
+        gap: 10px;
+        margin-bottom: 16px;
+        flex-wrap: nowrap;
+    }
+
+    .backBtn {
+        font-size: 12px;
+        padding: 7px 12px;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+
+    /* Full multi-level trail wraps into a messy multi-line block on
+       narrow screens, so it's replaced entirely by .mobileCrumb below. */
+    .breadcrumb {
+        display: none;
+    }
+
+    .mobileCrumb {
+        display: block;
+        font-size: 14.5px;
+        font-weight: 800;
+        letter-spacing: -0.2px;
+        color: var(--text-main, #0f172a);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        min-width: 0;
+    }
+}
+
+.stateMessage {
+    color: var(--text-muted, #64748b);
+    font-size: 13.5px;
+    padding: 60px 0;
+    text-align: center;
+}
+
+/* ---------- Batch headline banner ---------- */
+
+.batchBanner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 16px 24px;
+    margin-bottom: 20px;
+    border-radius: var(--radius-lg, 14px);
+    background: linear-gradient(120deg, var(--primary-blue, #1e3a8a) 0%, var(--accent-blue, #3b82f6) 100%);
+    box-shadow: 0 10px 24px rgba(30, 58, 138, 0.18);
+    position: relative;
+    overflow: hidden;
+    animation: bannerFadeIn 0.5s ease-out;
+}
+
+.batchBanner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle at 85% 20%, rgba(255, 255, 255, 0.16) 0%, transparent 55%);
+    pointer-events: none;
+}
+
+.batchBanner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -60%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(115deg, transparent 0%, rgba(255, 255, 255, 0.28) 50%, transparent 100%);
+    transform: skewX(-20deg);
+    animation: bannerSheen 5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes bannerSheen {
+    0% { left: -60%; }
+    16%, 100% { left: 130%; }
+}
+
+@keyframes bannerFadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.batchBannerText {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    position: relative;
+    z-index: 1;
+}
+
+.batchBannerEyebrow {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.batchBannerTitle {
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.batchBannerMeta {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.batchBannerGlyph {
+    font-size: 30px;
+    line-height: 1;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.2));
+}
+
+@media (max-width: 640px) {
+    .batchBanner { padding: 14px 18px; }
+    .batchBannerTitle { font-size: 16px; }
+    .batchBannerGlyph { font-size: 24px; }
+}
+
+/* ---------- Support / tips strip (bottom of section grid) ---------- */
+
+.helpStrip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-top: 28px;
+}
+
+.helpStripItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 18px;
+    background-color: var(--white, #fff);
+    border: 1px solid var(--card-border, rgba(226, 232, 240, 0.8));
+    border-radius: var(--radius-lg, 14px);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+    animation: cardPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+/* Tinted box background per card -- same cycling palette used elsewhere. */
+.helpStrip .helpStripItem:nth-child(1) { background-color: rgba(30, 58, 138, 0.05); border-color: rgba(30, 58, 138, 0.14); }
+.helpStrip .helpStripItem:nth-child(2) { background-color: rgba(242, 135, 26, 0.06); border-color: rgba(242, 135, 26, 0.16); }
+.helpStrip .helpStripItem:nth-child(3) { background-color: rgba(22, 163, 74, 0.06); border-color: rgba(22, 163, 74, 0.16); }
+
+.helpStrip .helpStripItem:nth-child(1) { animation-delay: 0.1s; }
+.helpStrip .helpStripItem:nth-child(2) { animation-delay: 0.16s; }
+.helpStrip .helpStripItem:nth-child(3) { animation-delay: 0.22s; }
+
+.helpStripItem:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+.helpStripIcon {
+    font-size: 20px;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(30, 58, 138, 0.1);
+}
+
+/* Colorful icon chip per card -- same cycling tint as the sidebar/gridCard
+   first-letter icons. */
+.helpStrip .helpStripItem:nth-child(2) .helpStripIcon { background: rgba(242, 135, 26, 0.12); }
+.helpStrip .helpStripItem:nth-child(3) .helpStripIcon { background: rgba(22, 163, 74, 0.12); }
+
+.helpStripTitle {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-main, #0f172a);
+    margin-bottom: 3px;
+}
+
+.helpStripText {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted, #64748b);
+    line-height: 1.45;
+}
+
+/* ---------- Subsection / chapter card grid ---------- */
+
+.cardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+}
+
+.gridCard {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    background-color: var(--white, #fff);
+    border: 1px solid var(--card-border, rgba(226, 232, 240, 0.8));
+    border-radius: var(--radius-lg, 14px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    animation: cardPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.cardGrid .gridCard:nth-child(1) { animation-delay: 0.02s; }
+.cardGrid .gridCard:nth-child(2) { animation-delay: 0.07s; }
+.cardGrid .gridCard:nth-child(3) { animation-delay: 0.12s; }
+.cardGrid .gridCard:nth-child(4) { animation-delay: 0.17s; }
+.cardGrid .gridCard:nth-child(5) { animation-delay: 0.22s; }
+.cardGrid .gridCard:nth-child(6) { animation-delay: 0.27s; }
+.cardGrid .gridCard:nth-child(n+7) { animation-delay: 0.3s; }
+
+@keyframes cardPopIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.gridCard::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--primary-blue, #1e3a8a), var(--accent-blue, #3b82f6));
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.gridCard:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: var(--shadow-hover, 0 20px 40px rgba(30, 58, 138, 0.12));
+    border-color: var(--accent-blue, #3b82f6);
+}
+
+.gridCard:hover::before {
+    opacity: 1;
+}
+
+.gridCard:active {
+    transform: translateY(-1px) scale(0.99);
+}
+
+.gridCard:hover .gridCardArrow {
+    transform: translateX(3px);
+    color: var(--primary-blue, #1e3a8a);
+}
+
+.gridCardIconWrap {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background-color: var(--faint-blue, #eff6ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.gridCard:hover .gridCardIconWrap {
+    transform: scale(1.08) rotate(-4deg);
+}
+
+/* Colorful first-letter icon backgrounds -- same cycling tint used on the
+   sidebar, applied here to the Notes/Test/chapter cards. */
+.cardGrid .gridCard:nth-child(4n+2) .gridCardIconWrap { background-color: rgba(242, 135, 26, 0.14); }
+.cardGrid .gridCard:nth-child(4n+2) .gridCardIconFallback { color: #f2871a; }
+.cardGrid .gridCard:nth-child(4n+3) .gridCardIconWrap { background-color: rgba(22, 163, 74, 0.14); }
+.cardGrid .gridCard:nth-child(4n+3) .gridCardIconFallback { color: #16a34a; }
+.cardGrid .gridCard:nth-child(4n+4) .gridCardIconWrap { background-color: rgba(124, 58, 237, 0.14); }
+.cardGrid .gridCard:nth-child(4n+4) .gridCardIconFallback { color: #7c3aed; }
+
+.gridCardIcon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+.gridCardIconFallback {
+    color: var(--primary-blue, #1e3a8a);
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.gridCardLabel {
+    flex: 1;
+    font-size: 14.5px;
+    font-weight: 700;
+    color: var(--text-main, #0f172a);
+    line-height: 1.3;
+}
+
+.gridCardArrow {
+    color: var(--text-muted, #64748b);
+    font-size: 20px;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+/* ---------- Product card grid ---------- */
+
+.productGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 20px;
+}
+
+.productCard {
+    background-color: var(--white, #fff);
+    border: 1px solid var(--card-border, rgba(226, 232, 240, 0.8));
+    border-radius: var(--radius-lg, 14px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+
+.productCard:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover, 0 20px 40px rgba(30, 58, 138, 0.12));
+}
+
+.productThumbWrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background-color: var(--faint-blue, #eff6ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.productThumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.productCard:hover .productThumb {
+    transform: scale(1.05);
+}
+
+.productThumbFallback {
+    font-size: 30px;
+    font-weight: 800;
+    color: var(--primary-blue, #1e3a8a);
+}
+
+.productBadge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 9.5px;
+    font-weight: 800;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background-color: rgba(16, 185, 129, 0.14);
+    color: #0d7d59;
+    letter-spacing: 0.2px;
+}
+
+.productBody {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.productTitle {
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: -0.1px;
+}
+
+.productMeta {
+    font-size: 11.5px;
+    color: var(--text-muted, #64748b);
+    font-weight: 500;
+}
+
+.productAction {
+    margin-top: 6px;
+    border: none;
+    background-color: var(--primary-blue, #1e3a8a);
+    color: #fff;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 10px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.productAction:hover {
+    background-color: #172554;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 14px rgba(30, 58, 138, 0.3);
+}
+
+.productAction:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+
+.productActionRow {
+    display: flex;
+    gap: 8px;
+}
+
+.productActionRow .productAction {
+    flex: 1;
+    margin-top: 0;
+}
+
+.productActionOutline {
+    background-color: transparent;
+    color: var(--primary-blue, #1e3a8a);
+    border: 1.5px solid var(--primary-blue, #1e3a8a);
+}
+
+.productActionOutline:hover {
+    background-color: rgba(30, 58, 138, 0.06);
+    box-shadow: none;
+}
+
+.productActionDisabled {
+    background-color: var(--gray-light, #e2e8f0);
+    color: var(--text-muted, #64748b);
+    opacity: 0.6;
+}
+
+.productActionMissed {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1.5px solid #fca5a5;
+}
+
+.productActionMissed:hover {
+    background-color: #fecaca;
+    box-shadow: none;
+}
+
+@media (max-width: 900px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 64px; /* sits right under the shrunk navbar, no gap */
+        height: calc(100vh - 64px);
+        z-index: 900;
+        border-right: none;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.12);
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+    .sidebar.sidebarOpen {
+        transform: translateX(0);
+    }
+    .main {
+        padding: 20px;
+    }
+    .cardGrid,
+    .productGrid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 12px;
+    }
+}
+
+/* ---------- Mobile hamburger + drawer overlay ---------- */
+
+.hamburgerBtn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--primary-blue, #1e3a8a);
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.hamburgerBtn:hover {
+    background-color: var(--faint-blue, #eff6ff);
+}
+
+.mobileDrawerOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 880;
+}
+
+.mobileDrawerOverlay.overlayOpen {
+    display: block;
+}
+
+@media (max-width: 900px) {
+    .hamburgerBtn {
+        display: inline-flex;
+    }
+}
+
+/* ---------- Onboarding attention tip ---------- */
+
+.attentionTip {
+    position: fixed;
+    z-index: 1300;
+    background-color: var(--primary-blue, #1e3a8a);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 10px 14px;
+    border-radius: 8px;
+    max-width: 220px;
+    line-height: 1.4;
+    box-shadow: 0 10px 22px -4px rgba(0, 0, 0, 0.35);
+    animation: attentionTipPop 0.25s ease-out;
+    cursor: pointer;
+}
+
+.attentionTip::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    width: 12px;
+    height: 12px;
+    background-color: var(--primary-blue, #1e3a8a);
+    transform: rotate(45deg);
+    border-radius: 2px;
+}
+
+.attentionTip.arrowRight::before { right: 20px; }
+.attentionTip.arrowLeft::before { left: 20px; }
+
+@keyframes attentionTipPop {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Welcome / "select a section" state with float emoji ---------- */
+
+.welcomeScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 90px 20px;
+    gap: 14px;
+}
+
+.welcomeEmoji {
+    font-size: 54px;
+    line-height: 1;
+    animation: welcomeEmojiFloat 2.4s ease-in-out infinite;
+}
+
+@keyframes welcomeEmojiFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(8deg); }
+}
+
+.welcomeScreen h2 {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--text-main, #0f172a);
+    letter-spacing: -0.2px;
+}
+
+.welcomeScreen p {
+    font-size: 13px;
+    color: var(--text-muted, #64748b);
+    max-width: 320px;
+    font-weight: 500;
+}
+
+/* ---------- Navbar brand hover animation -- EXACT port of index.html's
+   .nav-brand:hover treatment (nav-logo-wrap ring + nav-brand-text gradient
+   sweep), applied here via .navBrandText since dashboard uses the same
+   global .nav-brand/.nav-logo-wrap classes from app/globals.css already. ---------- */
+
+.navBrandText {
+    background: linear-gradient(90deg, var(--primary-blue, #1e3a8a) 0%, var(--brand-orange, #f2871a) 70%, var(--brand-yellow, #facc15) 100%);
+    background-size: 250% 100%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: background-position 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.navBrandWrap:hover .navBrandText {
+    background-position: 100% 0%;
+}
+
+.navLogoWrap {
+    position: relative;
+    display: inline-flex;
+    border-radius: 50%;
+}
+
+.navLogoWrap::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    padding: 2px;
+    background: conic-gradient(from 0deg, var(--primary-blue, #1e3a8a), var(--brand-yellow, #facc15), var(--brand-orange, #f2871a), var(--primary-blue, #1e3a8a));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transform: rotate(0deg);
+    transition: opacity 0.35s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+}
+
+.navBrandWrap:hover .navLogoWrap::before {
+    opacity: 1;
+    transform: rotate(180deg);
+}
+
+.navLogoImg {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.navBrandWrap:hover .navLogoImg {
+    transform: scale3d(1.05, 1.05, 1) rotate(-5deg);
+}
+/* ==========================================================================
+   Document Viewer (INLINE_SWAP) -- full-screen overlay, ported from
+   dashboard.html's DRM viewer + native HTML sandbox branch. Mobile-first:
+   base rules below target small screens, @media (min-width: 720px) widens
+   the toolbar back into the desktop layout.
+   ========================================================================== */
+
+.viewerOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: var(--gray-light, #f8fafc);
+    display: flex;
+    flex-direction: column;
+}
+
+.viewerHeaderBar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--white, #fff);
+    border-bottom: 1px solid var(--card-border, rgba(226, 232, 240, 0.8));
+    flex-shrink: 0;
+}
+
+.viewerBackBtn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border: none;
+    background: none;
+    color: var(--primary-blue, #1e3a8a);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px;
+    min-width: 40px;
+    min-height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.viewerBackBtn:hover {
+    background-color: var(--faint-blue, #eff6ff);
+}
+
+.viewerBackLabel {
+    display: none;
+}
+
+.viewerTitleWrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.viewerTitle {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-main, #0f172a);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.viewerSubtitle {
+    font-size: 11px;
+    color: var(--text-muted, #64748b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.viewerCloseBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border: none;
+    background: var(--gray-light, #f1f5f9);
+    color: var(--text-main, #0f172a);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.viewerCloseBtn:hover {
+    background: #e2e8f0;
+}
+
+/* ---- Toolbar (PDF / image branch only) ---- */
+
+.viewerToolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--white, #fff);
+    border-bottom: 1px solid var(--card-border, rgba(226, 232, 240, 0.8));
+    flex-shrink: 0;
+    order: 3; /* pinned to the bottom on mobile -- thumb reach */
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+}
+
+.viewerToolbarGroup {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.viewerToolBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--card-border, rgba(226, 232, 240, 0.8));
+    background: var(--white, #fff);
+    color: var(--text-main, #0f172a);
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.viewerToolBtn:hover {
+    border-color: var(--primary-blue, #1e3a8a);
+}
+
+.viewerToolBtn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.viewerToolBtnDisabled {
+    color: #cbd5e1;
+}
+
+.viewerPageIndicator {
+    min-width: 56px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-main, #0f172a);
+}
+
+.viewerZoomSlider {
+    display: none; /* replaced by +/- steppers under 480px */
+}
+
+.viewerZoomPct {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted, #64748b);
+    min-width: 34px;
+}
+
+.viewerFullscreenBtn {
+    display: none; /* Fullscreen API is unreliable on mobile Safari */
+}
+
+/* ---- Body / render surfaces ---- */
+
+.viewerBody {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    overflow: auto;
+    padding: 14px;
+    background: #cbd5e1;
+    position: relative;
+    order: 2;
+    -webkit-overflow-scrolling: touch;
+}
+
+.viewerBodyHtml {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.viewerHtmlFrame {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    border: none;
+    background: #fff;
+}
+
+.pdfPagesStack {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.pdfPageWrapper {
+    position: relative;
+    margin: 0 0 14px 0;
+    background: #fff;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    flex-shrink: 0;
+}
+
+.viewerImage {
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+}
+
+.viewerToast {
+    position: fixed;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    z-index: 1100;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    border-left: 4px solid #ef4444;
+    max-width: 88vw;
+    text-align: center;
+}
+
+/* ---- >= 480px: bring back the zoom slider instead of pure steppers ---- */
+@media (min-width: 480px) {
+    .viewerZoomSlider {
+        display: inline-block;
+        width: 100px;
+        cursor: pointer;
+        accent-color: var(--primary-blue, #1e3a8a);
+    }
+}
+
+/* ---- >= 720px: desktop layout -- toolbar moves back under the header,
+        back button gets its label back, fullscreen control returns ---- */
+@media (min-width: 720px) {
+    .viewerHeaderBar {
+        padding: 14px 24px;
+    }
+
+    .viewerBackLabel {
+        display: inline;
+    }
+
+    .viewerTitle {
+        font-size: 17px;
+    }
+
+    .viewerSubtitle {
+        font-size: 12.5px;
+    }
+
+    .viewerToolbar {
+        order: 0;
+        position: static;
+        padding: 10px 24px;
+    }
+
+    .viewerBody {
+        order: 0;
+        padding: 24px;
+    }
+
+    .viewerZoomSlider {
+        width: 130px;
+    }
+
+    .viewerFullscreenBtn {
+        display: flex;
+    }
+
+    .pdfPageWrapper {
+        margin-bottom: 20px;
+    }
+}
