@@ -1,0 +1,138 @@
+/* SAVE THIS FILE AT: components/courses/courses.module.css  (new file)
+   Uses the same tokens as the home page (--navy / --cyan / --red / --ink /
+   --muted / --line / --glass, defined on .home) so light + dark mode follow
+   the site-wide theme automatically. */
+
+.page{--surf:#fff;--surf2:#eef4ff;--green:#0f9d6b;--lift:0 18px 40px rgba(23,42,133,.16);padding-top:calc(var(--nav-h) + 36px);background:linear-gradient(180deg,#eaf2ff 0,#f7faff 420px,#fff 760px);min-height:78vh;overflow-x:clip}
+
+/* ---------- header ---------- */
+.head{max-width:1240px;margin:0 auto;padding:0 40px 18px;position:relative}
+.head::after{content:"";position:absolute;right:40px;top:-10px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(18,160,238,.28),rgba(224,36,44,.12) 60%,transparent 70%);filter:blur(6px);pointer-events:none}
+.eyebrow{margin:0 0 6px;font-weight:800;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.h1{margin:0 0 10px;font-family:var(--font-display),var(--font-body),sans-serif;font-weight:800;font-size:clamp(2.2rem,4.6vw,3.5rem);letter-spacing:-.03em;line-height:1.05;color:var(--navy)}
+.lead{margin:0;max-width:58ch;color:var(--muted);font-size:1.06rem}
+
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:24px;position:relative;z-index:1}
+.search{display:flex;align-items:center;gap:10px;width:min(360px,100%);background:var(--surf);border:2px solid var(--line);border-radius:999px;padding:10px 18px;transition:border-color .2s,box-shadow .2s}
+.search:focus-within{border-color:var(--navy);box-shadow:0 0 0 4px rgba(18,160,238,.2)}
+.searchIcon{width:17px;height:17px;flex:none;color:var(--muted)}
+.search input{flex:1;min-width:0;border:0;outline:0;background:transparent;font:inherit;font-size:.95rem;font-weight:500;color:var(--ink)}
+.search input::placeholder{color:var(--muted)}
+.clear{border:0;background:none;color:var(--muted);font-size:1.3rem;line-height:1;cursor:pointer;padding:0 4px}
+.clear:hover{color:var(--red)}
+.jump{display:flex;gap:8px;flex-wrap:wrap}
+.jump a{padding:8px 16px;border-radius:999px;border:2px solid var(--navy);color:var(--navy);font-weight:700;font-size:.85rem;text-decoration:none;background:var(--surf);transition:background .2s,color .2s}
+.jump a:hover{background:var(--navy);color:#fff}
+
+/* ---------- rows ---------- */
+.body{max-width:1240px;margin:0 auto;padding:6px 40px 84px}
+.sec{margin-top:38px;scroll-margin-top:calc(var(--nav-h) + 24px);transition:filter .4s cubic-bezier(.4,0,.2,1),opacity .4s ease}
+/* every other row blurs while one row is expanded via "View All" */
+.blurred{filter:blur(8px);opacity:.35;pointer-events:none}
+.secHead{display:flex;align-items:baseline;gap:14px;padding-bottom:12px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.secNo{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;color:var(--cyan);font-size:.95rem}
+.h2{margin:0;font-family:var(--font-display),var(--font-body),sans-serif;font-weight:800;font-size:clamp(1.5rem,2.6vw,2.1rem);letter-spacing:-.02em;color:var(--navy)}
+.secTools{margin-left:auto;display:flex;align-items:center;gap:10px;align-self:center}
+.arrows{display:flex;gap:6px}
+.arrows button{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--surf);color:var(--navy);font-size:1.3rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0 0 3px;transition:border-color .2s,background .2s,color .2s}
+.arrows button:hover{border-color:var(--navy);background:var(--navy);color:#fff}
+.viewAll{border:2px solid var(--navy);background:var(--surf);color:var(--navy);font:inherit;font-weight:700;font-size:.85rem;padding:7px 16px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s}
+.viewAll:hover{background:var(--navy);color:#fff}
+
+/* horizontal tray (default) -- padding gives the hover lift room */
+.tray{display:flex;gap:22px;overflow-x:auto;padding:14px 4px 18px;margin:-14px -4px 0;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none}
+.tray::-webkit-scrollbar{display:none}
+.tray>.card{flex:0 0 auto;width:272px;scroll-snap-align:start}
+/* expanded grid ("View All") */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:22px;padding-top:14px}
+.grid>.card{width:100%;max-width:340px;margin:0 auto}
+
+/* ---------- cards ---------- */
+.card{position:relative;display:flex;flex-direction:column;background:var(--surf);border:1px solid var(--line);border-top:4px solid var(--navy);border-radius:18px;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease,border-top-color .25s ease}
+.card:hover{transform:translateY(-5px);box-shadow:var(--lift);border-top-color:var(--red)}
+.thumb{position:relative;aspect-ratio:16/10;background:var(--surf2);overflow:hidden;border-bottom:2px dotted var(--cyan)}
+.thumb>img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease}
+.card:hover .thumb>img{transform:scale(1.04)}
+.thumbFallback{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--navy);font-weight:800;font-size:.9rem;letter-spacing:.02em;background:repeating-linear-gradient(135deg,transparent 0 14px,rgba(18,160,238,.08) 14px 15px)}
+.thumbFallback img{width:56px;height:56px;object-fit:contain;border-radius:12px;background:#fff;border:1px solid var(--line);padding:3px}
+.badge{position:absolute;top:10px;left:10px;background:var(--red);color:#fff;font-size:.66rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;padding:4px 11px;border-radius:999px;box-shadow:0 4px 10px rgba(0,0,0,.18)}
+.badgeFree{background:#d97706}
+.badgePro{background:#6d28d9}
+
+.cardBody{display:flex;flex-direction:column;flex:1;padding:16px 18px 18px}
+.title{margin:0 0 6px;font-family:var(--font-display),var(--font-body),sans-serif;font-weight:800;font-size:1.05rem;line-height:1.3;letter-spacing:-.01em;color:var(--navy);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.title a{color:inherit;text-decoration:none}
+/* stretched link: the whole card opens the batch page, buttons sit above it */
+.title a::after{content:"";position:absolute;inset:0;z-index:1}
+.meta{display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600;color:var(--muted);padding-bottom:11px;margin-bottom:11px;border-bottom:1px solid var(--line)}
+.meta svg{color:var(--navy);flex:none}
+.price{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px}
+.now{font-weight:900;font-size:1.3rem;color:var(--ink)}
+.freeText{color:var(--green);font-size:1.1rem}
+.was{font-size:.82rem;color:var(--muted);text-decoration:line-through}
+.off{font-size:.7rem;font-weight:800;color:var(--green);background:rgba(15,157,107,.12);padding:2px 8px;border-radius:999px}
+.actions{display:flex;gap:8px;margin-top:auto;position:relative;z-index:2}
+.btn{flex:1;border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:700;font-size:.9rem;color:#fff;background:var(--navy);cursor:pointer;text-align:center;transition:background .2s,transform .2s,opacity .2s}
+.btn:hover{background:var(--red)}
+.btn:disabled{opacity:.7;cursor:progress}
+.btnStudy{background:var(--green)}
+.btnStudy:hover{background:#0b7d55}
+.btnOwned{background:transparent;color:var(--navy);border:2px solid var(--navy);padding:9px 14px}
+.btnOwned:hover{background:var(--navy);color:#fff}
+.arrow{flex:none;width:42px;display:flex;align-items:center;justify-content:center;border:2px solid var(--line);border-radius:10px;color:var(--navy);text-decoration:none;transition:border-color .2s,background .2s,color .2s}
+.arrow:hover{border-color:var(--navy);background:var(--navy);color:#fff}
+.btn:focus-visible,.arrow:focus-visible,.viewAll:focus-visible,.arrows button:focus-visible,.title a:focus-visible,.jump a:focus-visible{outline:3px solid var(--cyan);outline-offset:2px}
+
+/* ---------- empty + toast ---------- */
+.empty{margin-top:38px;text-align:center;padding:64px 24px;background:var(--surf);border:2px dashed var(--cyan);border-radius:20px}
+.empty h3{margin:0 0 8px;font-family:var(--font-display),var(--font-body),sans-serif;font-weight:800;font-size:1.4rem;color:var(--navy)}
+.empty p{margin:0;color:var(--muted)}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:1500;max-width:min(92vw,460px);background:#0c1438;color:#fff;padding:14px 20px;border-radius:14px;border-left:5px solid var(--green);font-weight:600;font-size:.92rem;box-shadow:0 14px 34px rgba(12,20,56,.35);animation:toastIn .25s ease-out}
+.toastError{border-left-color:var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+
+/* ---------- footer ---------- */
+.footer{background:var(--navy);color:#c9d6ff;padding:36px 40px 22px}
+.footIn{max-width:1240px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.footIn strong{color:#fff;font-size:1.05rem}
+.footLinks{display:flex;gap:22px;flex-wrap:wrap}
+.footLinks a{text-decoration:none;font-weight:600}
+.footLinks a:hover{color:#fff}
+.footCopy{max-width:1240px;margin:22px auto 0;font-size:.82rem}
+
+/* ---------- responsive ---------- */
+@media(max-width:900px){
+  /* the whole page renders at 80% on phones (see home.module.css), so
+     clearances below are chosen to still sit under the 58px navbar */
+  .page{padding-top:88px}
+  .head,.body{padding-left:16px;padding-right:16px}
+  .head::after{right:0;width:150px;height:150px}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .search{width:100%}
+  .jump{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+  .jump::-webkit-scrollbar{display:none}
+  .jump a{white-space:nowrap}
+  .sec{scroll-margin-top:calc(var(--nav-h) + 44px)}
+  .arrows{display:none}
+  .tray>.card{width:244px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+  .footer{padding:30px 16px 18px}
+}
+@media(prefers-reduced-motion:reduce){.card,.thumb>img,.sec,.toast{transition:none;animation:none}}
+
+/* ---------- dark theme (toggled from the profile dropdown) ---------- */
+:global([data-theme="dark"]) .page{--surf:#0d1538;--surf2:#111a3d;--lift:0 18px 40px rgba(0,0,0,.5);background:#0a1130}
+:global([data-theme="dark"]) .h1,:global([data-theme="dark"]) .h2{color:#fff}
+:global([data-theme="dark"]) .btn{background:#2a45c9}
+:global([data-theme="dark"]) .btn:hover{background:var(--red)}
+:global([data-theme="dark"]) .btnStudy{background:var(--green)}
+:global([data-theme="dark"]) .btnOwned{background:transparent;border-color:#8fb0ff;color:#8fb0ff}
+:global([data-theme="dark"]) .btnOwned:hover{background:#8fb0ff;color:#0a1130}
+:global([data-theme="dark"]) .jump a:hover{background:#8fb0ff;color:#0a1130;border-color:#8fb0ff}
+:global([data-theme="dark"]) .viewAll:hover{background:#8fb0ff;color:#0a1130;border-color:#8fb0ff}
+:global([data-theme="dark"]) .arrows button:hover{background:#8fb0ff;color:#0a1130;border-color:#8fb0ff}
+:global([data-theme="dark"]) .arrow:hover{background:#8fb0ff;color:#0a1130;border-color:#8fb0ff}
+:global([data-theme="dark"]) .card{border-top-color:#2a45c9}
+:global([data-theme="dark"]) .card:hover{border-top-color:var(--red)}
+:global([data-theme="dark"]) .thumbFallback img{background:#0d1538}
+:global([data-theme="dark"]) .footer{background:#0d1a5c}

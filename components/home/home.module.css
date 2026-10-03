@@ -19,10 +19,23 @@
 .authZone{display:flex;justify-content:flex-end;position:relative}
 .btnLogin{background:var(--navy);color:#fff!important;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:700;text-decoration:none;transition:transform .3s,background .3s,box-shadow .3s}
 .btnLogin:hover{background:var(--red);transform:translateY(-2px);box-shadow:0 6px 15px rgba(224,36,44,.3)}
-.avatar{height:42px;width:42px;border-radius:50%;background:var(--glass);border:2px solid var(--line);color:var(--navy);font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;text-transform:uppercase;padding:0;overflow:hidden}
+.avatar{position:relative;transition:transform .3s,border-color .3s;height:42px;width:42px;border-radius:50%;background:var(--glass);border:2px solid var(--line);color:var(--navy);font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;text-transform:uppercase;padding:0;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover}
 .menu{position:absolute;top:55px;right:0;width:220px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 20px 40px rgba(23,42,133,.15);display:none;flex-direction:column;overflow:hidden}
-.menu.on{display:flex}
+.menu{transform-origin:top right;z-index:1100}
+.menu.on{display:flex;animation:menuPop .2s ease-out forwards}
+@keyframes menuPop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.avatar::before{content:'';position:absolute;inset:-4px;border-radius:50%;padding:2px;background:conic-gradient(from 0deg,var(--navy),var(--cyan),var(--red),var(--navy));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .35s,transform .7s cubic-bezier(.16,1,.3,1);pointer-events:none}
+.avatar:hover{transform:scale(1.05);border-color:var(--cyan)}
+.avatar:hover::before{opacity:1;transform:rotate(180deg)}
+.themeRow{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid var(--line)}
+.themeLabel{font-size:14px;font-weight:600;color:var(--ink)}
+.switch{position:relative;display:inline-block;width:46px;height:24px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;cursor:pointer;background:#cbd5e1;border-radius:24px;transition:background .3s}
+.slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:transform .3s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.switch input:checked+.slider{background:var(--cyan)}
+.switch input:checked+.slider::before{transform:translateX(22px)}
 .menuHead{padding:14px 16px;background:var(--glass);font-size:12px;font-weight:600;color:var(--muted);word-break:break-all;border-bottom:1px solid var(--line)}
 .menuItem{padding:13px 16px;font-size:14px;font-weight:600;text-decoration:none;color:var(--ink);border:0;border-bottom:1px solid var(--line);background:none;text-align:left;cursor:pointer;font-family:inherit}
 .menuItem:hover{background:var(--glass);color:var(--navy)}
@@ -68,8 +81,6 @@
 .cName{font-weight:800;font-size:1.1rem;color:var(--navy);letter-spacing:.01em}
 .badge{position:absolute;top:16px;right:16px;font-size:.75rem;font-weight:700;background:var(--red);color:#fff;border-radius:999px;padding:3px 10px}
 .cText{color:var(--muted);font-size:.95rem;margin:0;flex:1}
-.cBtn{align-self:flex-start;margin-top:8px;padding:10px 18px;border-radius:10px;border:2px solid var(--navy);color:var(--navy);font-weight:700;text-decoration:none;font-size:.9rem;transition:background .2s,color .2s}
-.cBtn:hover{background:var(--navy);color:#fff}
 .subj ul{list-style:none;margin:14px 0 0;padding:0}
 .subj li{padding:8px 0;border-bottom:1px dotted var(--cyan);font-size:.95rem}
 .subj li:last-child{border-bottom:0}
@@ -187,7 +198,10 @@
   .nav{display:flex;gap:10px;padding:0 12px;height:58px}
   .brand{gap:9px}.brandLogo{height:40px;width:40px;border-radius:10px}.brandText{font-size:17px}.brandTag{font-size:9.5px;margin-top:2px}
   .btnLogin{padding:8px 16px;font-size:13px}
-  .links,.authZone{display:none}
+  .links{display:none}
+  .authZone{margin-left:auto}
+  .burger{order:3}
+  .menu{right:-4px}
   .quickSignin{display:flex;margin-left:auto}
   .burger{display:flex;background:none;border:0;padding:4px;cursor:pointer}
   .overlay{display:block;position:fixed;inset:0;background:rgba(12,20,56,.55);z-index:1001;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -214,3 +228,20 @@
 }
 @media(max-width:520px){.grid4,.steps,.footCols{grid-template-columns:1fr}.ptable{gap:2px}.pcell{font-size:.55rem;border-radius:4px}}
 @media(prefers-reduced-motion:reduce){.bubble,.mol-a{animation:none}.liquid,.shot,.link::after{transition:none}}
+
+/* DARK THEME (toggled from the profile dropdown) */
+:global([data-theme="dark"]) .home,:global([data-theme="dark"]) .navWrap{--navy:#8fb0ff;--glass:#111a3d;--ink:#e8edff;--muted:#a9b6d6;--line:#27366e;--track:#27366e}
+:global([data-theme="dark"]) .home{background:#0a1130}
+:global([data-theme="dark"]) .nav{background:#0d1538;border-bottom-color:#27366e;box-shadow:0 2px 14px rgba(0,0,0,.4)}
+:global([data-theme="dark"]) :is(.card,.visual,.heroTable,.toolBox,.tab,.pcell,.input,.menu,.drawer,.brandLogo,.chip){background:#0d1538;color:var(--ink)}
+:global([data-theme="dark"]) .link{color:#c4cff0}
+:global([data-theme="dark"]) .link:hover{color:#fff}
+:global([data-theme="dark"]) .tab[aria-selected="true"],:global([data-theme="dark"]) .pcell:hover,:global([data-theme="dark"]) .pcell[aria-pressed="true"]{background:#8fb0ff;color:#0a1130}
+:global([data-theme="dark"]) :is(.btnPrimary,.btnLogin){background:#2a45c9;color:#fff!important}
+:global([data-theme="dark"]) .btnGhost:hover{color:#0a1130}
+:global([data-theme="dark"]) .cta{background:#0d1a5c}
+:global([data-theme="dark"]) .menuHead{background:#111a3d}
+:global([data-theme="dark"]) .menuItem:hover{background:#111a3d;color:#fff}
+:global([data-theme="dark"]) .menuOut{color:#f87171}
+:global([data-theme="dark"]) .avatar{background:#111a3d}
+:global([data-theme="dark"]) .brandText,:global([data-theme="dark"]) .h2,:global([data-theme="dark"]) .title{color:#fff}

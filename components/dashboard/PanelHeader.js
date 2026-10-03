@@ -23,7 +23,7 @@ export default function PanelHeader({ trail, onBack, showBack }) {
         <div className={`${styles.panelHeader} ${styles.panelHeaderShrink}`}>
             {showBack ? (
                 <button type="button" className={styles.backBtn} onClick={onBack}>
-                    ‹ Back
+                    ← Back
                 </button>
             ) : null}
 
@@ -35,7 +35,7 @@ export default function PanelHeader({ trail, onBack, showBack }) {
                                 {crumb.label}
                             </button>
                         ) : (
-                            <span className={styles.breadcrumbCurrent}>{crumb.label}</span>
+                            <span className={`${styles.breadcrumbCurrent} ${styles.crumbCurrent}`}>{crumb.label}</span>
                         )}
                         {i < trail.length - 1 ? <span className={styles.breadcrumbSep}>/</span> : null}
                     </span>

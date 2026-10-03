@@ -38,7 +38,7 @@ const HAMBURGER_AUTO_HIDE_MS = 8000;
 // "Explore new batches" idle-expand box only auto-expands the first 3
 // times it goes idle in a given tab session -- after that it stays as the
 // small pill (still tappable, just no more auto-popup nudging).
-const BATCHES_TIP_SESSION_KEY = 'ynclasses_batches_tip_count';
+const BATCHES_TIP_SESSION_KEY = 'bihaniclasses_batches_tip_count';
 const BATCHES_TIP_MAX_PER_SESSION = 3;
 
 // Batches box idle behaviour: starts (and returns to) a small round
@@ -171,7 +171,7 @@ export default function OnboardingCoachmarks() {
                     position: absolute;
                     inset: -10px;
                     border-radius: 50%;
-                    background: rgba(242, 135, 26, 0.35);
+                    background: rgba(23, 42, 133, 0.28);
                     animation: ynCoachPulseAnim 1.1s ease-out infinite;
                     z-index: -1;
                 }
@@ -183,7 +183,7 @@ export default function OnboardingCoachmarks() {
 
                 .ynCoachTooltip {
                     position: fixed;
-                    background: linear-gradient(135deg, var(--primary-blue, #0b4f8a), var(--accent-blue, #1d7fd6));
+                    background: var(--navy-deep, #0f1c5e);
                     color: #fff;
                     padding: 10px 16px;
                     border-radius: 12px;
@@ -201,7 +201,7 @@ export default function OnboardingCoachmarks() {
                 .ynCoachTooltip.show { opacity: 1; transform: translateY(0); }
 
                 .ynCoachTooltip.hamburger {
-                    top: calc(var(--nav-height, 80px) + 6px);
+                    top: calc(var(--topbar-h, 64px) + 8px);
                     left: 16px;
                     /* Below the mobile sidebar (z-index 900) and its drawer
                        overlay (880) -- when the sidebar auto-opens over this
@@ -216,7 +216,7 @@ export default function OnboardingCoachmarks() {
                     left: 22px;
                     width: 12px;
                     height: 12px;
-                    background: var(--primary-blue, #0b4f8a);
+                    background: var(--navy-deep, #0f1c5e);
                     transform: rotate(45deg);
                 }
 
@@ -231,7 +231,7 @@ export default function OnboardingCoachmarks() {
                     align-items: center;
                     justify-content: flex-start;
                     gap: 0;
-                    background: linear-gradient(135deg, var(--brand-orange, #f2871a), var(--brand-yellow, #f5b301));
+                    background: var(--navy-deep, #0f1c5e);
                     color: #fff;
                     width: 34px;
                     height: 34px;
@@ -243,7 +243,7 @@ export default function OnboardingCoachmarks() {
                     overflow: hidden;
                     white-space: nowrap;
                     opacity: 0.75;
-                    box-shadow: 0 4px 10px rgba(242, 135, 26, 0.25);
+                    box-shadow: 0 4px 10px rgba(15, 28, 94, 0.25);
                     will-change: width, opacity;
                     transform: translateZ(0);
                     transition: width 0.55s cubic-bezier(0.65, 0, 0.35, 1),
@@ -279,7 +279,7 @@ export default function OnboardingCoachmarks() {
                     position: absolute;
                     inset: 0;
                     border-radius: inherit;
-                    box-shadow: 0 6px 20px rgba(242, 135, 26, 0.55);
+                    box-shadow: 0 6px 20px rgba(15, 28, 94, 0.45);
                     opacity: 0;
                     animation: ynBatchesGlow 2.4s ease-in-out infinite;
                     animation-delay: 0.4s;
@@ -287,7 +287,7 @@ export default function OnboardingCoachmarks() {
                 }
                 .ynBatchesBox:hover {
                     opacity: 1;
-                    box-shadow: 0 8px 18px rgba(242, 135, 26, 0.4);
+                    box-shadow: 0 8px 18px rgba(15, 28, 94, 0.35);
                 }
                 @keyframes ynBatchesGlow {
                     0%, 100% { opacity: 0; }
@@ -299,7 +299,7 @@ export default function OnboardingCoachmarks() {
                     bottom: 68px;
                     right: 16px;
                     transform: translateY(8px);
-                    background: linear-gradient(135deg, var(--brand-orange, #f2871a), var(--brand-yellow, #f5b301));
+                    background: var(--navy-deep, #0f1c5e);
                 }
                 .ynCoachTooltip.batches.show { transform: translateY(0); }
                 .ynCoachTooltip.batches::after {
@@ -311,7 +311,7 @@ export default function OnboardingCoachmarks() {
                     width: 12px;
                     height: 12px;
                     margin-top: 0;
-                    background: var(--brand-orange, #f2871a);
+                    background: var(--navy-deep, #0f1c5e);
                     transform: rotate(45deg);
                 }
             `}</style>

@@ -1,5 +1,5 @@
 // ===================================================
-// App Download Popup — YN Classes theme
+// App Download Popup — Bihani Classes theme
 // Include AFTER auth.js is loaded, e.g.:
 //   <script src="/auth.js"></script>
 //   <script src="/cookie-consent.js"></script>
@@ -24,7 +24,7 @@
 (function () {
   const SEEN_KEY = "app_download_popup_seen";
   const SHOW_DELAY_MS = 500;
-  const ANDROID_PACKAGE_ID = "in.ynclasses.app"; // must match app.json -> expo.android.package
+  const ANDROID_PACKAGE_ID = "in.bihaniclasses.app"; // must match app.json -> expo.android.package
 
   function hasSeenPopup() {
     try {
@@ -66,14 +66,14 @@
   function buildPopup() {
     const dark = currentTheme() === "dark";
 
-    const bg = dark ? "#10233a" : "#ffffff";
+    const bg = dark ? "#111a3d" : "#ffffff";
     const border = dark ? "rgba(255,255,255,0.1)" : "#e8eaed";
-    const text = dark ? "#f2f7fc" : "#202124";
-    const textMuted = dark ? "#b7c6d6" : "#5f6368";
-    const green = dark ? "#17a860" : "#0a7d4c";
-    const greenHover = dark ? "#1ec172" : "#086c41";
+    const text = dark ? "#e8edff" : "#202124";
+    const textMuted = dark ? "#a9b6d6" : "#5f6368";
+    const green = dark ? "#12a0ee" : "#172a85";
+    const greenHover = dark ? "#3bb4f5" : "#0c1b66";
     const overlayBg = "rgba(10, 15, 25, 0.6)";
-    const laterColor = dark ? "#8ea0b3" : "#80868b";
+    const laterColor = dark ? "#8e9ac0" : "#80868b";
 
     const overlay = document.createElement("div");
     overlay.id = "app-download-popup-overlay";
@@ -141,11 +141,11 @@
 
         <div class="adp-header">
           <div class="adp-icon-wrap">
-            <img src="/images/other_images/ynclasses-logo.png" alt="YN CLASSES" />
+            <img src="/images/other_images/bihaniclasses-logo.png" alt="Bihani Chemistry Classes" />
           </div>
           <div>
-            <div class="adp-title">YN CLASSES</div>
-            <div class="adp-dev">YN CLASSES • Student App</div>
+            <div class="adp-title">Bihani Chemistry Classes</div>
+            <div class="adp-dev">Bihani Classes • Student App</div>
             <div class="adp-meta-row">
               <span>Education</span>
               <span class="adp-meta-sep"></span>
@@ -154,7 +154,7 @@
           </div>
         </div>
 
-        <div class="adp-sub">Access your batches, tests, and dashboard faster with our official student app.</div>
+        <div class="adp-sub">Watch lectures, attempt chapter tests and track your chemistry progress faster with the official Bihani Classes student app.</div>
 
         <a href="/android/download" id="app-download-popup-cta" class="adp-btn">Install</a>
         <button class="adp-later" id="app-download-popup-later">Maybe later</button>
@@ -219,7 +219,7 @@
 //      "relation": ["delegate_permission/common.handle_all_urls"],
 //      "target": {
 //        "namespace": "android_app",
-//        "package_name": "in.ynclasses.app",
+//        "package_name": "in.bihaniclasses.app",
 //        "sha256_cert_fingerprints": ["<YOUR_APK_SIGNING_SHA256_FINGERPRINT>"]
 //      }
 //    }]
@@ -228,7 +228,7 @@
 //    or via `eas credentials` if you're building with EAS.
 //
 // 2. Add to your site's web manifest (manifest.json):
-//    "related_applications": [{ "platform": "play", "id": "in.ynclasses.app" }]
+//    "related_applications": [{ "platform": "play", "id": "in.bihaniclasses.app" }]
 //
 // Until step 1 is live, the check just always returns false (popup shows
 // as it did before) — nothing breaks in the meantime.

@@ -1,11 +1,32 @@
-// SAVE THIS FILE AT: C:\dev\app\admin\layout.js  (replace the existing file)
+// app/admin/layout.js  (replace the existing file)
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import styles from "./admin.module.css";
+import AdminShell from "@/components/admin/AdminShell";
+import { NAV_ITEMS } from "@/components/admin/adminNav";
+import shell from "@/components/admin/adminShell.module.css";
+import { fontVars } from "@/components/site/fonts";
 
 const ADMIN_SESSION_KEY = "cetwalle_admin_verified";
+
+// On admin.<site> the dashboard lives at "/" (proxy.js rewrites it to
+// /admin internally); on the plain-path fallback it is "/admin". Both are
+// the dashboard / sign-in gate page.
+function isAdminHomePath(p) {
+  return p === "/admin" || p === "/admin/" || p === "/" || p === "";
+}
+
+// Pages that live inside the new sidebar shell: the homepage (Overview) plus every
+// slug in adminNav.js. Older pages (cms-v2, users, ...) keep their own look until
+// they are rebuilt and added to adminNav.js.
+function isShellPath(p) {
+  if (isAdminHomePath(p)) return true;
+  const rest = p.startsWith("/admin/") ? p.slice("/admin".length) : p;
+  const first = rest.split("/").filter(Boolean)[0];
+  return NAV_ITEMS.some((i) => i.slug && i.slug === first);
+}
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -19,6 +40,13 @@ export default function AdminLayout({ children }) {
   const [loginError, setLoginError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // Once verified, moving between sidebar panels must NOT re-run the security
+  // check (that would flash "Running security check..." and remount the sidebar).
+  const verifiedRef = useRef(false);
+  useEffect(() => {
+    verifiedRef.current = status === "verified";
+  }, [status]);
 
   useEffect(() => {
     checkAccess();
@@ -36,6 +64,7 @@ export default function AdminLayout({ children }) {
   // re-runs on every pathname change anyway, which is enough.
 
   async function checkAccess() {
+    if (verifiedRef.current) return;
     setStatus("checking");
 
     // 1. Already verified earlier this tab session? Skip the round trip.
@@ -85,7 +114,7 @@ export default function AdminLayout({ children }) {
     //    checkAccess() over and over. We no longer redirect here at all —
     //    if we're on a nested page, the server already verified us, so we
     //    treat it as verified rather than second-guessing the server.
-    if (pathname !== "/admin") {
+    if (!isAdminHomePath(pathname)) {
       setStatus("verified");
     } else {
       setStatus("denied");
@@ -194,50 +223,72 @@ export default function AdminLayout({ children }) {
 
   if (status === "checking") {
     return (
-      <div className={styles.gateWrap}>
-        <div className={styles.gateSpinner}></div>
-        <p className={styles.gateText}>Running security check&hellip;</p>
+      <div className={`${shell.gateWrap} ${fontVars}`}>
+        <p className={shell.gateText}>Running security check&hellip;</p>
       </div>
     );
   }
 
   if (status === "denied") {
     return (
-      <div className={styles.gateWrap}>
-        <div className={styles.gateCard}>
-          <div className={styles.gateLockIcon}>&#128274;</div>
-          <h2>Admin Access Required</h2>
-          <p className={styles.gateSub}>This area is restricted. Sign in with an admin account to continue.</p>
+      <div className={`${shell.gateWrap} ${fontVars}`}>
+        <div className={shell.gateBrand}>
+          <img src="/images/other_images/bihaniclasses-logo.png" alt="Bihani Classes" className={shell.gateLogo} />
+          <div>
+            <span className={shell.gateBrandText}>Bihani Classes</span>
+            <span className={shell.gateBrandTag}>Admin Panel</span>
+          </div>
+        </div>
+
+        <div className={shell.gateCard}>
+          <h2>Admin Sign In</h2>
+          <p className={shell.gateSub}>This area is restricted. Sign in with an admin account to continue.</p>
 
           <form onSubmit={handleManualLogin}>
-            <div className={styles.modalField}>
+            <div className={shell.gateField}>
               <label htmlFor="gateEmail">Admin Email</label>
               <input
                 id="gateEmail"
                 type="email"
                 required
+                autoComplete="username"
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
               />
             </div>
-            <div className={styles.modalField}>
+            <div className={shell.gateField}>
               <label htmlFor="gatePassword">Password</label>
               <input
                 id="gatePassword"
                 type="password"
                 required
+                autoComplete="current-password"
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
               />
             </div>
 
-            {loginError && <p className={styles.gateError}>{loginError}</p>}
+            {loginError && <p className={shell.gateError}>{loginError}</p>}
 
-            <button type="submit" className={styles.btnModalSave} disabled={isSubmitting}>
-              {isSubmitting ? "Checking..." : "Unlock Admin Panel"}
+            <button type="submit" className={shell.gateBtn} disabled={isSubmitting}>
+              {isSubmitting ? "Checking..." : "Sign In"}
             </button>
           </form>
         </div>
+        <p className={shell.gateFoot}>Authorised staff only. All access attempts are logged.</p>
+      </div>
+    );
+  }
+
+  // Overview + every sidebar panel: persistent blue sidebar, only {children} swaps.
+  // Other (older) sub-pages keep their existing look + floating Logout button
+  // until they are redesigned one by one.
+  if (isShellPath(pathname)) {
+    return (
+      <div className={fontVars}>
+        <AdminShell onLogout={handleAdminLogout} loggingOut={isLoggingOut}>
+          {children}
+        </AdminShell>
       </div>
     );
   }

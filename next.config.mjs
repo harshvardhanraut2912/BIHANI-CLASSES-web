@@ -96,6 +96,9 @@ const nextConfig = {
         '10.*.*.*',
         '172.16.*.*',
         '*.local',
+        // Admin subdomain in dev (http://admin.localhost:3000)
+        'admin.localhost',
+        '*.localhost',
     ],
 
     // pdfjs-dist's *legacy* build statically requires the native "canvas"

@@ -2,11 +2,9 @@
 
 // components/dashboard/DashboardNavbar.js
 //
-// Reuses the SAME global classes already defined + themed in app/globals.css
-// (.navbar, .nav-brand, .nav-brand-text, .profile-trigger, .dropdown-menu,
-// .theme-toggle-row, etc. -- including dark mode) instead of inventing new
-// CSS. This is what was missing from the dashboard page before: it never
-// rendered a <nav> at all.
+// Bihani Classes dashboard top bar. Same session/theme/logout props and
+// behaviour as before -- only the markup + styling changed (own CSS module
+// classes, Bihani logo/brand, quick links, "Student Dashboard" pill).
 
 import { useState, useEffect, useRef } from 'react';
 import styles from './dashboard.module.css';
@@ -14,6 +12,7 @@ import styles from './dashboard.module.css';
 export default function DashboardNavbar({ session, onLogout, onHamburgerClick }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [isDark, setIsDark] = useState(false);
+    const [avatarBroken, setAvatarBroken] = useState(false);
     const wrapRef = useRef(null);
 
     useEffect(() => {
@@ -43,8 +42,8 @@ export default function DashboardNavbar({ session, onLogout, onHamburgerClick })
     const avatarUrl = session?.user?.user_metadata?.avatar_url || session?.user?.user_metadata?.picture || '';
 
     return (
-        <nav className={`navbar ${styles.navbarShrink}`}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <nav className={styles.topbar}>
+            <div className={styles.topLeft}>
                 <button
                     type="button"
                     id="dashboard-hamburger-btn"
@@ -52,55 +51,69 @@ export default function DashboardNavbar({ session, onLogout, onHamburgerClick })
                     onClick={onHamburgerClick}
                     aria-label="Open menu"
                 >
-                    <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
                         <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
                     </svg>
                 </button>
-                <a href="/" className={`nav-brand ${styles.navBrandWrap}`}>
-                    <span className={styles.navLogoWrap}>
-                        <img
-                            src="/images/other_images/ynclasses-logo.png"
-                            alt="Y N Classes Logo"
-                            className={`nav-logo-img ${styles.navLogoImg}`}
-                        />
+                <a href="/" className={styles.brand}>
+                    <img
+                        src="/images/other_images/bihaniclasses-logo.png"
+                        alt="Bihani Chemistry Classes logo"
+                        className={styles.brandLogo}
+                    />
+                    <span className={styles.brandWords}>
+                        <span className={styles.brandText}>Bihani Classes</span>
+                        <span className={styles.brandTag}>Chemistry · Sangamner</span>
                     </span>
-                    <span className={`nav-brand-text ${styles.navBrandText}`}>Y N CLASSES</span>
                 </a>
             </div>
 
-            <div className="nav-auth-zone" ref={wrapRef}>
+            <div className={styles.topLinks}>
+                <a href="/" className={styles.topLink}>Home</a>
+                <a href="/cources" className={styles.topLink}>Courses</a>
+                <a href="/dashboard" className={`${styles.topLink} ${styles.topLinkActive}`}>Dashboard</a>
+                <a href="/contact" className={styles.topLink}>Contact</a>
+            </div>
+
+            <div className={styles.topRight} ref={wrapRef}>
+                <span className={styles.deskPill}>
+                    <span className={styles.deskPillDot} />
+                    Student Desk
+                </span>
                 {session ? (
-                    <div style={{ position: 'relative' }}>
-                        <div
-                            className="profile-trigger"
+                    <>
+                        <button
+                            type="button"
+                            className={styles.avatar}
+                            aria-label="Account menu"
+                            aria-expanded={dropdownOpen}
                             onClick={(e) => { e.stopPropagation(); setDropdownOpen((v) => !v); }}
                         >
-                            {avatarUrl ? <img src={avatarUrl} alt="Profile" referrerPolicy="no-referrer" /> : initial}
-                        </div>
-                        <div className={`dropdown-menu${dropdownOpen ? ' active' : ''}`}>
-                            <div className="dropdown-header">{email}</div>
-                            <a href="/profile" className="dropdown-item">My Profile</a>
+                            {avatarUrl && !avatarBroken ? (
+                                <img src={avatarUrl} alt="Profile" referrerPolicy="no-referrer" onError={() => setAvatarBroken(true)} />
+                            ) : initial}
+                        </button>
+                        <div className={`${styles.menu} ${dropdownOpen ? styles.menuOpen : ''}`}>
+                            <div className={styles.menuHead}>{email}</div>
+                            <a href="/profile" className={styles.menuItem}>My Profile</a>
+                            <a href="/cources" className={styles.menuItem}>Explore Courses</a>
 
-                            <div className="theme-toggle-row">
-                                <span className="theme-label">Dark Mode</span>
-                                <label className="theme-switch">
+                            <div className={styles.themeRow}>
+                                <span className={styles.themeLabel}>Dark Mode</span>
+                                <label className={styles.switch}>
                                     <input type="checkbox" checked={isDark} onChange={toggleTheme} />
-                                    <span className="theme-slider"></span>
+                                    <span className={styles.slider}></span>
                                 </label>
                             </div>
 
-                            <a href="/shop" className="dropdown-item">Purchase History</a>
-                            <div
-                                className="dropdown-item"
-                                style={{ color: '#ef4444', cursor: 'pointer' }}
-                                onClick={onLogout}
-                            >
+                            <a href="/shop" className={styles.menuItem}>Purchase History</a>
+                            <button type="button" className={`${styles.menuItem} ${styles.menuOut}`} onClick={onLogout}>
                                 Logout
-                            </div>
+                            </button>
                         </div>
-                    </div>
+                    </>
                 ) : (
-                    <a href="/login" className="btn-login">Sign In</a>
+                    <a href="/login" className={styles.signIn}>Sign In</a>
                 )}
             </div>
         </nav>

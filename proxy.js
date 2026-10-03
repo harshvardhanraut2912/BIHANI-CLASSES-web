@@ -81,17 +81,81 @@ async function isMaintenanceModeEnabled() {
   }
 }
 
+// ============================================================
+// ADMIN SUBDOMAIN
+// The admin panel is served from admin.<site> (e.g. admin.localhost:3000 in
+// dev, admin.yourdomain.in in production). On that host:
+//   "/"            -> internally rewritten to /admin   (dashboard / sign-in)
+//   "/users"       -> internally rewritten to /admin/users, and so on
+//   "/admin/..."   -> still works (existing links); plain page loads get
+//                     redirected to the shorter URL
+//   student pages (/dashboard, /exam, /login ...) are NOT reachable there
+// On the main host, page URLs under /admin redirect to the admin subdomain.
+// /api/admin/* and /api/admin-login|check|logout keep working on BOTH hosts
+// (the mobile admin app calls them on the main host).
+//
+// Hosts where a subdomain can't exist (raw IPs, *.vercel.app, tunnels) keep
+// serving the panel at <host>/admin. You can also force that everywhere with
+// the env var ADMIN_PATH_FALLBACK=true (useful until your domain is ready).
+// ============================================================
+function canUseAdminSubdomain(host) {
+  if (process.env.ADMIN_PATH_FALLBACK === 'true') return false;
+  const bare = host.split(':')[0];
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(bare)) return false;      // 192.168.x.x etc.
+  if (bare.endsWith('.vercel.app')) return false;                 // can't add subdomains to these
+  if (bare.endsWith('.trycloudflare.com')) return false;
+  if (bare.endsWith('.ngrok-free.app') || bare.endsWith('.ngrok.io')) return false;
+  return true;
+}
+
 export async function proxy(request, context) {
   const { pathname, searchParams } = request.nextUrl;
+
+  const host = (request.headers.get('host') || '').toLowerCase();
+  const isAdminHost = host.startsWith('admin.');
+  const proto = request.headers.get('x-forwarded-proto') || request.nextUrl.protocol.replace(':', '') || 'https';
+  // Absolute URL on the host the browser actually used (keeps admin.<site> in redirects).
+  const hostUrl = (path) => `${proto}://${host}${path}`;
 
   // 1. GLOBAL BYPASS: Static assets or authentication callbacks
   if (
     pathname.startsWith('/_next') || 
-    searchParams.has('code') || 
-    searchParams.has('access_token') || 
-    request.url.includes('access_token=')
+    (!isAdminHost && (
+      searchParams.has('code') || 
+      searchParams.has('access_token') || 
+      request.url.includes('access_token=')
+    ))
   ) {
     return NextResponse.next();
+  }
+
+  // 1-admin. ADMIN SUBDOMAIN ROUTING (see the block comment above proxy()).
+  const isRealAdminPagePath = pathname === '/admin' || pathname.startsWith('/admin/');
+  const isApiRequest = pathname.startsWith('/api/') || pathname === '/api';
+
+  // Main host: send admin PAGE urls to admin.<site>. (API routes stay put.)
+  if (!isAdminHost && isRealAdminPagePath && canUseAdminSubdomain(host)) {
+    const rootHost = host.replace(/^www\./, '');
+    const stripped = pathname.replace(/^\/admin/, '') || '/';
+    return NextResponse.redirect(`${proto}://admin.${rootHost}${stripped}${request.nextUrl.search}`, 308);
+  }
+
+  // Admin host: plain page loads of /admin/... get the shorter URL. (RSC /
+  // prefetch requests are left alone so client-side navigation keeps working.)
+  if (
+    isAdminHost && isRealAdminPagePath && request.method === 'GET' &&
+    request.headers.get('sec-fetch-dest') === 'document' &&
+    !request.headers.get('rsc') && !searchParams.has('_rsc')
+  ) {
+    const stripped = pathname.replace(/^\/admin/, '') || '/';
+    return NextResponse.redirect(hostUrl(stripped + request.nextUrl.search), 308);
+  }
+
+  // Admin host: which /admin/... page does this URL map to? (static files such
+  // as /images/logo.png contain a "." and are served as-is.)
+  let effectivePath = pathname;
+  if (isAdminHost && !isApiRequest && !pathname.includes('.') && !isRealAdminPagePath) {
+    effectivePath = pathname === '/' ? '/admin' : '/admin' + pathname;
   }
 
   // 1a. MAINTENANCE MODE — runs before every other rule below, and covers
@@ -118,7 +182,7 @@ export async function proxy(request, context) {
   //   - the maintenance page's own asset (maintenance.html) and favicon,
   //     so the rewrite below doesn't loop on itself
   const isApiPath = pathname.startsWith('/api/') || pathname === '/api';
-  const isAdminPagePath = pathname === '/admin' || pathname.startsWith('/admin/');
+  const isAdminPagePath = isAdminHost || pathname === '/admin' || pathname.startsWith('/admin/');
   const isMaintenanceAsset = pathname === '/maintenance.html' || pathname === '/favicon.ico';
 
   if (!isApiPath && !isAdminPagePath && !isMaintenanceAsset) {
@@ -126,6 +190,27 @@ export async function proxy(request, context) {
     if (underMaintenance) {
       return NextResponse.rewrite(new URL('/maintenance.html', request.url), { status: 503 });
     }
+  }
+
+  // 1a-2. /cources was a static file (public/cources.html) and is now a real
+  // Next.js page at /cources. Anyone with the old .html URL bookmarked or
+  // linked gets a permanent redirect to the new one.
+  if (pathname === '/cources.html') {
+    return NextResponse.redirect(new URL('/cources', request.url), 308);
+  }
+
+  // 1a-3. login, contact and the three policy pages are now real Next.js pages
+  // (app/login, app/contact, app/privacypolicy, app/termsofuse, app/refundpolicy)
+  // instead of static files in /public. Old .html links permanently redirect.
+  const MOVED_FROM_HTML = {
+    '/login.html': '/login',
+    '/contact.html': '/contact',
+    '/privacypolicy.html': '/privacypolicy',
+    '/termsofuse.html': '/termsofuse',
+    '/refundpolicy.html': '/refundpolicy',
+  };
+  if (MOVED_FROM_HTML[pathname]) {
+    return NextResponse.redirect(new URL(MOVED_FROM_HTML[pathname], request.url), 308);
   }
 
   // 1b. ADMIN GATE — runs before ANYTHING else, including before the
@@ -144,8 +229,15 @@ export async function proxy(request, context) {
   // signed with a server-only secret (see lib/adminAuth.js), so even
   // manually adding a fake cookie via dev tools' Application tab fails
   // signature verification.
-  const isAdminPage = pathname === '/admin' || pathname.startsWith('/admin/');
+  const isAdminPage = effectivePath === '/admin' || effectivePath.startsWith('/admin/');
   const isAdminApi = pathname.startsWith('/api/admin/');
+
+  // On the admin host, URLs without the /admin prefix are rewritten to it
+  // (the browser keeps showing the short URL).
+  const continueAdmin = () =>
+    effectivePath !== pathname
+      ? NextResponse.rewrite(new URL(effectivePath + request.nextUrl.search, request.url))
+      : NextResponse.next();
 
   if (isAdminPage || isAdminApi) {
     const adminToken = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
@@ -205,13 +297,13 @@ export async function proxy(request, context) {
       // Page routes: /admin itself IS the login gate, so let it through
       // to render the login form. Anything nested under /admin/ without
       // a valid session bounces back to /admin.
-      if (pathname !== '/admin') {
-        return NextResponse.redirect(new URL('/admin', request.url));
+      if (effectivePath !== '/admin') {
+        return NextResponse.redirect(isAdminHost ? hostUrl('/') : new URL('/admin', request.url));
       }
     }
 
     // Valid session (or already on the /admin gate page itself) — continue.
-    return NextResponse.next();
+    return continueAdmin();
   }
 
   // 2. STRICTLY TARGET SECURE SUB-ROUTES ONLY
@@ -261,14 +353,18 @@ export async function proxy(request, context) {
     '/dashboard',
     '/exam', '/exam.html',
     '/review', '/review.html',
-    '/login', '/login.html',
+    '/login',
     '/not_live', '/not_live.html',
     '/profile',
-    '/contact', '/contact.html',
-    '/cources', '/cources.html',
-    '/privacypolicy', '/privacypolicy.html',
-    '/termsofuse', '/termsofuse.html',
-    '/refundpolicy', '/refundpolicy.html',
+    '/contact',
+    // /cources is now an app-router page (app/cources/page.js). '/cources.html'
+    // is deliberately NOT listed: if it were, the '.html' rewrite further down
+    // would send /cources to the (deleted) static file and 404.
+    '/cources',
+    '/gallery',
+    '/privacypolicy',
+    '/termsofuse',
+    '/refundpolicy',
     '/android/download',
     '/admin/cms',
     '/admin/cms-v2',
@@ -316,7 +412,8 @@ export async function proxy(request, context) {
     return NextResponse.rewrite(new URL('/not_live.html', request.url));
   }
 
-  // 🌟 FIX: If user goes to `/login`, rewrite under-the-hood to serve the actual `/login.html` static file
+  // If a clean URL has a matching static `<path>.html` in validSystemRoutes (e.g. /review, /exam, /not_live), serve it.
+  // (/login, /contact and the policy pages are app-router pages now, so they are NOT rewritten.)
   // NOTE: /dashboard is excluded here on purpose -- it's now a real app-router
   // page (app/dashboard/page.js), not a static file, so it must never be
   // rewritten to dashboard.html even though older routes here still are.

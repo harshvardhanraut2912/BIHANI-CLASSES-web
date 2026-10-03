@@ -1,5 +1,5 @@
 // ===================================================
-// Profile Onboarding Banner — YN Classes theme
+// Profile Onboarding Banner — Bihani Classes theme
 // Built the SAME way as cookie-consent.js: self-contained,
 // injects its own <style>, bottom-right slide-up card.
 // Include AFTER auth.js is loaded, e.g.:
@@ -44,6 +44,27 @@
     return "target_exams";
   }
 
+  // One small animated chemistry icon per onboarding step.
+  function iconSvg(step) {
+    const open = '<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">';
+    if (step === "mobile_number") { // rotating benzene ring
+      return open + '<g class="ob-spin-rev"><polygon points="12,3 20,7.5 20,16.5 12,21 4,16.5 4,7.5"></polygon><circle cx="12" cy="12" r="4.5"></circle></g></svg>';
+    }
+    if (step === "current_class") { // bubbling flask
+      return open + '<path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path><circle class="ob-rise" cx="10.5" cy="17" r="1" fill="#fff" stroke="none"></circle><circle class="ob-rise" style="animation-delay:.6s" cx="14" cy="18" r="1.2" fill="#fff" stroke="none"></circle><circle class="ob-rise" style="animation-delay:1.2s" cx="12" cy="16" r=".8" fill="#fff" stroke="none"></circle></svg>';
+    }
+    if (step === "target_exams") { // pulsing molecule
+      return open + '<path d="M6 17l6-11 6 11M6 17h12"></path><circle class="ob-pulse" cx="6" cy="17" r="2.2" fill="#fff"></circle><circle class="ob-pulse" style="animation-delay:.5s" cx="12" cy="6" r="2.2" fill="#fff"></circle><circle class="ob-pulse" style="animation-delay:1s" cx="18" cy="17" r="2.2" fill="#fff"></circle></svg>';
+    }
+    // default: atom with spinning orbits (full_name step)
+    return open + '<g class="ob-spin"><ellipse cx="12" cy="12" rx="10" ry="4"></ellipse><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"></ellipse><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"></ellipse></g><circle class="ob-pulse" cx="12" cy="12" r="2" fill="#fff"></circle></svg>';
+  }
+
+  function bubblesHtml() {
+    const b = [[8,10,0],[22,6,2.2],[38,14,4.1],[55,8,1.3],[70,12,3.4],[86,7,5.2]];
+    return '<div class="ob-bubbles">' + b.map(([l, sz, d]) => '<span class="ob-bub" style="left:' + l + '%;width:' + sz + 'px;height:' + sz + 'px;animation-delay:' + d + 's"></span>').join("") + '</div>';
+  }
+
   function injectStyles() {
     if (document.getElementById("ob-consent-styles")) return;
     const style = document.createElement("style");
@@ -59,8 +80,8 @@
         100% { opacity: 0; transform: translateY(24px) scale(0.97); }
       }
       @keyframes ob-card-glow {
-        0%, 100% { box-shadow: 0 20px 45px rgba(6, 49, 92, 0.18), 0 4px 12px rgba(6, 49, 92, 0.08), 0 0 0 0 rgba(29, 127, 214, 0.45); }
-        50%      { box-shadow: 0 20px 45px rgba(6, 49, 92, 0.18), 0 4px 12px rgba(6, 49, 92, 0.08), 0 0 0 7px rgba(29, 127, 214, 0); }
+        0%, 100% { box-shadow: 0 20px 45px rgba(12, 20, 56, 0.18), 0 4px 12px rgba(12, 20, 56, 0.08), 0 0 0 0 rgba(18, 160, 238, 0.45); }
+        50%      { box-shadow: 0 20px 45px rgba(12, 20, 56, 0.18), 0 4px 12px rgba(12, 20, 56, 0.08), 0 0 0 7px rgba(18, 160, 238, 0); }
       }
       @keyframes ob-dot-ping {
         0%   { transform: scale(1); opacity: 1; }
@@ -68,12 +89,28 @@
       }
       @keyframes ob-backdrop-in { 0% { opacity: 0; } 100% { opacity: 1; } }
 
+      @keyframes ob-spin { to { transform: rotate(360deg); } }
+      @keyframes ob-rise { 0% { transform: translateY(0); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-7px); opacity: 0; } }
+      @keyframes ob-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.5); } }
+      @keyframes ob-bubrise { 0% { transform: translateY(0) scale(.7); opacity: 0; } 15% { opacity: .9; } 100% { transform: translateY(-460px) scale(1.2); opacity: 0; } }
+      @keyframes ob-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+      .ob-spin { transform-origin: 12px 12px; animation: ob-spin 6s linear infinite; }
+      .ob-spin-rev { transform-origin: 12px 12px; animation: ob-spin 9s linear infinite reverse; }
+      .ob-rise { animation: ob-rise 1.8s ease-in infinite; }
+      .ob-pulse { transform-box: fill-box; transform-origin: center; animation: ob-pulse 1.6s ease-in-out infinite; }
+      .ob-bubbles { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; z-index: 0; }
+      .ob-bub { position: absolute; bottom: -14px; border-radius: 50%; border: 1.5px solid rgba(18, 160, 238, 0.38); background: rgba(18, 160, 238, 0.06); animation: ob-bubrise 7s linear infinite; }
+      .ob-banner > *:not(.ob-bubbles) { position: relative; z-index: 1; }
+      .ob-dot.is-active { position: relative; overflow: hidden; }
+      .ob-dot.is-active::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.85), transparent); animation: ob-shimmer 1.4s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) { .ob-spin, .ob-spin-rev, .ob-rise, .ob-pulse, .ob-bub, .ob-dot.is-active::after { animation: none; } }
+
       .ob-backdrop {
         position: fixed;
         inset: 0;
         z-index: 8999;
         pointer-events: none;
-        background: radial-gradient(circle at bottom right, rgba(6, 49, 92, 0.16), rgba(6, 49, 92, 0) 55%);
+        background: radial-gradient(circle at bottom right, rgba(12, 20, 56, 0.16), rgba(12, 20, 56, 0) 55%);
         animation: ob-backdrop-in 0.5s ease-out;
       }
 
@@ -85,14 +122,14 @@
         width: calc(100vw - 32px);
         max-height: calc(100vh - 32px);
         overflow: auto;
-        background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
-        border: 1.5px solid rgba(29, 127, 214, 0.4);
+        background: linear-gradient(180deg, #ffffff 0%, #f4f8ff 100%);
+        border: 1.5px solid rgba(18, 160, 238, 0.4);
         border-radius: 20px;
         padding: 24px 26px 22px;
-        box-shadow: 0 20px 45px rgba(6, 49, 92, 0.18), 0 4px 12px rgba(6, 49, 92, 0.08);
+        box-shadow: 0 20px 45px rgba(12, 20, 56, 0.18), 0 4px 12px rgba(12, 20, 56, 0.08);
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
         z-index: 9000;
-        color: #0f1f2e;
+        color: #0c1438;
         animation: ob-slide-up 0.55s cubic-bezier(0.22, 1, 0.36, 1), ob-card-glow 2.6s ease-in-out 0.6s 3;
       }
       .ob-banner.ob-leaving { animation: ob-slide-down 0.3s cubic-bezier(0.4, 0, 1, 1) forwards; }
@@ -100,9 +137,9 @@
       .ob-icon {
         position: relative;
         flex: none; width: 40px; height: 40px; border-radius: 12px;
-        background: linear-gradient(135deg, #1d7fd6, #0b4f8a);
+        background: linear-gradient(135deg, #12a0ee, #172a85);
         display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 6px 16px rgba(11, 79, 138, 0.35);
+        box-shadow: 0 6px 16px rgba(23, 42, 133, 0.35);
       }
       .ob-icon svg { width: 21px; height: 21px; }
       .ob-icon-dot {
@@ -113,55 +150,55 @@
         content: ''; position: absolute; inset: -2px; border-radius: 50%;
         background: #ff5757; animation: ob-dot-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
       }
-      .ob-banner h3 { margin: 0; font-size: 18px; font-weight: 800; color: #06315c; letter-spacing: -0.01em; }
-      .ob-banner p { margin: 0 0 16px; font-size: 13px; line-height: 1.6; color: #5c6b7a; }
+      .ob-banner h3 { margin: 0; font-size: 18px; font-weight: 800; color: #0c1438; letter-spacing: -0.01em; }
+      .ob-banner p { margin: 0 0 16px; font-size: 13px; line-height: 1.6; color: #4f5b78; }
       .ob-progress { display: flex; gap: 6px; margin-bottom: 14px; }
       .ob-dot { flex: 1; height: 4px; border-radius: 999px; background: #e2e8f0; }
-      .ob-dot.is-active { background: #1d7fd6; }
-      .ob-dot.is-done { background: #0b4f8a; }
+      .ob-dot.is-active { background: #12a0ee; }
+      .ob-dot.is-done { background: #172a85; }
       .ob-input {
-        width: 100%; box-sizing: border-box; background: #f7f9fc;
-        border: 1px solid #dbe6f0; border-radius: 10px; padding: 12px 14px;
-        font-size: 15px; font-weight: 500; color: #0f1f2e; outline: none;
+        width: 100%; box-sizing: border-box; background: #f4f8ff;
+        border: 1px solid #d6e2f3; border-radius: 10px; padding: 12px 14px;
+        font-size: 15px; font-weight: 500; color: #0c1438; outline: none;
         margin-bottom: 4px; font-family: inherit;
       }
-      .ob-input:focus { border-color: #1d7fd6; box-shadow: 0 0 0 3px rgba(29,127,214,0.12); }
+      .ob-input:focus { border-color: #12a0ee; box-shadow: 0 0 0 3px rgba(18,160,238,0.12); }
       .ob-phone-wrap { position: relative; display: flex; align-items: center; }
       .ob-phone-prefix {
         position: absolute; left: 12px; display: flex; align-items: center; gap: 6px;
-        font-size: 13px; font-weight: 700; color: #0f1f2e;
-        border-right: 1px solid #dbe6f0; padding-right: 8px; height: 18px; user-select: none;
+        font-size: 13px; font-weight: 700; color: #0c1438;
+        border-right: 1px solid #d6e2f3; padding-right: 8px; height: 18px; user-select: none;
       }
       .ob-phone-prefix img { width: 16px; border-radius: 2px; }
       .ob-input.ob-phone-input { padding-left: 68px; }
       .ob-choice-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
       .ob-choice {
-        width: 100%; text-align: left; background: #f7f9fc; border: 1px solid #dbe6f0;
+        width: 100%; text-align: left; background: #f4f8ff; border: 1px solid #d6e2f3;
         border-radius: 10px; padding: 11px 14px; font-size: 13.5px; font-weight: 600;
-        color: #0f1f2e; cursor: pointer; font-family: inherit; transition: all 0.15s ease;
+        color: #0c1438; cursor: pointer; font-family: inherit; transition: all 0.15s ease;
       }
-      .ob-choice:hover { border-color: #1d7fd6; }
-      .ob-choice.is-checked { background: #eaf3fc; border-color: #0b4f8a; color: #0b4f8a; font-weight: 700; }
+      .ob-choice:hover { border-color: #12a0ee; }
+      .ob-choice.is-checked { background: #eef3ff; border-color: #172a85; color: #172a85; font-weight: 700; }
       .ob-error {
         margin-top: 10px; background: #fdecea; border: 1px solid #ef4444; color: #b42318;
         font-size: 12px; font-weight: 600; padding: 8px 11px; border-radius: 8px;
       }
-      .ob-note { margin-top: 12px; font-size: 11.5px; color: #8494a5; line-height: 1.5; }
+      .ob-note { margin-top: 12px; font-size: 11.5px; color: #7a86a6; line-height: 1.5; }
       .ob-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; gap: 10px; }
-      .ob-btn-back { background: transparent; border: none; color: #5c6b7a; font-size: 13px; font-weight: 700; cursor: pointer; padding: 8px 4px; font-family: inherit; }
-      .ob-btn-back:hover { color: #0f1f2e; }
+      .ob-btn-back { background: transparent; border: none; color: #4f5b78; font-size: 13px; font-weight: 700; cursor: pointer; padding: 8px 4px; font-family: inherit; }
+      .ob-btn-back:hover { color: #0c1438; }
       .ob-btn-next {
-        background: linear-gradient(135deg, #1d7fd6, #0b4f8a); color: #fff; border: none;
+        background: linear-gradient(135deg, #12a0ee, #172a85); color: #fff; border: none;
         padding: 11px 24px; border-radius: 999px; font-size: 13.5px; font-weight: 700;
         cursor: pointer; font-family: inherit; margin-left: auto;
-        box-shadow: 0 6px 16px rgba(11, 79, 138, 0.28);
+        box-shadow: 0 6px 16px rgba(23, 42, 133, 0.28);
       }
       .ob-btn-next:hover:not(:disabled) { transform: translateY(-1px); }
       .ob-btn-next:disabled { opacity: 0.7; cursor: not-allowed; }
-      [data-theme="dark"] .ob-banner { background: linear-gradient(180deg, #0e1a2b 0%, #0a1522 100%); border-color: rgba(29,127,214,0.25); }
-      [data-theme="dark"] .ob-banner h3 { color: #eaf2fb; }
-      [data-theme="dark"] .ob-banner p, [data-theme="dark"] .ob-note { color: #93a3b8; }
-      [data-theme="dark"] .ob-input, [data-theme="dark"] .ob-choice { background: #16233a; border-color: rgba(29,127,214,0.25); color: #eaf2fb; }
+      [data-theme="dark"] .ob-banner { background: linear-gradient(180deg, #0e1536 0%, #0a1030 100%); border-color: rgba(18,160,238,0.25); }
+      [data-theme="dark"] .ob-banner h3 { color: #e8edff; }
+      [data-theme="dark"] .ob-banner p, [data-theme="dark"] .ob-note { color: #a9b6d6; }
+      [data-theme="dark"] .ob-input, [data-theme="dark"] .ob-choice { background: #17214a; border-color: rgba(18,160,238,0.25); color: #e8edff; }
       @media (max-width: 420px) { .ob-banner { right: 8px; bottom: 8px; padding: 18px 18px 16px; } }
     `;
     document.head.appendChild(style);
@@ -181,12 +218,12 @@
 
     const backdrop = document.createElement("div");
     backdrop.className = "ob-backdrop";
-    backdrop.setAttribute("data-testid", "yn-onboarding-backdrop");
+    backdrop.setAttribute("data-testid", "bihani-onboarding-backdrop");
     document.body.appendChild(backdrop);
 
     const el = document.createElement("div");
     el.className = "ob-banner";
-    el.setAttribute("data-testid", "yn-onboarding-banner");
+    el.setAttribute("data-testid", "bihani-onboarding-banner");
     document.body.appendChild(el);
 
     function removeAll() {
@@ -274,15 +311,13 @@
       }
 
       el.innerHTML = `
+        ${bubblesHtml()}
         <div class="ob-progress">
           ${steps.map((s, i) => `<span class="ob-dot ${i === stepIndex ? "is-active" : i < stepIndex ? "is-done" : ""}"></span>`).join("")}
         </div>
         <div class="ob-top">
           <div class="ob-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="8" r="4"></circle>
-              <path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"></path>
-            </svg>
+            ${iconSvg(steps[stepIndex])}
             <span class="ob-icon-dot"></span>
           </div>
         </div>

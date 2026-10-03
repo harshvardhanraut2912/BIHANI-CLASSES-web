@@ -4,6 +4,8 @@
 //
 // React counterpart to public/onboarding.js -- same mechanism, same
 // bottom-right slide-up banner style as the cookie-consent banner.
+// Bihani Chemistry Classes theme: blue / red / yellow, lab-glassware motifs,
+// periodic-table style choice tiles, bubbling + orbiting-electron animations.
 // Mounted globally in app/layout.js so it covers every app-router page
 // (dashboard, profile, cources/*). Skips /admin and /exam.
 //
@@ -39,6 +41,69 @@ function firstMissingStep(record) {
     if (!record.current_class?.trim()) return 'current_class';
     return 'target_exams';
 }
+
+
+// ---- Chemistry-theme helpers (presentation only, no logic) ----------------
+
+// Per-step lab glyph shown inside the header badge.
+function StepIcon({ step }) {
+    const common = { viewBox: '0 0 24 24', fill: 'none', stroke: '#ffffff', strokeWidth: 1.8, strokeLinecap: 'round', strokeLinejoin: 'round', className: 'ob-icon-svg' };
+    if (step === 'full_name') {
+        // atom
+        return (
+            <svg {...common}>
+                <ellipse cx="12" cy="12" rx="9.5" ry="3.8" />
+                <ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(60 12 12)" />
+                <ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(120 12 12)" />
+                <circle cx="12" cy="12" r="1.6" fill="#ffffff" stroke="none" />
+            </svg>
+        );
+    }
+    if (step === 'mobile_number') {
+        // molecule (3 bonded atoms)
+        return (
+            <svg {...common}>
+                <path d="M7.8 8.4 10.4 15.2M16.2 8.4 13.6 15.2M8.9 6.5h6.2" />
+                <circle cx="6.5" cy="6.5" r="2.6" fill="#ffffff" fillOpacity="0.25" />
+                <circle cx="17.5" cy="6.5" r="2.6" fill="#ffffff" fillOpacity="0.25" />
+                <circle cx="12" cy="17.5" r="2.8" fill="#ffffff" fillOpacity="0.25" />
+            </svg>
+        );
+    }
+    if (step === 'current_class') {
+        // conical flask
+        return (
+            <svg {...common}>
+                <path d="M9.5 3h5M10.5 3v6L4.8 18.6A2 2 0 0 0 6.5 21.5h11a2 2 0 0 0 1.7-2.9L13.5 9V3" />
+                <path d="M7.4 15.2h9.2" />
+                <circle cx="11" cy="18" r="0.7" fill="#ffffff" stroke="none" />
+                <circle cx="14" cy="17" r="0.7" fill="#ffffff" stroke="none" />
+            </svg>
+        );
+    }
+    // benzene ring
+    return (
+        <svg {...common}>
+            <path d="M12 3 19.8 7.5V16.5L12 21 4.2 16.5V7.5Z" />
+            <circle cx="12" cy="12" r="4" />
+        </svg>
+    );
+}
+
+// Periodic-table style tile data for the choice buttons (UI only).
+const CLASS_TILES = { '11th': { num: 11, sym: 'Na' }, '12th': { num: 12, sym: 'Mg' }, 'Dropper': { num: 75, sym: 'Re' } };
+function examTile(exam) {
+    return { num: exam.slice(-2), sym: exam.startsWith('MHT') ? 'Ce' : 'Hs' };
+}
+
+const BUBBLES = [
+    { x: '8%', s: 7, d: '5.2s', dl: '0s' },
+    { x: '22%', s: 5, d: '6.4s', dl: '-2s' },
+    { x: '41%', s: 9, d: '7.1s', dl: '-4s' },
+    { x: '63%', s: 6, d: '5.8s', dl: '-1s' },
+    { x: '79%', s: 8, d: '6.8s', dl: '-3s' },
+    { x: '92%', s: 5, d: '5.5s', dl: '-5s' },
+];
 
 export default function ProfileOnboarding() {
     const pathname = usePathname();
@@ -167,100 +232,278 @@ export default function ProfileOnboarding() {
                     100% { opacity: 0; transform: translateY(24px) scale(0.97); }
                 }
                 @keyframes ob-card-glow {
-                    0%, 100% { box-shadow: 0 20px 45px rgba(6, 49, 92, 0.18), 0 4px 12px rgba(6, 49, 92, 0.08), 0 0 0 0 rgba(29, 127, 214, 0.45); }
-                    50%      { box-shadow: 0 20px 45px rgba(6, 49, 92, 0.18), 0 4px 12px rgba(6, 49, 92, 0.08), 0 0 0 7px rgba(29, 127, 214, 0); }
+                    0%, 100% { box-shadow: 0 20px 45px rgba(16, 24, 58, 0.2), 0 4px 12px rgba(16, 24, 58, 0.08), 0 0 0 0 var(--acc-soft); }
+                    50%      { box-shadow: 0 20px 45px rgba(16, 24, 58, 0.2), 0 4px 12px rgba(16, 24, 58, 0.08), 0 0 0 8px rgba(255, 255, 255, 0); }
                 }
                 @keyframes ob-dot-ping {
                     0%   { transform: scale(1); opacity: 1; }
                     75%, 100% { transform: scale(2.2); opacity: 0; }
                 }
                 @keyframes ob-backdrop-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+                @keyframes ob-spin { to { transform: rotate(360deg); } }
+                @keyframes ob-spin-rev { to { transform: rotate(-360deg); } }
+                @keyframes ob-bubble-rise {
+                    0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+                    15%  { opacity: 0.8; }
+                    100% { transform: translateY(-160px) scale(1.15); opacity: 0; }
+                }
+                @keyframes ob-float { 50% { transform: translateY(-5px); } }
+                @keyframes ob-icon-pop {
+                    0%   { opacity: 0; transform: scale(0.4) rotate(-40deg); }
+                    70%  { opacity: 1; transform: scale(1.12) rotate(6deg); }
+                    100% { opacity: 1; transform: scale(1) rotate(0); }
+                }
+                @keyframes ob-step-in {
+                    0%   { opacity: 0; transform: translateX(14px); }
+                    100% { opacity: 1; transform: translateX(0); }
+                }
+                @keyframes ob-shimmer {
+                    0%   { background-position: -120% 0; }
+                    100% { background-position: 220% 0; }
+                }
+                @keyframes ob-liquid {
+                    0%, 100% { background-position: 0% 50%; }
+                    50%      { background-position: 100% 50%; }
+                }
+                @keyframes ob-stripe {
+                    0%, 100% { background-position: 0% 50%; }
+                    50%      { background-position: 100% 50%; }
+                }
+
+                /* Palette: blue / red / yellow (+ green as 4th indicator colour) */
+                .ob-banner {
+                    --blue: #1f6feb; --blue-d: #1348b8;
+                    --red: #e0242c;  --red-d: #a8141b;
+                    --yellow: #f5b81d; --yellow-d: #d98e00;
+                    --green: #22a45d; --green-d: #147a40;
+                    --ink: #10183a; --muted: #55607a; --line: #dde3f0; --soft: #f7f9ff;
+                    --acc: var(--blue); --acc-d: var(--blue-d); --acc-soft: rgba(31, 111, 235, 0.22); --acc-ink: #ffffff;
+                }
+                .ob-banner.ob-step-1 { --acc: var(--red); --acc-d: var(--red-d); --acc-soft: rgba(224, 36, 44, 0.22); }
+                .ob-banner.ob-step-2 { --acc: var(--yellow); --acc-d: var(--yellow-d); --acc-soft: rgba(245, 184, 29, 0.35); --acc-ink: #3a2a00; }
+                .ob-banner.ob-step-3 { --acc: var(--green); --acc-d: var(--green-d); --acc-soft: rgba(34, 164, 93, 0.22); }
+
                 .ob-backdrop {
                     position: fixed; inset: 0; z-index: 8999; pointer-events: none;
-                    background: radial-gradient(circle at bottom right, rgba(6, 49, 92, 0.16), rgba(6, 49, 92, 0) 55%);
+                    background:
+                        radial-gradient(circle at bottom right, rgba(31, 111, 235, 0.2), rgba(31, 111, 235, 0) 50%),
+                        radial-gradient(circle at 85% 100%, rgba(224, 36, 44, 0.12), rgba(224, 36, 44, 0) 40%),
+                        radial-gradient(circle at 60% 100%, rgba(245, 184, 29, 0.16), rgba(245, 184, 29, 0) 40%);
                     animation: ob-backdrop-in 0.5s ease-out;
                 }
                 .ob-banner {
                     position: fixed; right: 18px; bottom: 18px;
                     max-width: 400px; width: calc(100vw - 32px);
-                    max-height: calc(100vh - 32px); overflow: auto;
-                    background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
-                    border: 1.5px solid rgba(29, 127, 214, 0.4);
+                    max-height: calc(100vh - 32px); overflow-x: hidden; overflow-y: auto;
+                    background: linear-gradient(180deg, #ffffff 0%, var(--soft) 100%);
+                    border: 1.5px solid var(--line);
                     border-radius: 20px; padding: 24px 26px 22px;
-                    box-shadow: 0 20px 45px rgba(6, 49, 92, 0.18), 0 4px 12px rgba(6, 49, 92, 0.08);
-                    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-                    z-index: 9000; color: #0f1f2e;
+                    box-shadow: 0 20px 45px rgba(16, 24, 58, 0.2), 0 4px 12px rgba(16, 24, 58, 0.08);
+                    font-family: var(--font-body, 'DM Sans'), 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                    z-index: 9000; color: var(--ink);
                     animation: ob-slide-up 0.55s cubic-bezier(0.22, 1, 0.36, 1), ob-card-glow 2.6s ease-in-out 0.6s 3;
                 }
                 .ob-banner.ob-leaving { animation: ob-slide-down 0.3s cubic-bezier(0.4, 0, 1, 1) forwards; }
-                .ob-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+                .ob-banner > *:not(.ob-decor) { position: relative; z-index: 1; }
+
+                /* decorative lab layer: tri-colour stripe, benzene rings, rising bubbles */
+                .ob-decor { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; border-radius: 18px; }
+                .ob-decor::before {
+                    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 5px;
+                    background: linear-gradient(90deg, var(--blue), var(--red), var(--yellow), var(--green), var(--blue));
+                    background-size: 200% 100%; animation: ob-stripe 6s ease-in-out infinite;
+                }
+                .ob-ring {
+                    position: absolute; top: -22px; right: -26px; width: 130px; height: 130px;
+                    opacity: 0.35; animation: ob-spin 40s linear infinite;
+                }
+                .ob-ring-2 {
+                    position: absolute; bottom: 70px; left: -34px; width: 92px; height: 92px;
+                    opacity: 0.3; animation: ob-spin-rev 55s linear infinite;
+                }
+                .ob-bubble {
+                    position: absolute; bottom: -12px; border-radius: 50%;
+                    border: 1.5px solid var(--bc, var(--blue));
+                    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9), var(--bg, rgba(31,111,235,0.18)));
+                    opacity: 0; animation: ob-bubble-rise ease-in infinite;
+                }
+                .ob-bubble:nth-of-type(4n+1) { --bc: var(--blue);   --bg: rgba(31, 111, 235, 0.22); }
+                .ob-bubble:nth-of-type(4n+2) { --bc: var(--red);    --bg: rgba(224, 36, 44, 0.2); }
+                .ob-bubble:nth-of-type(4n+3) { --bc: var(--yellow); --bg: rgba(245, 184, 29, 0.35); }
+                .ob-bubble:nth-of-type(4n+4) { --bc: var(--green);  --bg: rgba(34, 164, 93, 0.22); }
+
+                .ob-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
                 .ob-icon {
                     position: relative;
-                    flex: none; width: 40px; height: 40px; border-radius: 12px;
-                    background: linear-gradient(135deg, #1d7fd6, #0b4f8a);
+                    flex: none; width: 44px; height: 44px; border-radius: 13px;
+                    background: linear-gradient(135deg, var(--acc), var(--acc-d));
                     display: flex; align-items: center; justify-content: center;
-                    box-shadow: 0 6px 16px rgba(11, 79, 138, 0.35);
+                    box-shadow: 0 6px 16px var(--acc-soft);
+                    animation: ob-float 3.2s ease-in-out infinite;
+                    transition: background 0.4s ease;
                 }
+                .ob-icon::before {
+                    content: ''; position: absolute; inset: -6px; border-radius: 17px;
+                    border: 1.5px dashed var(--acc);
+                    animation: ob-spin 14s linear infinite;
+                }
+                .ob-icon-svg { width: 24px; height: 24px; animation: ob-icon-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+                .ob-step-2 .ob-icon-svg { stroke: #3a2a00; }
+                .ob-step-2 .ob-icon-svg [fill="#ffffff"] { fill: #3a2a00; }
                 .ob-icon-dot {
                     position: absolute; top: -3px; right: -3px; width: 10px; height: 10px;
-                    border-radius: 50%; background: #ff5757; border: 2px solid #fff;
+                    border-radius: 50%; background: var(--red); border: 2px solid #fff;
                 }
+                .ob-step-1 .ob-icon-dot { background: var(--yellow); }
+                .ob-step-1 .ob-icon-dot::after { background: var(--yellow); }
                 .ob-icon-dot::after {
                     content: ''; position: absolute; inset: -2px; border-radius: 50%;
-                    background: #ff5757; animation: ob-dot-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+                    background: var(--red); animation: ob-dot-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
                 }
-                .ob-banner h3 { margin: 0 0 2px; font-size: 18px; font-weight: 800; color: #06315c; letter-spacing: -0.01em; }
-                .ob-banner p { margin: 0 0 16px; font-size: 13px; line-height: 1.6; color: #5c6b7a; }
-                .ob-progress { display: flex; gap: 6px; margin-bottom: 14px; }
-                .ob-dot { flex: 1; height: 4px; border-radius: 999px; background: #e2e8f0; }
-                .ob-dot.is-active { background: #1d7fd6; }
-                .ob-dot.is-done { background: #0b4f8a; }
+                .ob-tag { display: flex; flex-direction: column; line-height: 1.2; }
+                .ob-tag b { font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+                .ob-tag span { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 2px; }
+                .ob-tag span::before {
+                    content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+                    background: var(--acc); margin-right: 6px; vertical-align: 0;
+                }
+
+                .ob-banner h3 {
+                    margin: 0 0 2px; font-size: 19px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em;
+                    font-family: var(--font-display, 'Bricolage Grotesque'), var(--font-body, 'DM Sans'), 'Inter', sans-serif;
+                    animation: ob-step-in 0.35s ease-out;
+                }
+                .ob-banner h3::after {
+                    content: ''; display: block; width: 46px; height: 4px; border-radius: 999px; margin: 6px 0 8px;
+                    background: linear-gradient(90deg, var(--blue) 0 33%, var(--red) 33% 66%, var(--yellow) 66% 100%);
+                }
+                .ob-banner p { margin: 0 0 16px; font-size: 13px; line-height: 1.6; color: var(--muted); }
+                .ob-banner h3 + p, .ob-banner h3 ~ .ob-input, .ob-banner h3 ~ .ob-phone-wrap, .ob-banner h3 ~ .ob-choice-grid { animation: ob-step-in 0.4s ease-out; }
+
+                /* progress: atoms joined by bonds, one indicator colour per step */
+                .ob-progress { display: flex; gap: 14px; margin: 4px 6px 16px 0; }
+                .ob-dot { --c: var(--blue); position: relative; flex: 1; height: 4px; border-radius: 999px; background: var(--line); transition: background 0.3s ease; }
+                .ob-dot:nth-child(2) { --c: var(--red); }
+                .ob-dot:nth-child(3) { --c: var(--yellow); }
+                .ob-dot:nth-child(4) { --c: var(--green); }
+                .ob-dot::after {
+                    content: ''; position: absolute; right: -5px; top: 50%; width: 11px; height: 11px;
+                    transform: translateY(-50%); border-radius: 50%; background: #ffffff;
+                    border: 2px solid var(--line); box-sizing: border-box; z-index: 1; transition: all 0.3s ease;
+                }
+                .ob-dot.is-active {
+                    background: linear-gradient(90deg, var(--c), #ffffff 50%, var(--c)); background-size: 220% 100%;
+                    animation: ob-shimmer 1.8s linear infinite;
+                }
+                .ob-dot.is-active::after { border-color: var(--c); background: var(--c); box-shadow: 0 0 0 3px var(--acc-soft); }
+                .ob-dot.is-done { background: var(--c); }
+                .ob-dot.is-done::after { border-color: var(--c); background: var(--c); }
+
                 .ob-input {
-                    width: 100%; box-sizing: border-box; background: #f7f9fc;
-                    border: 1px solid #dbe6f0; border-radius: 10px; padding: 12px 14px;
-                    font-size: 15px; font-weight: 500; color: #0f1f2e; outline: none;
+                    width: 100%; box-sizing: border-box; background: #ffffff;
+                    border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px;
+                    font-size: 15px; font-weight: 500; color: var(--ink); outline: none;
+                    font-family: inherit; transition: border-color 0.2s ease, box-shadow 0.2s ease;
                 }
-                .ob-input:focus { border-color: #1d7fd6; box-shadow: 0 0 0 3px rgba(29,127,214,0.12); }
+                .ob-input:focus { border-color: var(--acc); box-shadow: 0 0 0 3px var(--acc-soft); }
                 .ob-phone-wrap { position: relative; display: flex; align-items: center; }
                 .ob-phone-prefix {
                     position: absolute; left: 12px; display: flex; align-items: center; gap: 6px;
-                    font-size: 13px; font-weight: 700; color: #0f1f2e;
-                    border-right: 1px solid #dbe6f0; padding-right: 8px; height: 18px; user-select: none;
+                    font-size: 13px; font-weight: 700; color: var(--ink);
+                    border-right: 1px solid var(--line); padding-right: 8px; height: 18px; user-select: none;
                 }
                 .ob-phone-prefix img { width: 16px; border-radius: 2px; }
                 .ob-input.ob-phone-input { padding-left: 68px; }
+
+                /* choice buttons = periodic-table tiles, each in its own colour */
                 .ob-choice-grid { display: flex; flex-direction: column; gap: 8px; }
                 .ob-choice {
-                    width: 100%; text-align: left; background: #f7f9fc; border: 1px solid #dbe6f0;
-                    border-radius: 10px; padding: 11px 14px; font-size: 13.5px; font-weight: 600;
-                    color: #0f1f2e; cursor: pointer; transition: all 0.15s ease;
+                    --c: var(--blue); --c-ink: #ffffff; --c-soft: rgba(31, 111, 235, 0.12);
+                    position: relative; width: 100%; text-align: left; background: #ffffff; border: 1.5px solid var(--line);
+                    border-radius: 12px; padding: 8px 12px; font-size: 13.5px; font-weight: 600;
+                    color: var(--ink); cursor: pointer; transition: all 0.18s ease; font-family: inherit;
+                    display: flex; align-items: center; gap: 12px;
                 }
-                .ob-choice:hover { border-color: #1d7fd6; }
-                .ob-choice.is-checked { background: #eaf3fc; border-color: #0b4f8a; color: #0b4f8a; font-weight: 700; }
+                .ob-choice:nth-child(2) { --c: var(--red);    --c-soft: rgba(224, 36, 44, 0.1); }
+                .ob-choice:nth-child(3) { --c: var(--yellow); --c-soft: rgba(245, 184, 29, 0.22); --c-ink: #3a2a00; }
+                .ob-choice:nth-child(4) { --c: var(--green);  --c-soft: rgba(34, 164, 93, 0.12); }
+                .ob-choice:hover { border-color: var(--c); transform: translateX(2px); }
+                .ob-tile {
+                    position: relative; flex: none; width: 38px; height: 38px; border-radius: 8px;
+                    border: 1.5px solid var(--c); color: var(--c); background: var(--c-soft);
+                    display: flex; align-items: center; justify-content: center;
+                    font-family: var(--font-display, 'Bricolage Grotesque'), 'Inter', sans-serif;
+                    font-size: 15px; font-weight: 800; transition: all 0.2s ease;
+                }
+                .ob-choice:nth-child(3) .ob-tile { color: var(--yellow-d); }
+                .ob-tile small { position: absolute; top: 2px; left: 4px; font-size: 8px; font-weight: 700; opacity: 0.85; }
+                .ob-choice-label { flex: 1; }
+                .ob-choice.is-checked { background: var(--c-soft); border-color: var(--c); font-weight: 700; }
+                .ob-choice.is-checked .ob-tile { background: var(--c); color: var(--c-ink); box-shadow: 0 0 0 3px var(--c-soft); }
+                .ob-choice.is-checked::after {
+                    content: '\\2713'; flex: none; width: 20px; height: 20px; border-radius: 50%;
+                    background: var(--c); color: var(--c-ink); font-size: 12px; font-weight: 800;
+                    display: flex; align-items: center; justify-content: center;
+                    animation: ob-icon-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+                }
+
                 .ob-error {
-                    margin-top: 10px; background: #fdecea; border: 1px solid #ef4444; color: #b42318;
+                    margin-top: 10px; background: #fdecea; border: 1px solid #e0242c; color: #b42318;
                     font-size: 12px; font-weight: 600; padding: 8px 11px; border-radius: 8px;
                 }
-                .ob-note { margin-top: 12px; font-size: 11.5px; color: #8494a5; line-height: 1.5; }
+                .ob-note { margin-top: 12px; font-size: 11.5px; color: #7b86a0; line-height: 1.5; }
                 .ob-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; gap: 10px; }
-                .ob-btn-back { background: transparent; border: none; color: #5c6b7a; font-size: 13px; font-weight: 700; cursor: pointer; padding: 8px 4px; }
-                .ob-btn-back:hover { color: #0f1f2e; }
+                .ob-btn-back { background: transparent; border: none; color: var(--muted); font-size: 13px; font-weight: 700; cursor: pointer; padding: 8px 4px; font-family: inherit; }
+                .ob-btn-back:hover { color: var(--ink); }
                 .ob-btn-next {
-                    background: linear-gradient(135deg, #1d7fd6, #0b4f8a); color: #fff; border: none;
-                    padding: 11px 24px; border-radius: 999px; font-size: 13.5px; font-weight: 700;
-                    cursor: pointer; margin-left: auto; box-shadow: 0 6px 16px rgba(11, 79, 138, 0.28);
+                    background: linear-gradient(135deg, var(--acc), var(--acc-d), var(--acc)); background-size: 200% 100%;
+                    color: var(--acc-ink); border: none; font-family: inherit;
+                    padding: 11px 26px; border-radius: 12px; font-size: 13.5px; font-weight: 700;
+                    cursor: pointer; margin-left: auto; box-shadow: 0 6px 16px var(--acc-soft);
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    animation: ob-liquid 5s ease-in-out infinite;
                 }
-                .ob-btn-next:hover:not(:disabled) { transform: translateY(-1px); }
+                .ob-btn-next:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px var(--acc-soft), 0 0 0 3px var(--acc-soft); }
                 .ob-btn-next:disabled { opacity: 0.7; cursor: not-allowed; }
-                [data-theme="dark"] .ob-banner { background: linear-gradient(180deg, #0e1a2b 0%, #0a1522 100%); border-color: rgba(29,127,214,0.25); }
-                [data-theme="dark"] .ob-banner h3 { color: #eaf2fb; }
-                [data-theme="dark"] .ob-banner p, [data-theme="dark"] .ob-note { color: #93a3b8; }
-                [data-theme="dark"] .ob-input, [data-theme="dark"] .ob-choice { background: #16233a; border-color: rgba(29,127,214,0.25); color: #eaf2fb; }
-                @media (max-width: 420px) { .ob-banner { right: 8px; bottom: 8px; padding: 18px 18px 16px; } }
+
+                [data-theme="dark"] .ob-banner {
+                    --ink: #eef0fb; --muted: #a3acc7; --line: rgba(255, 255, 255, 0.12); --soft: #0b0f24;
+                    background: linear-gradient(180deg, #131833 0%, #0b0f24 100%);
+                }
+                [data-theme="dark"] .ob-note { color: #8a93b0; }
+                [data-theme="dark"] .ob-input, [data-theme="dark"] .ob-choice { background: #181e3f; }
+                [data-theme="dark"] .ob-dot::after { background: #131833; }
+                [data-theme="dark"] .ob-icon-dot { border-color: #131833; }
+                [data-theme="dark"] .ob-ring, [data-theme="dark"] .ob-ring-2 { opacity: 0.5; }
+                [data-theme="dark"] .ob-choice:nth-child(3) .ob-tile { color: var(--yellow); }
+                [data-theme="dark"] .ob-choice:nth-child(3).is-checked .ob-tile { color: #3a2a00; }
+                [data-theme="dark"] .ob-choice:nth-child(1) .ob-tile { color: #6ea8ff; }
+
+                @media (max-width: 420px) { .ob-banner { right: 8px; bottom: 8px; padding: 20px 18px 16px; } }
+                @media (prefers-reduced-motion: reduce) {
+                    .ob-ring, .ob-ring-2, .ob-bubble, .ob-icon, .ob-icon::before, .ob-dot.is-active, .ob-btn-next, .ob-decor::before { animation: none; }
+                }
             `}</style>
 
             {!leaving && <div className="ob-backdrop" />}
-            <div className={`ob-banner ${leaving ? 'ob-leaving' : ''}`} role="dialog" aria-live="polite">
+            <div className={`ob-banner ob-step-${stepIndex} ${leaving ? 'ob-leaving' : ''}`} role="dialog" aria-live="polite">
+                <div className="ob-decor" aria-hidden="true">
+                    <svg className="ob-ring" viewBox="0 0 100 100" fill="none" strokeWidth="3" strokeLinejoin="round">
+                        <polygon points="50,6 88,28 88,72 50,94 12,72 12,28" stroke="#1f6feb" />
+                        <polygon points="50,22 74,36 74,64 50,78 26,64 26,36" stroke="#e0242c" strokeWidth="2" />
+                        <circle cx="50" cy="50" r="9" stroke="#f5b81d" />
+                    </svg>
+                    <svg className="ob-ring-2" viewBox="0 0 100 100" fill="none" stroke="#22a45d" strokeWidth="4" strokeLinejoin="round">
+                        <polygon points="50,6 88,28 88,72 50,94 12,72 12,28" />
+                    </svg>
+                    {BUBBLES.map((b, i) => (
+                        <span
+                            key={i} className="ob-bubble"
+                            style={{ left: b.x, width: b.s, height: b.s, animationDuration: b.d, animationDelay: b.dl }}
+                        />
+                    ))}
+                </div>
+
                 <div className="ob-progress">
                     {STEPS.map((s, i) => (
                         <span key={s} className={`ob-dot ${i === stepIndex ? 'is-active' : i < stepIndex ? 'is-done' : ''}`} />
@@ -269,11 +512,12 @@ export default function ProfileOnboarding() {
 
                 <div className="ob-top">
                     <div className="ob-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="8" r="4" />
-                            <path d="M4 21c0-4 3.5-7 8-7s8 3 8 7" />
-                        </svg>
+                        <StepIcon key={step} step={step} />
                         <span className="ob-icon-dot" />
+                    </div>
+                    <div className="ob-tag">
+                        <b>Bihani Chemistry Classes</b>
+                        <span>Step {stepIndex + 1} of {STEPS.length}</span>
                     </div>
                 </div>
 
@@ -325,7 +569,8 @@ export default function ProfileOnboarding() {
                                     className={`ob-choice ${formData.current_class === opt.value ? 'is-checked' : ''}`}
                                     onClick={() => updateField('current_class', opt.value)}
                                 >
-                                    {opt.label}
+                                    <span className="ob-tile"><small>{CLASS_TILES[opt.value].num}</small>{CLASS_TILES[opt.value].sym}</span>
+                                    <span className="ob-choice-label">{opt.label}</span>
                                 </button>
                             ))}
                         </div>
@@ -343,7 +588,8 @@ export default function ProfileOnboarding() {
                                     className={`ob-choice ${formData.target_exams.includes(exam) ? 'is-checked' : ''}`}
                                     onClick={() => toggleExam(exam)}
                                 >
-                                    {exam}
+                                    <span className="ob-tile"><small>{examTile(exam).num}</small>{examTile(exam).sym}</span>
+                                    <span className="ob-choice-label">{exam}</span>
                                 </button>
                             ))}
                         </div>

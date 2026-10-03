@@ -165,7 +165,6 @@ export default function HomePage() {
                 <Icon k={c.icon} />
                 <h3 className={styles.cName}>{c.name}</h3>
                 <p className={styles.cText}>{c.text}</p>
-                <a href="/cources" className={styles.cBtn}>View Course</a>
               </article>
             ))}
           </div>
@@ -342,7 +341,7 @@ export default function HomePage() {
             <li>Phone: {CONTACT.phone}</li><li>WhatsApp: {CONTACT.whatsapp}</li><li>Email: {CONTACT.email}</li><li>Address: {CONTACT.address}</li>
           </ul></div>
           <div><h3>Links</h3><ul>
-            <li><a href="/">Home</a></li><li><a href="/cources">Courses</a></li><li><a href="#teacher">About</a></li><li><a href="/contact">Contact</a></li>
+            <li><a href="/">Home</a></li><li><a href="/cources">Courses</a></li><li><a href="/gallery">Gallery</a></li><li><a href="#teacher">About</a></li><li><a href="/contact">Contact</a></li>
             <li><a href="/privacypolicy">Privacy Policy</a></li><li><a href="/termsofuse">Terms of Use</a></li><li><a href="/refundpolicy">Refund Policy</a></li>
           </ul></div>
         </div>

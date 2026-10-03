@@ -1,0 +1,8 @@
+/* app/admin/dashboard.module.css  (replaces the old card-grid stylesheet)
+   Page-level styles used by the admin Overview page and the demo placeholders. */
+
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid #d9e0ec;margin-bottom:24px}
+.title{margin:0;font-family:var(--font-display),var(--font-body),sans-serif;font-size:24px;font-weight:800;letter-spacing:-.01em;color:#172a85}
+.subtitle{margin:6px 0 0;font-size:14px;color:#5b6784}
+.note{margin:0;font-size:14px;color:#5b6784}
+@media(max-width:900px){.title{font-size:20px}}

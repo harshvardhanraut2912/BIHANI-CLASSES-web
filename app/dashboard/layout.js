@@ -31,6 +31,7 @@ import AttentionTip from '@/components/dashboard/AttentionTip';
 import DocumentViewer from '@/components/dashboard/DocumentViewer';
 import OnboardingCoachmarks from '@/components/dashboard/OnboardingCoachmarks';
 import styles from '@/components/dashboard/dashboard.module.css';
+import { fontVars } from '@/components/site/fonts';
 
 export const STAGE = {
     SUBSECTIONS: 'subsections',
@@ -47,6 +48,26 @@ export const notesVirtualSubsection = {
     icon_url: null,
     isVirtualNotes: true,
 };
+
+// Keeps the cet_session_token cookie (read by every /api/* route via
+// lib/studentAuth.js) in step with the live Supabase session. Without this
+// the cookie keeps the access token from login time, Supabase silently
+// refreshes the token in localStorage, and the API then rejects the stale
+// cookie with 401 "Invalid Session" (JWTExpired) -- so no courses load.
+// Same cookie format as components/site/LoginClient.js.
+function syncSessionCookie(sess) {
+    if (!sess?.access_token) return;
+    try {
+        const m = document.cookie.match(/(?:^|; )cookie_consent=([^;]*)/);
+        const consent = m ? decodeURIComponent(m[1]) : null;
+        let c = `cet_session_token=${sess.access_token}; path=/; SameSite=Lax`;
+        if (consent === 'accepted') c += `; max-age=${60 * 60 * 24 * 7}`;
+        if (window.location.protocol === 'https:') c += '; Secure';
+        document.cookie = c;
+    } catch (e) {
+        // cookie write blocked -- nothing else we can do here
+    }
+}
 
 const DashboardContext = createContext(null);
 
@@ -380,6 +401,7 @@ export default function DashboardLayout({ children }) {
                     router.replace('/login');
                     return;
                 }
+                syncSessionCookie(sess);
                 setSession(sess);
             } catch (err) {
                 console.error('Auth sync error:', err);
@@ -391,6 +413,7 @@ export default function DashboardLayout({ children }) {
 
         boot();
         const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
+            if (sess) syncSessionCookie(sess);
             setSession(sess);
         });
 
@@ -565,7 +588,7 @@ export default function DashboardLayout({ children }) {
     }, [router]);
 
     if (!authChecked) {
-        return <div className={styles.stateMessage}>Loading dashboard…</div>;
+        return <div className={`${styles.dashRoot} ${fontVars}`}><div className={styles.stateMessage}>Loading dashboard…</div></div>;
     }
 
     const contextValue = {
@@ -592,6 +615,7 @@ export default function DashboardLayout({ children }) {
 
     return (
         <DashboardContext.Provider value={contextValue}>
+          <div className={`${styles.dashRoot} ${fontVars}`}>
             <DashboardNavbar session={session} onLogout={handleLogout} onHamburgerClick={handleHamburgerClick} />
             <OnboardingCoachmarks />
 
@@ -622,9 +646,29 @@ export default function DashboardLayout({ children }) {
                 <main className={styles.main}>
                     {!activeMain ? (
                         <div className={styles.welcomeScreen}>
-                            <div className={styles.welcomeEmoji}>📚</div>
-                            <h2>What are you planning to study today?</h2>
-                            <p>Pick a section from the panel on the left to jump back into your material.</p>
+                            <div className={styles.welcomeCopy}>
+                                <span className={styles.welcomeEyebrow}>Student Desk</span>
+                                <h2 className={styles.welcomeTitle}>What are you planning to study today?</h2>
+                                <p className={styles.welcomeText}>Pick a course from the panel on the left to jump back into your notes, tests and practice material.</p>
+                                <ol className={styles.welcomeSteps}>
+                                    <li className={styles.welcomeStep}><span className={styles.welcomeStepNo}>1</span>Choose your course</li>
+                                    <li className={styles.welcomeStep}><span className={styles.welcomeStepNo}>2</span>Open a section or chapter</li>
+                                    <li className={styles.welcomeStep}><span className={styles.welcomeStepNo}>3</span>Read notes or attempt a test</li>
+                                </ol>
+                            </div>
+                            <div className={styles.welcomeArt} aria-hidden="true">
+                                <svg viewBox="0 0 240 220" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="120,40 166,66 166,118 120,144 74,118 74,66" stroke="#172a85" strokeWidth="4" fill="#fff" />
+                                    <polygon points="120,58 150,75 150,109 120,126 90,109 90,75" stroke="#12a0ee" strokeWidth="2.5" strokeDasharray="3 6" />
+                                    <line x1="166" y1="66" x2="204" y2="44" stroke="#172a85" strokeWidth="4" />
+                                    <line x1="74" y1="118" x2="36" y2="140" stroke="#172a85" strokeWidth="4" />
+                                    <line x1="120" y1="144" x2="120" y2="186" stroke="#172a85" strokeWidth="4" />
+                                    <circle cx="208" cy="42" r="13" fill="#172a85" />
+                                    <circle cx="32" cy="142" r="13" fill="#12a0ee" />
+                                    <circle cx="120" cy="192" r="13" fill="#172a85" />
+                                    <circle cx="120" cy="92" r="7" fill="#12a0ee" />
+                                </svg>
+                            </div>
                         </div>
                     ) : (
                         children
@@ -639,6 +683,7 @@ export default function DashboardLayout({ children }) {
                     onClose={handleCloseDocument}
                 />
             ) : null}
+          </div>
         </DashboardContext.Provider>
     );
 }

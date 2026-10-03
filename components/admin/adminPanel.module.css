@@ -1,0 +1,59 @@
+/* components/admin/adminPanel.module.css  (new file)
+   Admin frame: flat, square, blue sidebar. No gradients, no hover lifts, no transitions. */
+
+.root{--navy:#172a85;--navy-dark:#0f1d5e;--navy-line:#2b3f9e;--ink:#0c1438;--muted:#5b6784;--line:#d9e0ec;--soft:#f3f5f9;--side-w:252px;--top-h:60px;
+  min-height:100vh;background:var(--soft);color:var(--ink);font-family:var(--font-body),system-ui,sans-serif}
+.root *{box-sizing:border-box;font-family:var(--font-body),system-ui,sans-serif}
+
+/* ===== SIDEBAR ===== */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:var(--side-w);background:var(--navy);color:#fff;display:flex;flex-direction:column;z-index:1000;overflow-y:auto}
+.brand{display:flex;align-items:center;gap:12px;padding:16px 18px;height:var(--top-h);min-height:var(--top-h);text-decoration:none;color:#fff;border-bottom:1px solid var(--navy-line);background:var(--navy-dark)}
+.brandLogo{height:36px;width:36px;object-fit:contain;background:#fff;border-radius:2px;padding:2px}
+.brandWords{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+.brandText{font-family:var(--font-display),var(--font-body),sans-serif;font-weight:800;font-size:16px;letter-spacing:-.01em;color:#fff;white-space:nowrap}
+.brandTag{margin-top:3px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#aebbe8}
+
+.nav{flex:1;padding:10px 0 16px}
+.group{margin-bottom:6px}
+.groupLabel{padding:14px 18px 8px;font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#8d9ed9}
+.navBtn{display:flex;align-items:center;gap:12px;height:44px;padding:0 18px;margin:0;border-left:3px solid transparent;border-bottom:1px solid var(--navy-line);border-radius:0;color:#dbe3fb;font-size:14px;font-weight:600;text-decoration:none;background:transparent}
+.group .navBtn:first-of-type{border-top:0}
+.navBtn svg{width:18px;height:18px;flex:none}
+.navBtn:hover{background:#21369b;color:#fff}
+.navBtnActive,.navBtnActive:hover{background:#fff;color:var(--navy);border-left-color:#e0242c;font-weight:700}
+.navBtn:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+.sideFoot{padding:14px 18px;border-top:1px solid var(--navy-line);font-size:11px;color:#8d9ed9;letter-spacing:.03em}
+
+/* ===== MAIN ===== */
+.main{margin-left:var(--side-w);min-height:100vh;display:flex;flex-direction:column}
+.topbar{position:sticky;top:0;z-index:900;height:var(--top-h);background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 28px}
+.menuBtn{display:none;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--line);border-radius:2px;background:#fff;color:var(--navy);cursor:pointer;padding:0}
+.crumbs{display:flex;align-items:center;gap:8px;font-size:14px;min-width:0}
+.crumbRoot{color:var(--muted);font-weight:600}
+.crumbSep{color:#b6bfd3}
+.crumbLink{color:var(--muted);font-weight:600;text-decoration:none}
+.crumbLink:hover{color:var(--navy);text-decoration:underline}
+.crumbNow{color:var(--navy);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.account{margin-left:auto;display:flex;align-items:center;gap:16px}
+.who{display:flex;flex-direction:column;align-items:flex-end;line-height:1.15;min-width:0}
+.whoEmail{font-size:13px;font-weight:700;color:var(--ink);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.whoRole{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+.logoutBtn{height:36px;padding:0 16px;border:1px solid var(--navy);border-radius:2px;background:#fff;color:var(--navy);font-size:13px;font-weight:700;cursor:pointer}
+.logoutBtn:hover{background:var(--navy);color:#fff}
+.logoutBtn:disabled{opacity:.6;cursor:default}
+.content{flex:1;padding:28px;max-width:1400px;width:100%}
+
+.scrim{display:none}
+
+/* ===== TABLET / MOBILE ===== */
+@media(max-width:900px){
+  .root{--top-h:56px}
+  .sidebar{display:none}
+  .sidebarOpen{display:flex;width:272px;max-width:84vw}
+  .scrim.scrimOn{display:block;position:fixed;inset:0;background:rgba(12,20,56,.55);z-index:999}
+  .main{margin-left:0}
+  .menuBtn{display:flex}
+  .topbar{padding:0 14px}
+  .who{display:none}
+  .content{padding:18px 14px}
+}

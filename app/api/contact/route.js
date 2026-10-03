@@ -18,7 +18,7 @@ async function notifyTelegram({ name, email, mobile, classInterested, targetExam
     }
 
     const text =
-      `🔔 New Enquiry — Y N Classes\n\n` +
+      `🔔 New Enquiry — Bihani Chemistry Classes\n\n` +
       `👤 Name: ${name}\n` +
       `📞 Phone: ${mobile}\n` +
       `✉️ Email: ${email || "-"}\n` +

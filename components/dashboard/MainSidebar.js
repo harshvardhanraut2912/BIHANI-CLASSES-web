@@ -13,7 +13,7 @@ import { resolveImageUrl } from '@/lib/resolveImageUrl';
 export default function MainSidebar({ sections, activeId, onSelect, mobileOpen }) {
     return (
         <aside className={`${styles.sidebar} ${mobileOpen ? styles.sidebarOpen : ''}`}>
-            <div className={styles.sidebarLabel}>Sections</div>
+            <div className={styles.sidebarLabel}>My Courses</div>
             <nav className={styles.sidebarNav}>
                 {sections.map((section, index) => (
                     <button
@@ -42,6 +42,12 @@ export default function MainSidebar({ sections, activeId, onSelect, mobileOpen }
                     <div className={styles.sidebarEmpty}>No sections yet.</div>
                 ) : null}
             </nav>
+
+            <div className={styles.railFoot}>
+                <div className={styles.railFootTitle}>Have a doubt?</div>
+                <p className={styles.railFootText}>Reach out to Bihani Classes for guidance anytime.</p>
+                <a href="/contact" className={styles.railFootLink}>Contact us</a>
+            </div>
         </aside>
     );
 }

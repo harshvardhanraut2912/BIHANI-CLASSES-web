@@ -20,26 +20,29 @@ export default function ChapterGrid({ subsectionName, chapters, onSelect, loadin
 
     return (
         <div className={styles.cardGrid}>
-            {chapters.map((chapter) => (
+            {chapters.map((chapter, i) => (
                 <button
                     key={chapter.id}
                     type="button"
                     className={styles.gridCard}
                     onClick={() => onSelect(chapter)}
                 >
-                    <span className={styles.gridCardIconWrap}>
-                        {chapter.icon_url ? (
-                            <img
-                                src={resolveImageUrl(chapter.icon_url)}
-                                alt=""
-                                className={styles.gridCardIcon}
-                            />
-                        ) : (
-                            <span className={styles.gridCardIconFallback}>{chapter.name.charAt(0)}</span>
-                        )}
+                    <span className={styles.tileTop}>
+                        <span className={styles.gridCardIconWrap}>
+                            {chapter.icon_url ? (
+                                <img
+                                    src={resolveImageUrl(chapter.icon_url)}
+                                    alt=""
+                                    className={styles.gridCardIcon}
+                                />
+                            ) : (
+                                <span className={styles.gridCardIconFallback}>{chapter.name.charAt(0)}</span>
+                            )}
+                        </span>
+                        <span className={styles.tileNo}>{String(i + 1).padStart(2, '0')}</span>
                     </span>
                     <span className={styles.gridCardLabel}>{chapter.name}</span>
-                    <span className={styles.gridCardArrow}>›</span>
+                    <span className={styles.gridCardArrow}>Open <span aria-hidden="true">→</span></span>
                 </button>
             ))}
         </div>
