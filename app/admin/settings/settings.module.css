@@ -1,0 +1,82 @@
+/* app/admin/settings/settings.module.css  (new file)
+   Settings page + Developers sub-panel. Same flat look as the Exams screens. */
+
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1px solid #d9e0ec;margin-bottom:24px}
+.title{margin:0;font-family:var(--font-display),var(--font-body),sans-serif;font-size:24px;font-weight:800;letter-spacing:-.01em;color:#172a85}
+.subtitle{margin:6px 0 0;font-size:14px;color:#5b6784}
+
+.layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:760px){.layout{grid-template-columns:minmax(0,1fr)}}
+
+.tabs{display:flex;flex-direction:column;background:#fff;border:1px solid #d9e0ec;border-radius:2px}
+@media (max-width:760px){.tabs{flex-direction:row;overflow-x:auto}}
+.tab{display:flex;align-items:center;gap:10px;padding:13px 16px;border:0;border-left:3px solid transparent;border-bottom:1px solid #eef1f7;background:#fff;color:#33405f;font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer;white-space:nowrap}
+.tab:last-child{border-bottom:0}
+.tab:hover{background:#f8faff}
+.tabOn{border-left-color:#172a85;background:#f1f4ff;color:#172a85}
+.tabIcon{font-size:14px;line-height:1}
+
+.card{background:#fff;border:1px solid #d9e0ec;border-radius:2px;min-width:0}
+.cardHead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 20px;border-bottom:1px solid #d9e0ec;background:#f8faff}
+.cardTitle{margin:0;font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#0c1438}
+.cardBody{padding:20px}
+.note{padding:22px;text-align:center;color:#5b6784;font-size:14px}
+.hint{margin:0 0 16px;font-size:13px;color:#5b6784;line-height:1.5}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 20px;border:1px solid #172a85;border-radius:2px;background:#172a85;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.btn:hover{background:#0f1d5e;border-color:#0f1d5e}
+.btnGhost{background:#fff;color:#172a85}
+.btnGhost:hover{background:#f3f5f9}
+.btnSm{height:32px;padding:0 14px;font-size:13px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ---- password gate ---- */
+.gate{max-width:420px;margin:0 auto;padding:36px 20px 40px;text-align:center}
+.gateIcon{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:50%;background:#fdf1f0;border:1px solid #f3c4c0;font-size:24px;margin-bottom:14px}
+.gateWarn{margin:0 0 6px;color:#d92d20;font-size:15px;font-weight:800}
+.gateSub{margin:0 0 20px;color:#d92d20;font-size:13.5px;font-weight:600;line-height:1.5}
+.gateForm{display:flex;flex-direction:column;gap:12px;text-align:left}
+.label{display:block;margin-bottom:6px;font-size:12px;font-weight:700;color:#33405f;text-transform:uppercase;letter-spacing:.04em}
+.input{width:100%;height:44px;padding:0 14px;border:1px solid #c5d1e6;border-radius:2px;background:#fff;color:#0c1438;font-size:15px;outline:none}
+.input:focus{border-color:#172a85;box-shadow:0 0 0 2px rgba(23,42,133,.12)}
+.err{margin:0;padding:10px 14px;border:1px solid #f3c4c0;background:#fdf1f0;color:#b42318;font-size:13px;font-weight:600;border-radius:2px}
+.warn{margin:0 0 16px;padding:10px 14px;border:1px solid #f0d9a8;background:#fff8e6;color:#8a5a00;font-size:13px;border-radius:2px;line-height:1.5}
+
+/* ---- unlocked: badge + sub tabs ---- */
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border:1px solid #b7e4cf;background:#e9f7f1;color:#0f6b4f;border-radius:2px;font-size:12px;font-weight:800;letter-spacing:.03em;text-transform:uppercase}
+.subTabs{display:flex;gap:0;border-bottom:1px solid #d9e0ec;background:#fff;overflow-x:auto}
+.subTab{padding:12px 18px;border:0;border-bottom:3px solid transparent;background:none;color:#5b6784;font:inherit;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.subTab:hover{color:#172a85}
+.subTabOn{border-bottom-color:#172a85;color:#172a85}
+
+/* ---- switch ---- */
+.switch{position:relative;flex:none;width:44px;height:24px;border:0;border-radius:12px;background:#c5cbd8;cursor:pointer;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff}
+.switchOn{background:#12a36b}
+.switchOn::after{left:23px}
+.switchRed.switchOn{background:#d92d20}
+.switch:disabled{opacity:.55;cursor:wait}
+
+/* ---- admin cards (subject access) ---- */
+.adminList{display:flex;flex-direction:column;gap:14px}
+.admin{border:1px solid #d9e0ec;border-radius:2px;background:#fff}
+.adminTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 16px;background:#f8faff;border-bottom:1px solid #d9e0ec}
+.adminEmail{font-size:14px;font-weight:800;color:#0c1438;word-break:break-all}
+.adminRole{font-size:12px;font-weight:700;color:#5b6784;text-transform:uppercase;letter-spacing:.04em}
+.you{margin-left:8px;padding:1px 7px;border:1px solid #c5d1e6;border-radius:2px;font-size:11px;font-weight:800;color:#172a85;background:#fff;text-transform:uppercase}
+.subjGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0}
+.subjRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-right:1px solid #eef1f7;border-bottom:1px solid #eef1f7}
+.subjName{font-size:14px;font-weight:700;color:#0c1438}
+.subjState{display:block;font-size:12px;font-weight:600;color:#12a36b}
+.subjStateOff{color:#d92d20}
+
+/* ---- maintenance rows ---- */
+.mRow{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid #eef1f7}
+.mRow:last-child{border-bottom:0}
+.mName{font-size:15px;font-weight:800;color:#0c1438}
+.mSub{margin-top:3px;font-size:13px;color:#5b6784;line-height:1.45}
+.mMeta{margin-top:4px;font-size:12px;color:#8a98b8}
+.mState{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;margin-right:12px}
+.mOn{color:#d92d20}
+.mOff{color:#12a36b}
+.mRight{display:flex;align-items:center}

@@ -12,6 +12,8 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getAdminFromRequest } from "@/lib/devAuth";
+import { getDeniedSubjects, canonicalSubject } from "@/lib/subjectAccess";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -33,9 +35,13 @@ export async function GET(request) {
 
     if (error) throw error;
 
-    // data is already the chapters array (with question_count per chapter)
-    // straight from the SQL function — no further shaping needed here.
-    return NextResponse.json({ chapters: data || [] });
+    // Subjects this admin was switched OFF for (Settings -> Developers) are
+    // removed here, so their chapters never reach the browser at all.
+    const admin = await getAdminFromRequest(request);
+    const denied = admin ? await getDeniedSubjects(admin.email) : [];
+    const chapters = (data || []).filter((c) => !denied.includes(canonicalSubject(c.subject)));
+
+    return NextResponse.json({ chapters });
   } catch (err) {
     console.error("exam-summary route error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });

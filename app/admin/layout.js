@@ -21,7 +21,16 @@ function isAdminHomePath(p) {
 // Pages that live inside the new sidebar shell: the homepage (Overview) plus every
 // slug in adminNav.js. Older pages (cms-v2, users, ...) keep their own look until
 // they are rebuilt and added to adminNav.js.
+// Small popup windows (e.g. Exams -> PDF icon -> /exams/pdf and its /exams/pdf/result window, and
+// Exams -> Check leaderboard -> Download PDF -> /exams/leaderboard-pdf): same admin security gate,
+// but NO sidebar / top bar / floating Logout button -- just the page itself.
+function isPopupPath(p) {
+  const rest = p.startsWith("/admin/") ? p.slice("/admin".length) : p;
+  return /^\/exams\/(pdf(\/result)?|leaderboard-pdf)\/?$/.test(rest);
+}
+
 function isShellPath(p) {
+  if (isPopupPath(p)) return false;
   if (isAdminHomePath(p)) return true;
   const rest = p.startsWith("/admin/") ? p.slice("/admin".length) : p;
   const first = rest.split("/").filter(Boolean)[0];
@@ -278,6 +287,10 @@ export default function AdminLayout({ children }) {
         <p className={shell.gateFoot}>Authorised staff only. All access attempts are logged.</p>
       </div>
     );
+  }
+
+  if (isPopupPath(pathname)) {
+    return <div className={fontVars}>{children}</div>;
   }
 
   // Overview + every sidebar panel: persistent blue sidebar, only {children} swaps.

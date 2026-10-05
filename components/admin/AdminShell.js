@@ -19,6 +19,7 @@ const ICONS = {
   clipboard: <><rect x="5" y="4" width="14" height="17" /><path d="M9 4V2h6v2M9 10h6M9 14h6M9 18h3" /></>,
   plus: <><rect x="3" y="3" width="18" height="18" /><path d="M12 8v8M8 12h8" /></>,
   card: <><rect x="2" y="5" width="20" height="14" /><path d="M2 10h20M6 15h4" /></>,
+  mail: <><rect x="3" y="5" width="18" height="14" /><path d="M3 7l9 6 9-6" /></>,
   bell: <><path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4zM10 21h4" /></>,
   gear: <><circle cx="12" cy="12" r="3" /><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" /></>,
 };

@@ -1,0 +1,93 @@
+/* app/admin/exams/deploy.module.css  (new file) -- "Online exam" column + deploy wizard */
+
+/* ---- column ---- */
+.thOnline{width:190px;text-align:center!important}
+.tdOnline{text-align:center;border-left:1px dashed #e3e8f2}
+.deployBtn,.doneBtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border-radius:2px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.deployBtn{border:1px solid #172a85;background:#fff;color:#172a85}
+.deployBtn:hover{background:#eef1ff}
+.doneBtn{border:1px solid #1d4ed8;background:#1d4ed8;color:#fff}
+.doneBtn:hover{background:#1e40af;border-color:#1e40af}
+.skeleton{display:inline-block;width:110px;height:32px;border-radius:2px;background:linear-gradient(90deg,#eef1f7,#f8faff,#eef1f7);background-size:200% 100%;animation:sk 1.2s linear infinite}
+@keyframes sk{from{background-position:200% 0}to{background-position:-200% 0}}
+
+/* ---- popup shell ---- */
+.overlay{position:fixed;inset:0;z-index:1000;background:rgba(12,20,56,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{width:100%;max-width:680px;max-height:92vh;display:flex;flex-direction:column;background:#fff;border-radius:4px;box-shadow:0 18px 60px rgba(12,20,56,.35)}
+.mHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 20px;border-bottom:1px solid #e3e8f2}
+.mTitle{margin:0;font-size:17px;font-weight:800;color:#172a85}
+.mSub{margin:3px 0 0;font-size:12.5px;color:#5b6784}
+.mX{border:0;background:none;font-size:18px;line-height:1;color:#5b6784;cursor:pointer;padding:4px}
+.mBody{padding:18px 20px;overflow-y:auto;flex:1}
+.mFoot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 20px;border-top:1px solid #e3e8f2;background:#f8faff}
+.footRight{display:flex;gap:10px}
+
+/* ---- stepper ---- */
+.steps{display:flex;gap:6px;padding:12px 20px 0}
+.step{flex:1;min-width:0}
+.stepBar{height:4px;border-radius:2px;background:#dfe5f1}
+.stepOn .stepBar{background:#172a85}
+.stepDone .stepBar{background:#1b7a3d}
+.stepName{margin-top:5px;font-size:11px;font-weight:700;color:#8a94ad;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stepOn .stepName{color:#172a85}
+
+/* ---- form bits ---- */
+.field{margin-bottom:14px}
+.label{display:block;margin-bottom:6px;font-size:12px;font-weight:700;color:#33405f;text-transform:uppercase;letter-spacing:.04em}
+.input{width:100%;height:42px;padding:0 12px;border:1px solid #c5d1e6;border-radius:2px;background:#fff;color:#0c1438;font-size:14.5px;outline:none}
+.input:focus{border-color:#172a85;box-shadow:0 0 0 2px rgba(23,42,133,.12)}
+.help{margin-top:5px;font-size:12px;color:#5b6784}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;color:#0c1438;cursor:pointer}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+.msg{margin:0 0 14px;padding:10px 12px;border:1px solid #f3c4c0;background:#fdf1f0;color:#b42318;font-size:13px;border-radius:2px}
+.note{margin:0 0 14px;padding:10px 12px;border:1px solid #cfd9f2;background:#f3f6ff;color:#33405f;font-size:13px;border-radius:2px}
+.warn{margin:0 0 14px;padding:10px 12px;border:1px solid #f1d9a6;background:#fff8e6;color:#8a5a00;font-size:13px;border-radius:2px}
+
+/* ---- choice cards (anytime / scheduled) ---- */
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.choice{text-align:left;padding:14px;border:1.5px solid #c5d1e6;border-radius:3px;background:#fff;cursor:pointer}
+.choice:hover{border-color:#172a85}
+.choiceOn{border-color:#172a85;background:#eef1ff;box-shadow:0 0 0 2px rgba(23,42,133,.1)}
+.choiceTitle{font-size:14.5px;font-weight:800;color:#172a85}
+.choiceSub{margin-top:3px;font-size:12.5px;color:#5b6784}
+.subBox{padding:14px;border:1px solid #dfe5f1;border-radius:3px;background:#f8faff;margin-bottom:14px}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{height:28px;padding:0 10px;border:1px solid #c5d1e6;border-radius:14px;background:#fff;color:#172a85;font-size:12px;font-weight:700;cursor:pointer}
+.chip:hover{background:#eef1ff;border-color:#172a85}
+
+/* ---- location picker ---- */
+.pickRow{display:grid;grid-template-columns:1fr;gap:12px}
+.newChapter{display:flex;gap:8px;margin-top:8px}
+.linkBtn{border:0;background:none;color:#172a85;font-size:12.5px;font-weight:700;cursor:pointer;padding:0;text-decoration:underline}
+
+/* ---- marking table ---- */
+.markHead,.markRow{display:grid;grid-template-columns:1.4fr .8fr .8fr .8fr;gap:10px;align-items:center}
+.markHead{margin-bottom:6px;font-size:11.5px;font-weight:700;color:#5b6784;text-transform:uppercase}
+.markRow{margin-bottom:8px}
+.markName{font-size:14px;font-weight:700;color:#0c1438}
+.markTotal{margin-top:10px;font-size:13px;color:#33405f}
+
+/* ---- review ---- */
+.review{border:1px solid #dfe5f1;border-radius:3px}
+.rRow{display:flex;gap:12px;padding:10px 14px;border-bottom:1px solid #eef1f7;font-size:13.5px}
+.rRow:last-child{border-bottom:0}
+.rKey{flex:none;width:130px;color:#5b6784;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.03em;padding-top:2px}
+.rVal{flex:1;min-width:0;color:#0c1438;word-break:break-word}
+.thumbPrev{width:96px;height:54px;object-fit:cover;border-radius:2px;border:1px solid #dfe5f1}
+
+/* ---- done / linked list ---- */
+.okBox{text-align:center;padding:18px 8px}
+.okTick{width:52px;height:52px;margin:0 auto 12px;border-radius:50%;background:#1b7a3d;color:#fff;font-size:28px;line-height:52px}
+.okTitle{margin:0 0 6px;font-size:18px;font-weight:800;color:#172a85}
+.prodCard{padding:12px 14px;border:1px solid #dfe5f1;border-left:4px solid #1d4ed8;border-radius:3px;margin-bottom:10px}
+.prodTitle{font-size:14.5px;font-weight:800;color:#0c1438}
+.prodMeta{margin-top:4px;font-size:12.5px;color:#5b6784}
+.tag{display:inline-block;margin-right:6px;padding:1px 8px;border:1px solid #c5d1e6;border-radius:2px;background:#f8faff;color:#33405f;font-size:11.5px;font-weight:700}
+
+@media (max-width:640px){
+  .choices,.grid2{grid-template-columns:1fr}
+  .markHead,.markRow{grid-template-columns:1.2fr 1fr 1fr 1fr;gap:6px}
+  .rKey{width:90px}
+  .thOnline{width:120px}
+}

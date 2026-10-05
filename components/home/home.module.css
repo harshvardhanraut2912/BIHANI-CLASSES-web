@@ -229,6 +229,27 @@
 @media(max-width:520px){.grid4,.steps,.footCols{grid-template-columns:1fr}.ptable{gap:2px}.pcell{font-size:.55rem;border-radius:4px}}
 @media(prefers-reduced-motion:reduce){.bubble,.mol-a{animation:none}.liquid,.shot,.link::after{transition:none}}
 
+/* ---------- Teacher profile (Manish Bihani) ---------- */
+.profile{display:grid;grid-template-columns:360px 1fr;gap:56px;align-items:stretch}
+.profilePhoto{position:relative;display:flex;align-items:flex-end;justify-content:center;min-height:560px;border-radius:24px;border:1px solid var(--line);overflow:hidden;background:linear-gradient(180deg,#fff 0%,var(--glass) 100%);padding-top:24px}
+.profilePhoto::before{content:'';position:absolute;left:50%;bottom:-120px;width:420px;height:420px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(circle,rgba(18,160,238,.22),rgba(23,42,133,.10) 55%,transparent 70%)}
+.profilePhoto::after{content:'';position:absolute;left:0;right:0;bottom:0;height:6px;background:var(--navy)}
+.profileImg{position:relative;z-index:1;display:block;height:520px;width:auto;max-width:100%;object-fit:contain;object-position:bottom center;margin-bottom:6px}
+.profileBody{align-self:center}
+.profileKicker{margin:0 0 6px;font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan)}
+.profileName{margin:0;font-weight:800;font-size:clamp(2rem,3.6vw,2.9rem);line-height:1.05;letter-spacing:-.02em;color:var(--navy)}
+.profileDegree{margin:8px 0 0;font-weight:700;font-size:1.1rem;color:var(--muted);letter-spacing:.04em}
+.profilePoints{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:10px}
+.profilePoints li{position:relative;padding-left:26px;color:var(--ink);line-height:1.5}
+.profilePoints li::before{content:'';position:absolute;left:0;top:.5em;width:10px;height:10px;border-radius:50%;background:var(--navy);box-shadow:0 0 0 3px var(--glass),0 0 0 4px var(--cyan)}
+.profileMotto{margin:26px 0 4px;font-weight:800;letter-spacing:.12em;font-size:.95rem;color:var(--navy)}
+.profileQuote{margin:0;padding-left:14px;border-left:4px solid var(--cyan);font-style:italic;font-size:1.05rem;color:var(--muted)}
+@media(max-width:900px){
+  .profile{grid-template-columns:1fr;gap:28px}
+  .profilePhoto{min-height:440px;max-width:340px;margin:0 auto;width:100%}
+  .profileImg{height:410px}
+}
+
 /* DARK THEME (toggled from the profile dropdown) */
 :global([data-theme="dark"]) .home,:global([data-theme="dark"]) .navWrap{--navy:#8fb0ff;--glass:#111a3d;--ink:#e8edff;--muted:#a9b6d6;--line:#27366e;--track:#27366e}
 :global([data-theme="dark"]) .home{background:#0a1130}
@@ -245,3 +266,40 @@
 :global([data-theme="dark"]) .menuOut{color:#f87171}
 :global([data-theme="dark"]) .avatar{background:#111a3d}
 :global([data-theme="dark"]) .brandText,:global([data-theme="dark"]) .h2,:global([data-theme="dark"]) .title{color:#fff}
+:global([data-theme="dark"]) .profilePhoto{background:linear-gradient(180deg,#0c1438 0%,var(--glass) 100%)}
+:global([data-theme="dark"]) .profileName{color:#fff}
+:global([data-theme="dark"]) .profilePoints li{color:var(--ink)}
+
+/* ---------- Student results / achievers ---------- */
+.resultStats{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;margin-bottom:44px}
+.resultStat{padding:22px 20px;border-right:1px solid var(--line)}
+.resultStat:last-child{border-right:0}
+.resultStatV{font-weight:800;font-size:clamp(1.5rem,2.6vw,2.1rem);line-height:1.1;color:var(--navy);letter-spacing:-.02em}
+.resultStatL{margin-top:6px;font-size:.88rem;font-weight:600;color:var(--muted)}
+.achGroup{margin:40px 0 18px;padding-left:12px;border-left:4px solid var(--cyan);font-size:1.25rem;font-weight:800;color:var(--navy);letter-spacing:-.01em}
+.achGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}
+.ach{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px}
+.achAvatar{flex:none;width:72px;height:72px;border-radius:50%;object-fit:cover;object-position:top center;border:2px solid var(--line);background:var(--glass)}
+.achInitials{display:flex;align-items:center;justify-content:center;background:var(--navy);color:#fff;font-weight:800;font-size:1.35rem;border-color:var(--navy)}
+.achBody{min-width:0;flex:1}
+.achName{margin:0 0 6px;font-size:1.05rem;font-weight:800;color:var(--navy)}
+.achScoreRow{display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 6px}
+.achScore{font-size:1.7rem;font-weight:800;line-height:1.1;color:var(--ink);letter-spacing:-.02em}
+.achOutOf{font-size:.95rem;font-weight:700;color:var(--muted)}
+.achLabel{flex-basis:100%;font-size:.82rem;font-weight:600;color:var(--muted);margin-top:2px}
+.achBadges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.achBadge{display:inline-block;padding:3px 10px;border-radius:999px;border:1px solid var(--line);background:var(--glass);color:var(--navy);font-size:.76rem;font-weight:700;line-height:1.5}
+.rank1{background:#fff6d6;border-color:#e3b93a;color:#7a5a00}
+.rank2{background:#eef1f5;border-color:#aab4c3;color:#3d4757}
+.rank3{background:#fdeadb;border-color:#d79a68;color:#7a4217}
+@media(max-width:900px){
+  .resultStats{grid-template-columns:repeat(2,1fr)}
+  .resultStat:nth-child(2){border-right:0}
+  .resultStat:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .achGrid{grid-template-columns:1fr}
+}
+:global([data-theme="dark"]) :is(.resultStats,.ach){background:#0d1538;color:var(--ink)}
+:global([data-theme="dark"]) .achScore{color:#fff}
+:global([data-theme="dark"]) .rank1{background:#3a3010;color:#ffe08a}
+:global([data-theme="dark"]) .rank2{background:#242c3d;color:#d3dbea}
+:global([data-theme="dark"]) .rank3{background:#3a2616;color:#f3c9a3}

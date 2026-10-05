@@ -1,0 +1,93 @@
+/* app/admin/exams/pdf/pdf.module.css  (new file)
+   "Create PDF" popup. Same flat, square look as the rest of the Exams screens
+   (base classes such as .btn / .input / .label / .err come from ../exams.module.css). */
+
+.wrap{max-width:640px;margin:0 auto;padding:24px 20px 40px;font-family:var(--font-body),system-ui,sans-serif;color:#0c1438}
+.head{display:flex;align-items:center;gap:14px;padding:16px 18px;margin-bottom:20px;border-radius:4px;background:linear-gradient(120deg,#eef2ff 0%,#e6f7fb 100%);border:1px solid #cfdaf5;border-left:5px solid #172a85}
+.headIcon{flex:none;width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:6px;background:linear-gradient(135deg,#172a85,#2f6df0);color:#fff;font-size:13px;font-weight:800;letter-spacing:.04em}
+.wrapWide{max-width:960px}
+
+.card{display:flex;flex-direction:column;gap:18px;padding:20px;border-top:3px solid #2f6df0}
+.field{display:flex;flex-direction:column;min-width:0}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+
+.seg{display:inline-flex;align-self:flex-start;border:1px solid #c5d1e6;border-radius:2px;overflow:hidden}
+.segBtn{height:40px;padding:0 18px;border:0;border-right:1px solid #c5d1e6;background:#fff;color:#172a85;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.segBtn:last-child{border-right:0}
+.segBtn:hover{background:#f3f5f9}
+.segOn,.segOn:hover{background:linear-gradient(135deg,#172a85,#2f6df0);color:#fff}
+.dateInput{margin-top:8px;max-width:220px}
+
+.more{border:1px solid #cfe3ea;border-radius:2px;padding:10px 14px;background:#f8faff}
+.more summary{cursor:pointer;font-size:13px;font-weight:700;color:#0e7490}
+.more[open] summary{margin-bottom:14px}
+
+.actions{display:flex;gap:12px;flex-wrap:wrap;padding-top:4px}
+.actions button{flex:1 1 200px}
+.note{margin:0;font-size:12.5px;color:#5b6784}
+
+@media (max-width:520px){
+  .row{grid-template-columns:1fr}
+  .wrap{padding:16px 14px 32px}
+}
+
+/* ---- colourful buttons ---- */
+.btnTeacher{background:linear-gradient(135deg,#172a85,#2f6df0);border-color:#172a85}
+.btnTeacher:hover{background:linear-gradient(135deg,#0f1d5e,#2559cc);border-color:#0f1d5e}
+.btnStudent{background:linear-gradient(135deg,#0e7490,#14b8a6);border-color:#0e7490;color:#fff}
+.btnStudent:hover{background:linear-gradient(135deg,#0b5f76,#0f9f90);border-color:#0b5f76}
+
+/* ---- logo picker ---- */
+.logoGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px}
+.logoTile{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;padding:10px 8px;border:1px solid #c5d1e6;border-radius:4px;background:#fff;color:#33405f;font:inherit;cursor:pointer;text-align:center}
+.logoTile:hover{background:#f3f7ff;border-color:#2f6df0}
+.logoOn,.logoOn:hover{border-color:#2f6df0;background:#eef4ff;box-shadow:0 0 0 2px rgba(47,109,240,.25)}
+.logoImg{width:64px;height:64px;object-fit:contain;background:#fff;border-radius:2px}
+.logoPlus{width:64px;height:64px;display:flex;align-items:center;justify-content:center;border:2px dashed #9db4e6;border-radius:4px;color:#2f6df0;font-size:26px;font-weight:700}
+.logoLabel{font-size:12px;font-weight:700;line-height:1.25;word-break:break-word}
+.logoErr{margin-top:8px}
+.hint{margin:8px 0 0;font-size:12.5px;color:#5b6784}
+
+/* ---- result screen: Preview / Print / Download ---- */
+.resultCard{border-top-color:#16a34a}
+.resultTop{display:flex;align-items:center;gap:14px}
+.tick{flex:none;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#16a34a;color:#fff;font-size:22px;font-weight:800}
+.resultTitle{margin:0;font-size:18px;font-weight:800;color:#0c1438}
+.resultName{margin:2px 0 0;font-size:13px;color:#5b6784;word-break:break-all}
+.threeBtns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.big{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:84px;border:0;border-radius:4px;color:#fff;font:inherit;font-size:15px;font-weight:800;cursor:pointer}
+.big:hover{filter:brightness(1.08)}
+.bigIcon{font-size:24px;line-height:1}
+.bigPreview{background:linear-gradient(135deg,#172a85,#2f6df0)}
+.bigPrint{background:linear-gradient(135deg,#b45309,#f59e0b)}
+.bigDownload{background:linear-gradient(135deg,#0e7490,#14b8a6)}
+.linkBtn{align-self:flex-start;padding:0;border:0;background:none;color:#172a85;font:inherit;font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline}
+.frame{width:100%;height:72vh;min-height:480px;border:1px solid #c5d1e6;border-radius:2px;background:#eef1f7}
+/* kept mounted (so Print works) but out of sight until Preview is pressed */
+.frameHidden{position:absolute;left:-9999px;top:0;width:900px;height:1100px;border:0;visibility:hidden}
+
+@media (max-width:520px){
+  .threeBtns{grid-template-columns:1fr}
+  .big{flex-direction:row;height:56px}
+}
+
+/* ---- full-screen result window (/exams/pdf/result) ---- */
+.resWrap{display:flex;flex-direction:column;height:100vh;background:#f3f5fb;font-family:var(--font-body),system-ui,sans-serif;color:#0c1438}
+.resBar{flex:none;display:flex;align-items:center;gap:14px;padding:10px 16px;background:#fff;border-bottom:1px solid #cfdaf5;border-left:5px solid #172a85}
+.resBar .headIcon{width:38px;height:38px;font-size:12px}
+.resBarTitle{display:flex;flex-direction:column;min-width:0;flex:1}
+.resBarTitle strong{font-size:15px;font-weight:800}
+.resBarTitle span{font-size:12px;color:#5b6784;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.resBarBtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.barBtn{height:36px;padding:0 16px;border:1px solid transparent;border-radius:3px;color:#fff;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.barBtn:hover{filter:brightness(1.08)}
+.barPrint{background:linear-gradient(135deg,#b45309,#f59e0b)}
+.barDownload{background:linear-gradient(135deg,#0e7490,#14b8a6)}
+.barTeacher{background:linear-gradient(135deg,#172a85,#2f6df0)}
+.barStudent{background:linear-gradient(135deg,#0e7490,#14b8a6)}
+.barGhost{background:#fff;color:#172a85;border-color:#c5d1e6}
+.resCenter{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto}
+.resBox{width:100%;max-width:640px}
+.frameFull{flex:1;width:100%;min-height:0;border:0;background:#eef1f7}
+.spinner{width:40px;height:40px;border:4px solid #dbe4fb;border-top-color:#2f6df0;border-radius:50%;animation:resSpin .9s linear infinite}
+@keyframes resSpin{to{transform:rotate(360deg)}}

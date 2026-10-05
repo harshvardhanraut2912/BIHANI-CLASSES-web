@@ -166,6 +166,7 @@ export async function GET(request) {
     // Google-OAuth students).
     const wantedEmails = new Set(studentEmails.map(e => e.toLowerCase()));
     const emailToId = {};
+    const authAvatarByEmail = {}; // Google / auth profile photo, used when profiles.avatar_url is empty
 
     let page = 1;
     const perPage = 200;
@@ -175,7 +176,11 @@ export async function GET(request) {
 
       pageData.users.forEach(u => {
         const email = (u.email || '').toLowerCase();
-        if (wantedEmails.has(email)) emailToId[email] = u.id;
+        if (wantedEmails.has(email)) {
+          emailToId[email] = u.id;
+          const meta = u.user_metadata || {};
+          authAvatarByEmail[email] = meta.avatar_url || meta.picture || '';
+        }
       });
 
       if (pageData.users.length < perPage) break;
@@ -187,17 +192,22 @@ export async function GET(request) {
     const { data: profileRows } = studentIds.length
       ? await supabaseAdmin
           .from('profiles')
-          .select('id, full_name')
+          .select('id, full_name, avatar_url')
           .in('id', studentIds)
       : { data: [] };
 
     const nameById = {};
     (profileRows || []).forEach(p => { nameById[p.id] = p.full_name || 'Student'; });
 
+    const avatarById = {};
+    (profileRows || []).forEach(p => { avatarById[p.id] = p.avatar_url || ''; });
+
     const nameMap = {};
+    const avatarMap = {};
     studentEmails.forEach(email => {
       const id = emailToId[email.toLowerCase()];
       nameMap[email] = (id && nameById[id]) ? nameById[id] : 'Student';
+      avatarMap[email] = (id && avatarById[id]) || authAvatarByEmail[email.toLowerCase()] || '';
     });
 
     const leaderboard = studentEmails.map(email => {
@@ -210,6 +220,7 @@ export async function GET(request) {
 
       return {
         fullName: nameMap[email] || 'Student',
+        avatarUrl: avatarMap[email] || '',
         email,
         isYou: false, // no "current student" concept on the admin view
         attempts,
@@ -237,7 +248,7 @@ export async function GET(request) {
           if (endAt && submittedAt > endAt) return false;
           return true;
         })
-        .map(s => ({ fullName: s.fullName, email: s.email, isYou: false, percentage: s.attempts.find(a => a.attemptNumber === 1).percentage }));
+        .map(s => ({ fullName: s.fullName, avatarUrl: s.avatarUrl, email: s.email, isYou: false, percentage: s.attempts.find(a => a.attemptNumber === 1).percentage }));
     }
 
     return NextResponse.json({

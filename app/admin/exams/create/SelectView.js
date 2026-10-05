@@ -12,17 +12,10 @@ import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import s from "../exams.module.css";
 import QuestionTable from "./QuestionTable";
 import { fmt } from "./examConfig";
+import { SubjectBar, toneOf } from "./ui";
 
 const PAGE = 30;
 
-// One colour per subject so Physics / Chemistry / Maths / Biology are clearly separated.
-const TONE = {
-  Physics: { dark: "#172a85", tint: "#eef1ff" },
-  Chemistry: { dark: "#0f6b4f", tint: "#e9f7f1" },
-  Mathematics: { dark: "#b4540a", tint: "#fff3e8" },
-  Biology: { dark: "#7a2a7a", tint: "#f8ecf8" },
-};
-const toneOf = (subj) => TONE[subj] || { dark: "#33405f", tint: "#f3f5f9" };
 const API = "/api/admin/exam-questions";
 
 async function post(body) {
@@ -32,7 +25,7 @@ async function post(body) {
   return data;
 }
 
-export default function SelectView({ examId, examName, mode, plan, store, setStore, onBack }) {
+export default function SelectView({ examId, examName, mode, plan, store, setStore, onBack, onSaved }) {
   const isAuto = mode === "auto";
   const storeRef = useRef(store);
   storeRef.current = store;
@@ -95,6 +88,44 @@ export default function SelectView({ examId, examName, mode, plan, store, setSto
     if (need.length) fetchRandom(need);
   }, [isAuto, plan, store.auto, fetchRandom]);
 
+  // Per-question regenerate: ask the server for ONE new question and swap it in place.
+  const [busyIds, setBusyIds] = useState({}); // { q_id: true }
+  const [regenErr, setRegenErr] = useState({}); // { chapterKey: "message" }
+
+  const regenerateOne = useCallback(
+    async (it, q) => {
+      const oldId = q.q_id;
+      setRegenErr((p) => ({ ...p, [it.key]: "" }));
+      setBusyIds((p) => ({ ...p, [oldId]: true }));
+      try {
+        const current = (storeRef.current.auto[it.key]?.questions || []).map((x) => x.q_id);
+        const data = await post({
+          action: "replace",
+          exam: examId,
+          subject: it.subject,
+          chapter: it.name,
+          chapter_id: it.chapterId || undefined,
+          exclude: current,
+        });
+        if (!data.question) throw new Error("No question returned.");
+        setStore((prev) => {
+          const cur = prev.auto[it.key];
+          if (!cur) return prev;
+          const list = cur.questions.map((x) => (x.q_id === oldId ? data.question : x));
+          return { ...prev, auto: { ...prev.auto, [it.key]: { ...cur, questions: list } } };
+        });
+      } catch (e) {
+        setRegenErr((p) => ({ ...p, [it.key]: e.message || "Could not regenerate the question." }));
+      } finally {
+        setBusyIds((p) => {
+          const { [oldId]: _done, ...rest } = p;
+          return rest;
+        });
+      }
+    },
+    [examId, setStore]
+  );
+
   /* ================= manual ================= */
   const loadManual = useCallback(
     async (it) => {
@@ -144,6 +175,52 @@ export default function SelectView({ examId, examName, mode, plan, store, setSto
 
   const clearChapter = (it) => setStore((prev) => ({ ...prev, chosen: { ...prev.chosen, [it.key]: [] } }));
 
+  /* ================= save the exam ================= */
+  const [saving, setSaving] = useState(false);
+  const [saveErr, setSaveErr] = useState("");
+
+  // Only the fields the stored manifests need (keeps the request small).
+  const slim = (q) => ({
+    q_id: q.q_id,
+    chapter_id: q.chapter_id,
+    question_type: q.question_type,
+    ques_type: q.ques_type,
+    section: q.section,
+    source_id: q.source_id,
+    exam_history: q.exam_history,
+    options: q.options,
+    answer_key: q.answer_key ?? q.correct_option ?? q.correct_answer ?? q.answer,
+    question_html: q.question_html,
+    solution_html: q.solution_html,
+  });
+
+  const saveExam = async () => {
+    setSaving(true);
+    setSaveErr("");
+    try {
+      const groups = plan.map((it) => {
+        let list;
+        if (isAuto) list = (store.auto[it.key]?.questions || []).slice(0, it.count);
+        else {
+          const byId = new Map((store.manual[it.key]?.questions || []).map((q) => [q.q_id, q]));
+          list = chosenOf(it).map((id) => byId.get(id)).filter(Boolean);
+        }
+        return { subject: it.subject, chapter: it.name, chapter_id: it.chapterId || undefined, questions: list.map(slim) };
+      });
+      const res = await fetch("/api/admin/exam-papers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: examName, exam: examId, groups }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Failed to save the exam.");
+      onSaved?.(data);
+    } catch (e) {
+      setSaveErr(e.message || "Failed to save the exam.");
+      setSaving(false);
+    }
+  };
+
   /* ================= progress ================= */
   const needTotal = plan.reduce((t, it) => t + it.count, 0);
   const haveTotal = isAuto
@@ -151,6 +228,7 @@ export default function SelectView({ examId, examName, mode, plan, store, setSto
     : plan.reduce((t, it) => t + chosenOf(it).length, 0);
   const anyLoading = isAuto && plan.some((it) => store.auto[it.key]?.status === "loading");
   const complete = needTotal > 0 && haveTotal === needTotal;
+  const canSave = complete && !anyLoading && !saving;
 
   const expandAll = (v) => {
     setOpen(Object.fromEntries(plan.map((it) => [it.key, v])));
@@ -206,27 +284,7 @@ export default function SelectView({ examId, examName, mode, plan, store, setSto
 
           return (
             <Fragment key={it.key}>
-            {firstOfSubject && (
-              <div
-                style={{
-                  marginTop: idx === 0 ? 0 : 28,
-                  marginBottom: 10,
-                  padding: "10px 16px",
-                  background: tone.dark,
-                  color: "#fff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 12,
-                  borderRadius: 2,
-                }}
-              >
-                <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: ".06em", textTransform: "uppercase" }}>{it.subject}</span>
-                <span style={{ fontSize: 13, fontWeight: 700 }}>
-                  {group.length} chapter{group.length === 1 ? "" : "s"} &middot; {groupHave} / {groupNeed} questions
-                </span>
-              </div>
-            )}
+            {firstOfSubject && <SubjectBar subject={it.subject} chapters={group.length} have={groupHave} need={groupNeed} first={idx === 0} />}
             <section className={s.acc} style={{ borderLeft: `4px solid ${tone.dark}` }}>
               <div className={s.secHead} style={{ background: tone.tint }}>
                 <button type="button" className={s.secToggle} aria-expanded={isOpen} onClick={() => toggleSection(it)}>
@@ -261,7 +319,13 @@ export default function SelectView({ examId, examName, mode, plan, store, setSto
                     ) : (
                       <>
                         {auto.questions.length < it.count && <p className={s.warn}>Only {auto.questions.length} question{auto.questions.length === 1 ? "" : "s"} could be picked for this chapter.</p>}
-                        <QuestionTable questions={auto.questions} selectable={false} />
+                        {regenErr[it.key] && <p className={`${s.err} ${s.errPad}`}>{regenErr[it.key]}</p>}
+                        <QuestionTable
+                          questions={auto.questions}
+                          selectable={false}
+                          busyIds={busyIds}
+                          onRegenerate={(q) => regenerateOne(it, q)}
+                        />
                       </>
                     )
                   ) : !man || (man.status === "loading" && !man.questions.length) ? (
@@ -294,13 +358,16 @@ export default function SelectView({ examId, examName, mode, plan, store, setSto
         })}
       </div>
 
+      {saveErr && <p className={`${s.err} ${s.summaryGap}`}>{saveErr}</p>}
       <div className={`${s.summary} ${s.summaryGap}`}>
         <div className={s.sumText}>
           <span><strong>{haveTotal}</strong> / <strong>{needTotal}</strong> questions {isAuto ? "ready" : "selected"}</span>
         </div>
         <div className={s.sumActions}>
           <button type="button" className={`${s.btn} ${s.btnGhost}`} onClick={onBack}>Back to details</button>
-          <button type="button" className={s.btn} disabled title="The next step is coming soon">Continue</button>
+          <button type="button" className={s.btn} disabled={!canSave} onClick={saveExam} title={complete ? "" : "Pick every question first"}>
+            {saving ? "Saving\u2026" : "Save exam"}
+          </button>
         </div>
       </div>
     </>

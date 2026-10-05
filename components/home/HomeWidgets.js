@@ -69,6 +69,19 @@ export function Photo({ src, alt, label, className }) {
   return <img ref={ref} src={src} alt={alt} className={className} loading="lazy" onError={() => setBad(true)} />;
 }
 
+/* ---------- Student avatar: photo if the file exists, otherwise initials ---------- */
+export function AchieverPhoto({ src, name }) {
+  const [bad, setBad] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (el && el.complete && el.naturalWidth === 0) setBad(true);
+  }, []);
+  const initials = String(name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
+  if (bad || !src) return <span className={`${styles.achAvatar} ${styles.achInitials}`} aria-hidden="true">{initials}</span>;
+  return <img ref={ref} src={src} alt={name} className={styles.achAvatar} loading="lazy" onError={() => setBad(true)} />;
+}
+
 /* ---------- Loads the existing cookie banner + app popup scripts ----------
    Both listen for DOMContentLoaded, which has already fired by the time a
    client component mounts, so we fire it once after both have loaded. */

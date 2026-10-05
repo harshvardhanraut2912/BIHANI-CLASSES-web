@@ -1,0 +1,91 @@
+/* app/admin/exams/leaderboard.module.css  (new file) -- "Leaderboard" column + leaderboard view */
+
+/* ---- column ---- */
+.thBoard{width:170px;text-align:center!important}
+.tdBoard{text-align:center;border-left:1px dashed #e3e8f2}
+.boardBtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 12px;border:1px solid #b45309;border-radius:2px;background:#fff8e6;color:#8a4a00;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap}
+.boardBtn:hover{background:#fdeec4;border-color:#8a4a00}
+.na{font-size:12px;color:#8a94ad;white-space:nowrap}
+
+/* ---- view: product switch, tabs ---- */
+.switchRow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.switchLabel{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:#5b6784}
+.tabs{display:inline-flex;flex-wrap:wrap;border:1px solid #c5d1e6;border-radius:2px;overflow:hidden;background:#fff}
+.tab{height:34px;padding:0 16px;border:0;border-right:1px solid #c5d1e6;background:#fff;color:#172a85;font-size:13px;font-weight:700;cursor:pointer;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tab:last-child{border-right:0}
+.tab:hover{background:#f3f5f9}
+.tabOn,.tabOn:hover{background:linear-gradient(135deg,#172a85,#2f6df0);color:#fff}
+
+/* ---- summary cards ---- */
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.stat{display:flex;flex-direction:column;gap:4px;padding:14px 16px;background:#fff;border:1px solid #d9e0ec;border-top:3px solid #2f6df0;border-radius:2px}
+.stat:nth-child(2){border-top-color:#16a34a}
+.stat:nth-child(3){border-top-color:#0e7490}
+.stat:nth-child(4){border-top-color:#b45309}
+.statNum{font-size:24px;font-weight:800;color:#0c1438;line-height:1.1}
+.statLbl{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#5b6784}
+
+/* ---- board ---- */
+.board{overflow:hidden}
+.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid #d9e0ec;background:#f8faff}
+.grow{flex:1}
+.select{height:34px;padding:0 10px;border:1px solid #c5d1e6;border-radius:2px;background:#fff;color:#172a85;font-size:13px;font-weight:700}
+.search{height:34px;min-width:220px;padding:0 12px;border:1px solid #c5d1e6;border-radius:2px;font-size:13.5px;outline:none;background:#fff}
+.search:focus{border-color:#172a85;box-shadow:0 0 0 2px rgba(23,42,133,.12)}
+.status{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;font-weight:800;border:1px solid #c5d1e6}
+.stNeutral{background:#f3f5f9;color:#33405f}
+.stOk{background:#effaf3;border-color:#9bd3b0;color:#1b7a3d}
+.stLive{background:#fff8e6;border-color:#f1d9a6;color:#8a5a00}
+.notice{margin:0;padding:10px 16px;font-size:12.5px;color:#8a5a00;background:#fff8e6;border-bottom:1px solid #f1d9a6}
+
+/* ---- podium ---- */
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:18px 16px;border-bottom:1px solid #eef1f7;background:linear-gradient(180deg,#fbfcff,#fff)}
+.pod{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 10px;border:1px solid #d9e0ec;border-radius:3px;background:#fff;text-align:center;min-width:0}
+.pod1{border-color:#f1d9a6;background:linear-gradient(180deg,#fffbeb,#fff);order:2;transform:translateY(-6px);box-shadow:0 6px 18px rgba(180,83,9,.12)}
+.pod2{order:1;border-color:#cfd6e4;background:linear-gradient(180deg,#f6f8fc,#fff)}
+.pod3{order:3;border-color:#f3d2b3;background:linear-gradient(180deg,#fff6ee,#fff)}
+.podRank{font-size:12px;font-weight:800;letter-spacing:.04em;color:#5b6784}
+.pod1 .podRank{color:#b45309}
+.avatar{width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:linear-gradient(135deg,#172a85,#2f6df0);color:#fff;font-size:15px;font-weight:800}
+.pod1 .avatar{background:linear-gradient(135deg,#b45309,#f59e0b)}
+.pod2 .avatar{background:linear-gradient(135deg,#64748b,#94a3b8)}
+.pod3 .avatar{background:linear-gradient(135deg,#9a5b2c,#d08a4e)}
+.podName{max-width:100%;font-size:14px;font-weight:800;color:#0c1438;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.podScore{font-size:19px;font-weight:800;color:#172a85}
+
+/* ---- table ---- */
+.thRank{width:70px}
+.thScore{width:34%}
+.thAttempt{width:120px}
+.rank{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:28px;padding:0 8px;border-radius:14px;border:1px solid #d9e0ec;background:#f3f5f9;font-size:13px;font-weight:800;color:#33405f}
+.rank1{background:#fff3cf;border-color:#f1d9a6;color:#8a4a00}
+.rank2{background:#eef1f6;border-color:#cfd6e4;color:#475569}
+.rank3{background:#fdebdb;border-color:#f3d2b3;color:#8a4a1c}
+.top1 td{background:#fffdf5}
+.who{display:flex;align-items:center;gap:10px;min-width:0}
+.avatarSm{flex:none;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#eef2ff;color:#172a85;font-size:12px;font-weight:800}
+.whoTxt{min-width:0}
+.whoName{font-weight:700;color:#0c1438}
+.whoMail{font-size:12px;color:#8a94ad;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:300px}
+.scoreCell{display:flex;align-items:center;gap:12px}
+.track{flex:1;height:8px;min-width:70px;border-radius:4px;background:#e6ebf5;overflow:hidden}
+.fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#172a85,#2f6df0)}
+.scoreNum{min-width:56px;text-align:right;font-weight:800;color:#0c1438}
+.attemptTag{display:inline-block;padding:2px 9px;border-radius:12px;border:1px solid #c5d1e6;background:#f8faff;font-size:11.5px;font-weight:800;color:#33405f;white-space:nowrap}
+.noMatch{text-align:center;color:#8a94ad;padding:26px!important}
+.more{display:flex;justify-content:center;padding:14px;border-top:1px solid #eef1f7}
+
+@media (max-width:820px){
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .search{min-width:0;flex:1 1 100%}
+  .thBoard{width:130px}
+  .podium{gap:8px;padding:14px 8px}
+  .pod1{transform:none}
+}
+
+/* ---- student photos (profile picture, initials when there is none) + Download PDF button ---- */
+.avatar,.avatarSm{overflow:hidden}
+.photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.pdfBtn{background:linear-gradient(135deg,#172a85,#2f6df0);border-color:#172a85;color:#fff;gap:8px}
+.pdfBtn:hover{background:linear-gradient(135deg,#0f1d5e,#2559cc);border-color:#0f1d5e}
+.pdfBtn span{display:inline-block;padding:2px 5px;border-radius:2px;background:rgba(255,255,255,.22);font-size:10px;font-weight:800;letter-spacing:.04em}

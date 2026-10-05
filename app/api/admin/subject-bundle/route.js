@@ -10,6 +10,7 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { denyIfSubjectBlocked } from "@/lib/subjectAccess";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -28,6 +29,9 @@ export async function GET(request) {
         { status: 400 }
       );
     }
+
+    const blocked = await denyIfSubjectBlocked(request, [subject]);
+    if (blocked) return blocked;
 
     const { data, error } = await supabaseAdmin.rpc("get_subject_bundle", {
       p_exam: exam,

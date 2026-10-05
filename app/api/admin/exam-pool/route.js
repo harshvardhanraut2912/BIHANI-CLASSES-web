@@ -10,6 +10,8 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getAdminFromRequest } from "@/lib/devAuth";
+import { getDeniedSubjects, canonicalSubject } from "@/lib/subjectAccess";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -29,7 +31,13 @@ export async function GET(request) {
     const { data, error } = await supabaseAdmin.rpc("get_exam_pool", { p_exam: exam });
     if (error) throw error;
 
-    const chapters = (data?.chapters || []).map((c) => ({
+    // Drop subjects this admin is switched OFF for (Settings -> Developers).
+    const admin = await getAdminFromRequest(request);
+    const denied = admin ? await getDeniedSubjects(admin.email) : [];
+    const isDenied = (subject) => denied.includes(canonicalSubject(subject));
+    const blockedChapterIds = new Set((data?.chapters || []).filter((c) => isDenied(c.subject)).map((c) => String(c.id)));
+
+    const chapters = (data?.chapters || []).filter((c) => !isDenied(c.subject)).map((c) => ({
       id: c.id,
       exam: c.exam,
       std: c.standard,
@@ -38,7 +46,10 @@ export async function GET(request) {
       default_weight: c.default_weight,
     }));
 
-    return NextResponse.json({ chapters, bundles: data?.bundles || [] });
+    const bundles = (data?.bundles || []).filter(
+      (b) => !(b?.subject && isDenied(b.subject)) && !blockedChapterIds.has(String(b?.chapter_id))
+    );
+    return NextResponse.json({ chapters, bundles });
   } catch (err) {
     console.error("exam-pool route error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });

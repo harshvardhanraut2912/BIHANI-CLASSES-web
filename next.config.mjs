@@ -1,5 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    // PDF sheets (lib/pdfgen): the equation renderer uses a native binary (resvg) and MathJax;
+    // keep both out of the server bundle so they load from node_modules at runtime.
+    // pdfkit (leaderboard PDF) reads its built-in font files from its own folder, so it must stay external too;
+    // sharp resizes the students' photos for it.
+    serverExternalPackages: ['@resvg/resvg-js', 'mathjax-full', 'pdfkit', 'sharp'],
+
     // auth.js is a plain /public static file -- unlike _next/static/*
     // bundles (which get a content hash in their filename, so a new
     // deploy is automatically a new URL), this URL never changes. Without

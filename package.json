@@ -9,12 +9,15 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "dotenv": "^17.4.2",
     "jose": "^5.9.6",
     "jspdf": "^2.5.1",
+    "jszip": "^3.10.2",
     "lottie-web": "^5.13.0",
+    "mathjax-full": "^3.2.1",
     "next": "16.2.9",
     "pdfjs-dist": "2.16.105",
     "pdfkit": "^0.15.0",

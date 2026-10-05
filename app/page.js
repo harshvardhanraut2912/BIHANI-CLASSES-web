@@ -1,6 +1,7 @@
 import { Bricolage_Grotesque, DM_Sans } from 'next/font/google';
 import HomeNavbar from '@/components/home/HomeNavbar';
-import { Photo, LegacyScripts, ToolTabs } from '@/components/home/HomeWidgets';
+import { Photo, AchieverPhoto, LegacyScripts, ToolTabs } from '@/components/home/HomeWidgets';
+import { PHOTO_DIR, RESULT_STATS, JEE_ACHIEVERS, HSC_CHEMISTRY, HSC_OVERALL } from '@/components/home/achievers';
 import { PeriodicTable } from '@/components/home/PeriodicTable';
 import ChemScene from '@/components/home/ChemScene';
 import styles from '@/components/home/home.module.css';
@@ -20,7 +21,14 @@ const CONTACT = {
   address: '[ADD FULL ADDRESS]', landmark: '[ADD LANDMARK]', phone: '[ADD PHONE NUMBER]',
   whatsapp: '[ADD WHATSAPP NUMBER]', email: '[ADD EMAIL]', timings: '[ADD TIMINGS]',
 };
-const TEACHER = { qualification: '[ADD QUALIFICATION]', experience: '[ADD EXPERIENCE]' };
+const TEACHER_POINTS = [
+  '25 years of extensive teaching experience',
+  'In-depth knowledge of Chemistry with concept-based teaching',
+  'Effective guidance for students preparing for Board, JEE & MHT-CET exams',
+  'Emphasis on teaching difficult concepts in a simple, easy-to-understand way',
+  'Regular practice, test series and exam-oriented guidance',
+  'Experience of contributing to the academic success of thousands of students',
+];
 const SHOW_TESTIMONIALS = false; // set to true once real testimonials are filled in below
 const MAP_EMBED = 'https://www.google.com/maps?q=Bihani+Chemistry+Classes+Sangamner&z=16&output=embed';
 // For the exact pin: Google Maps > Share > Embed a map > copy the src="..." URL into MAP_EMBED.
@@ -68,7 +76,29 @@ const WHY = [
   { h: 'Exam-Oriented Preparation', p: 'Preparation can be aligned with board exams, MHT-CET, JEE and NEET requirements.' },
 ];
 
-const RESULTS = [{ y: '2026', e: 'MHT-CET' }, { y: '2026', e: 'JEE / NEET' }, { y: '2025', e: 'Class 12 Board' }];
+function AchieverCard({ a }) {
+  return (
+    <article className={styles.ach}>
+      <AchieverPhoto src={a.photo ? encodeURI(`${PHOTO_DIR}${a.photo}.jpeg`) : ''} name={a.name} />
+      <div className={styles.achBody}>
+        <h4 className={styles.achName}>{a.name}</h4>
+        <div className={styles.achScoreRow}>
+          <span className={styles.achScore}>{a.score}</span>
+          {a.outOf && <span className={styles.achOutOf}>{a.outOf}</span>}
+          <span className={styles.achLabel}>{a.label}{a.tag ? ` \u00b7 ${a.tag}` : ''}</span>
+        </div>
+        {a.badges.length > 0 && (
+          <div className={styles.achBadges}>
+            {a.badges.map((b) => (
+              <span key={b.t} className={`${styles.achBadge} ${b.r === 1 ? styles.rank1 : b.r === 2 ? styles.rank2 : b.r === 3 ? styles.rank3 : ''}`}>{b.t}</span>
+            ))}
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
 
 const VOICES = [
   { q: '[ADD VERIFIED STUDENT TESTIMONIAL]', n: '[STUDENT NAME], [CLASS/EXAM]' },
@@ -209,17 +239,25 @@ export default function HomePage() {
       </section>
 
       <section className={`${styles.section} ${styles.tint}`} id="teacher">
-        <div className={`${styles.wrap} ${styles.teacher}`}>
-          <div><Photo src="/images/teacher_images/bihani-sir.jpg" alt="Prof. Bihani, chemistry teacher in Sangamner" label="Teacher photo" className={styles.portrait} /></div>
-          <div>
-            <h2 className={styles.h2}>Learn Chemistry with Prof. Bihani</h2>
-            <p className={styles.sub} style={{ marginBottom: 0 }}>Prof. Bihani teaches chemistry with an emphasis on conceptual clarity, problem solving and exam preparation. The aim is to make chemistry easier to understand and easier to apply in questions.</p>
+        <div className={`${styles.wrap} ${styles.profile}`}>
+          <div className={styles.profilePhoto}>
+            <Photo src="/images/teacher_images/bihani-sir.png" alt="Manish Bihani, M.Sc. B.Ed., chemistry teacher in Sangamner" label="Teacher photo" className={styles.profileImg} />
+          </div>
+          <div className={styles.profileBody}>
+            <p className={styles.profileKicker}>Meet Your Teacher</p>
+            <h2 className={styles.profileName}>MANISH BIHANI</h2>
+            <p className={styles.profileDegree}>M.Sc. &bull; B.Ed.</p>
             <ul className={styles.facts}>
-              <li><b>Qualification:</b> {TEACHER.qualification}</li>
-              <li><b>Teaching Experience:</b> {TEACHER.experience}</li>
-              <li><b>Specialisation:</b> Chemistry</li>
-              <li><b>Location:</b> Sangamner, Maharashtra</li>
+              <li><b>Qualification:</b> M.Sc. &ndash; Organic Chemistry</li>
+              <li><b>College:</b> Garware College, Pune</li>
+              <li><b>Experience:</b> 25+ Years of Teaching Experience</li>
+              <li><b>Role:</b> Chemistry Expert &amp; Mentor</li>
             </ul>
+            <ul className={styles.profilePoints}>
+              {TEACHER_POINTS.map((pt) => (<li key={pt}>{pt}</li>))}
+            </ul>
+            <p className={styles.profileMotto}>EXPERIENCE &bull; EXPERTISE &bull; EXCELLENCE</p>
+            <p className={styles.profileQuote}>&ldquo;Building Strong Concepts. Creating Successful Students.&rdquo;</p>
           </div>
         </div>
       </section>
@@ -227,11 +265,22 @@ export default function HomePage() {
       <section className={styles.section} id="results">
         <div className={styles.wrap}>
           <h2 className={styles.h2}>Student Results</h2>
-          <p className={styles.sub}>Preparation is measured through consistent practice, regular testing and examination performance.</p>
-          <div className={styles.log}>
-            {RESULTS.map((r) => (<div key={r.e} className={styles.logItem}><div className={styles.logYear}>{r.y}</div><div className={styles.logExam}>{r.e}</div><div className={styles.logVal}>[ADD VERIFIED RESULT]</div></div>))}
+          <p className={styles.sub}>Preparation is measured through consistent practice, regular testing and examination performance. Here are some of our students&apos; achievements.</p>
+
+          <div className={styles.resultStats}>
+            {RESULT_STATS.map((s) => (<div key={s.l} className={styles.resultStat}><div className={styles.resultStatV}>{s.v}</div><div className={styles.resultStatL}>{s.l}</div></div>))}
           </div>
-          <p className={styles.fine}>Results shown here will be updated with verified student achievements.</p>
+
+          <h3 className={styles.achGroup}>JEE &amp; Entrance Exams</h3>
+          <div className={styles.achGrid}>{JEE_ACHIEVERS.map((a) => (<AchieverCard key={`jee-${a.name}`} a={a} />))}</div>
+
+          <h3 className={styles.achGroup}>HSC Board Exam &middot; Chemistry Toppers</h3>
+          <div className={styles.achGrid}>{HSC_CHEMISTRY.map((a) => (<AchieverCard key={`chem-${a.name}`} a={a} />))}</div>
+
+          <h3 className={styles.achGroup}>HSC Board Exam &middot; Overall Marks</h3>
+          <div className={styles.achGrid}>{HSC_OVERALL.map((a) => (<AchieverCard key={`hsc-${a.name}`} a={a} />))}</div>
+
+          <p className={styles.fine}>Congratulations to all our students. More results will be added as they are declared.</p>
         </div>
       </section>
 

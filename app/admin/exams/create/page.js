@@ -11,6 +11,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAdminHref } from "@/components/admin/useAdminHref";
 import { EXAMS, STREAMS, DEFAULT_SUBJECT_TOTAL, SUBJECT_ORDER, buildPlan, chapterKey, slimChapters } from "./examConfig";
 import DetailsView from "./DetailsView";
@@ -21,6 +22,7 @@ const EMPTY_STORE = { sig: "", auto: {}, manual: {}, chosen: {} };
 
 export default function CreateExamPage() {
   const href = useAdminHref();
+  const router = useRouter();
   const [view, setView] = useState("details");
 
   /* ---- details state ---- */
@@ -42,6 +44,21 @@ export default function CreateExamPage() {
   const loading = !!fetchKey && fetched.key !== fetchKey;
   const chapters = fetched.key === fetchKey ? fetched.chapters : NO_CHAPTERS;
   const error = fetched.key === fetchKey ? fetched.error : "";
+
+  /* ---- subjects switched OFF for this admin (Settings -> Developers) ---- */
+  const [denied, setDenied] = useState([]);
+  const [accessMsg, setAccessMsg] = useState(null); // { where: "stream" | "subject", text }
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/admin/my-access", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : { denied: [] }))
+      .then((data) => { if (alive) setDenied(Array.isArray(data.denied) ? data.denied : []); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  const streamBlockedBy = (id) => (STREAMS[id]?.subjects || []).filter((x) => denied.includes(x));
+  const noAccess = (where, list) =>
+    setAccessMsg({ where, text: `You don't have access to this.${list.length ? ` (${list.join(", ")} ${list.length === 1 ? "is" : "are"} turned off for your account.)` : ""}` });
 
   /* ---- question-selection state (kept while you go back to the details) ---- */
   const [store, setStore] = useState(EMPTY_STORE);
@@ -83,6 +100,7 @@ export default function CreateExamPage() {
 
     chooseExam(id) {
       if (id === examId) return;
+      setAccessMsg(null);
       setExamId(id);
       setStream("");
       setOpen({});
@@ -93,6 +111,9 @@ export default function CreateExamPage() {
     },
     chooseStream(id) {
       if (id === stream) return;
+      const blockedBy = streamBlockedBy(id);
+      if (blockedBy.length) { noAccess("stream", blockedBy); return; }
+      setAccessMsg(null);
       setStream(id);
       setOpen({});
       setSubjects([]);
@@ -103,6 +124,8 @@ export default function CreateExamPage() {
     toggleOpen: (subj) => setOpen((p) => ({ ...p, [subj]: !p[subj] })),
 
     toggleSubject(subj) {
+      if (denied.includes(subj)) { noAccess("subject", [subj]); return; }
+      setAccessMsg(null);
       setSubjects((prev) => {
         const next = prev.includes(subj) ? prev.filter((x) => x !== subj) : [...prev, subj];
         return next.sort((x, y) => SUBJECT_ORDER.indexOf(x) - SUBJECT_ORDER.indexOf(y));
@@ -201,6 +224,7 @@ export default function CreateExamPage() {
         store={store}
         setStore={setStore}
         onBack={goDetails}
+        onSaved={() => router.push(href("/exams"))}
       />
     );
   }
@@ -208,7 +232,7 @@ export default function CreateExamPage() {
   const f = {
     href, examName, exam, examId, stream, mode, open, subjects, classOf, picked, perChapter, subjectTotals,
     chapters, bySubject, loading, error, plan, totalQuestions, skipped, problem, visibleFor,
-    DEFAULT_SUBJECT_TOTAL, STREAMS,
+    DEFAULT_SUBJECT_TOTAL, STREAMS, denied, accessMsg, streamBlockedBy,
   };
   return <DetailsView f={f} a={a} onContinue={goSelect} />;
 }

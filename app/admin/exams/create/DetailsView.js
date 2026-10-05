@@ -137,7 +137,7 @@ function QuestionCounts({ f, a }) {
 
 /* ---------- main ---------- */
 export default function DetailsView({ f, a, onContinue }) {
-  const { href, exam, examId, stream, mode, open, subjects, classOf, picked, chapters, bySubject, loading, error, visibleFor, problem } = f;
+  const { href, exam, examId, stream, mode, open, subjects, classOf, picked, chapters, bySubject, loading, error, visibleFor, problem, denied, accessMsg, streamBlockedBy } = f;
   const noData = !exam || !stream;
 
   return (
@@ -175,12 +175,13 @@ export default function DetailsView({ f, a, onContinue }) {
           <Card step="3" title="Stream" hint={exam ? "What should the exam cover?" : "Choose an exam type first"}>
             <div className={s.optionRow} role="radiogroup" aria-label="Stream">
               {(exam ? exam.streams : ["PCM", "PCB", "SUBJECT"]).map((id) => (
-                <button key={id} type="button" role="radio" aria-checked={stream === id} disabled={!exam} className={`${s.option} ${stream === id ? s.optionOn : ""}`} onClick={() => a.chooseStream(id)}>
-                  <span className={s.optionName}>{STREAMS[id].name}</span>
+                <button key={id} type="button" role="radio" aria-checked={stream === id} disabled={!exam} className={`${s.option} ${stream === id ? s.optionOn : ""} ${streamBlockedBy(id).length ? s.optionLocked : ""}`} onClick={() => a.chooseStream(id)}>
+                  <span className={s.optionName}>{STREAMS[id].name}{streamBlockedBy(id).length > 0 && <span className={s.lockTag}>No access</span>}</span>
                   <span className={s.optionSub}>{STREAMS[id].sub}</span>
                 </button>
               ))}
             </div>
+            {accessMsg?.where === "stream" && <p className={s.noAccess} role="alert">{accessMsg.text}</p>}
           </Card>
 
           {/* 4. chapters */}
@@ -225,14 +226,16 @@ export default function DetailsView({ f, a, onContinue }) {
                 <div className={s.subjectRow} style={{ marginBottom: 20 }}>
                   {exam.subjects.map((subj) => {
                     const on = subjects.includes(subj);
+                    const locked = denied.includes(subj);
                     return (
-                      <button key={subj} type="button" aria-pressed={on} className={`${s.subjTile} ${on ? s.subjTileOn : ""}`} onClick={() => a.toggleSubject(subj)}>
+                      <button key={subj} type="button" aria-pressed={on} className={`${s.subjTile} ${on ? s.subjTileOn : ""} ${locked ? s.subjTileLocked : ""}`} onClick={() => a.toggleSubject(subj)}>
                         <span className={`${s.box} ${on ? s.boxOn : ""}`}>{on ? "\u2713" : ""}</span>
-                        <span className={s.subjName}>{subj}</span>
+                        <span className={s.subjName}>{subj}{locked && <span className={s.lockTag}>No access</span>}</span>
                       </button>
                     );
                   })}
                 </div>
+                {accessMsg?.where === "subject" && <p className={s.noAccess} role="alert" style={{ marginTop: -8, marginBottom: 16 }}>{accessMsg.text}</p>}
 
                 {subjects.length === 0 ? (
                   <div className={s.note}>Select at least one subject.</div>
