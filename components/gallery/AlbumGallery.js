@@ -4,6 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import s from './gallery.module.css';
 
+const VISIBLE_PHOTOS = 3;
+const STACK_PREVIEWS = 4;
+
 /* ---------- Full-screen viewer (rendered on <body> so page zoom/overflow can't clip it) ---------- */
 function Lightbox({ album, index, onClose, onMove }) {
   const img = album.images[index];
@@ -22,9 +25,12 @@ function Lightbox({ album, index, onClose, onMove }) {
     return () => { window.removeEventListener('keydown', key); document.body.style.overflow = prev; };
   }, [onClose, onMove]);
 
-  // warm the neighbours so next/prev feels instant
+  // Warm the neighbours so next/prev feels instant.
   useEffect(() => {
-    [1, -1].forEach((d) => { const n = album.images[(index + d + total) % total]; if (n) new Image().src = n.src; });
+    [1, -1].forEach((d) => {
+      const n = album.images[(index + d + total) % total];
+      if (n) new Image().src = n.src;
+    });
   }, [index, album, total]);
 
   return createPortal(
@@ -45,10 +51,45 @@ function Lightbox({ album, index, onClose, onMove }) {
   );
 }
 
-/* ---------- Album picker + abstract (masonry) arrangement ---------- */
+function PhotoTile({ album, image, index, onOpen }) {
+  return (
+    <button type="button" className={s.tile} style={{ '--i': Math.min(index, 14) }}
+      onClick={() => onOpen(index)} aria-label={`Open ${album.label} photo ${index + 1}`}>
+      <img src={image.src} alt={`${album.label} photo ${index + 1}`} width={image.w || undefined} height={image.h || undefined}
+        loading="eager" decoding="async" draggable={false} />
+      <span className={s.zoomIcon} aria-hidden="true">⤢</span>
+    </button>
+  );
+}
+
+function MoreStack({ album, startIndex, remaining, onLoadMore }) {
+  const previews = album.images.slice(startIndex, startIndex + STACK_PREVIEWS);
+  const shown = previews.length;
+
+  return (
+    <button type="button" className={s.moreStack} onClick={onLoadMore}
+      aria-label={`Show ${remaining} more photos from ${album.label}`}>
+      <span className={s.stackCards} aria-hidden="true">
+        {previews.map((image, index) => (
+          <span key={image.src} className={s.stackCard} style={{ '--stack-index': index }}>
+            <img src={image.src} alt="" loading="eager" decoding="async" draggable={false} />
+          </span>
+        ))}
+      </span>
+      <span className={s.moreOverlay}>
+        <strong>See more</strong>
+        <span>+{remaining} photos</span>
+      </span>
+      <span className={s.stackHint}>{shown > 0 ? 'View next photos' : 'View photos'}</span>
+    </button>
+  );
+}
+
+/* ---------- Album picker + progressive gallery arrangement ---------- */
 export default function AlbumGallery({ albums }) {
   const [slug, setSlug] = useState(albums[0].slug);
-  const [open, setOpen] = useState(null); // index of photo in lightbox
+  const [open, setOpen] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(VISIBLE_PHOTOS);
 
   useEffect(() => {
     const want = new URLSearchParams(window.location.search).get('album');
@@ -57,11 +98,20 @@ export default function AlbumGallery({ albums }) {
 
   const album = albums.find((a) => a.slug === slug) || albums[0];
   const total = album.images.length;
+  const hasMore = visibleCount < total;
+  const remaining = Math.max(0, total - visibleCount);
 
   const choose = (a) => {
-    setSlug(a.slug); setOpen(null);
+    setSlug(a.slug);
+    setOpen(null);
+    setVisibleCount(VISIBLE_PHOTOS);
     try { window.history.replaceState(null, '', `?album=${a.slug}#albums`); } catch (e) { /* ignore */ }
   };
+
+  const loadMore = useCallback(() => {
+    setVisibleCount((count) => Math.min(count + VISIBLE_PHOTOS, total));
+  }, [total]);
+
   const move = useCallback((d) => setOpen((o) => (o === null ? o : (o + d + total) % total)), [total]);
   const close = useCallback(() => setOpen(null), []);
 
@@ -88,14 +138,13 @@ export default function AlbumGallery({ albums }) {
       </aside>
 
       <div className={s.masonry} key={album.slug}>
-        {album.images.map((im, k) => (
-          <button key={im.src} type="button" className={s.tile} style={{ '--i': Math.min(k, 14) }}
-            onClick={() => setOpen(k)} aria-label={`Open ${album.label} photo ${k + 1}`}>
-            <img src={im.src} alt={`${album.label} photo ${k + 1}`} width={im.w || undefined} height={im.h || undefined}
-              loading={k < 6 ? 'eager' : 'lazy'} decoding="async" draggable={false} />
-            <span className={s.zoomIcon} aria-hidden="true">⤢</span>
-          </button>
+        {album.images.slice(0, visibleCount).map((im, k) => (
+          <PhotoTile key={im.src} album={album} image={im} index={k} onOpen={setOpen} />
         ))}
+
+        {hasMore && (
+          <MoreStack album={album} startIndex={visibleCount} remaining={remaining} onLoadMore={loadMore} />
+        )}
       </div>
 
       {open !== null && <Lightbox album={album} index={open} onClose={close} onMove={move} />}
