@@ -1,0 +1,15 @@
+# Render Blueprint: New -> Blueprint -> pick this repo (or create a Web Service by hand
+# with Runtime = Docker, Root Directory = pdf-converter).
+services:
+  - type: web
+    name: bihani-pdf-converter
+    runtime: docker
+    rootDir: pdf-converter
+    dockerfilePath: ./Dockerfile
+    plan: free            # free sleeps after ~15 min idle (first PDF is slow); "starter" never sleeps
+    healthCheckPath: /health
+    envVars:
+      - key: GOTENBERG_API_BASIC_AUTH_USERNAME
+        value: bihani
+      - key: GOTENBERG_API_BASIC_AUTH_PASSWORD
+        generateValue: true   # Render creates a random one; copy it from the dashboard

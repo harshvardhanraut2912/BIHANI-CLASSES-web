@@ -35,7 +35,7 @@ import { docxToPdf } from "@/lib/pdfgen/convert";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120; // room for a sleeping converter service to wake up
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
